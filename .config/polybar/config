@@ -40,42 +40,49 @@ font-1 = FontAwesome:style=Regular:size=10;2
 font-2 = Typicons:style=Book:size=12;2
 padding-right = 2
 module-margin = 2
-modules-left   = i3
+modules-left   = powermenu i3
 modules-center = date
-modules-right  = wired-network wireless-network cpu temperature memory battery alsa
+modules-right  = wired-network wireless-network cpu temperature memory battery pulseaudio
 cursor-click = pointer
 tray-position = right
+line-size = 2
+
+[module/powermenu]
+type = custom/text
+content = "  "
+click-left = ~/.config/rofi/powermenu.sh
+content-background = ${colors.foreground-alt}
+content-padding = 1
 
 [module/i3]
 type = internal/i3
-pin-workspaces = true
 
-; This will split the workspace name on ':'
-; Default: false
-strip-wsnumbers = true
-
-; Sort the workspaces by index instead of the default
-; sorting that groups the workspaces by output
-; Default: false
-index-sort = true
-
-; Create click handler used to focus workspace
-; Default: true
+pin-workspaces = false
+strip-wsnumbers = false
+index-sort = false
 enable-click = true
-
-; Create scroll handlers used to cycle workspaces
-; Default: true
 enable-scroll = true
-
-; Wrap around when reaching the first/last workspace
-; Default: true
 wrapping-scroll = false
-
-; Set the scroll cycle direction 
-; Default: true
 reverse-scroll = false
 
+;ws-icon-0 = Main;♚
+;ws-icon-1 = Dev;♛
+;ws-icon-2 = Games;♜
+;ws-icon-3 = Other;♝
+;ws-icon-default = ♟
 
+format            = <label-state>
+format-background = ${colors.background}
+
+; %index%, %name% or %icon%
+label-focused              = %name%
+label-focused-foreground   = ${colors.foreground}
+label-focused-underline    = ${colors.foreground-alt}
+label-focused-padding      = 1
+
+label-unfocused            = %name%
+label-unfocused-foreground = ${colors.foreground}
+label-unfocused-padding      = 1
 
 [module/date]
 type = internal/date
@@ -106,7 +113,7 @@ label-disconnected-foreground = ${colors.red}
 
 [module/cpu]
 type = internal/cpu
-format-prefix = " "
+format-prefix = " "
 
 [module/temperature]
 type = internal/temperature
@@ -133,20 +140,14 @@ ramp-capacity-1 = 
 ramp-capacity-2 = 
 label-charging = 
 
-[module/alsa]
-type = internal/alsa
-format-volume = <ramp-volume> <bar-volume>
-label-muted = muted
-ramp-volume-0 = 奄
-ramp-volume-1 = 奔
-ramp-volume-2 = 墳
-bar-volume-width     = 10
-bar-volume-indicator =
-bar-volume-fill      = –
-bar-volume-empty     = –
-bar-volume-fill-font      = 3
-bar-volume-empty-font     = 3
-bar-volume-empty-foreground = ${colors.foreground-alt}
+[module/pulseaudio]
+type = internal/pulseaudio
+interval = 1
+format-volume = <label-volume>
+label-muted = muted 
+label-muted-underline = ${colors.foreground-alt}
+label-volume = %percentage% 
+click-right = pavucontrol &
 
 [module/xbacklight]
 type = internal/xbacklight
