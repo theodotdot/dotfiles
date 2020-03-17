@@ -1,15 +1,17 @@
 #!/bin/bash
-
-# small power menu using rofi, i3, systemd and pm-utils
-# (last 3 dependencies are adjustable below)
-# tostiheld, 2016
-
-poweroff_command="systemctl poweroff"
-reboot_command="systemctl reboot"
-logout_command="i3-msg exit"
-suspend_command="systemctl suspend"
-
-# you can customise the rofi command all you want ...
-rofi_command="rofi -width 10 -hide-scrollbar"
-
-options=$'poweroff\nreboot\nlogout\nhibernate\nsuspend'
+ 
+res=$(echo "logout|reboot|shutdown" | rofi -sep "|" -dmenu -i -p 'Power Menu: ' "" -hide-scrollbar -eh 2 -opacity 100 -auto-select)
+ 
+#if [ $res = "lock" ]; then
+#    /home/khoaduccao/.config/lock.sh
+#fi
+if [ $res = "logout" ]; then
+    i3-msg exit
+fi
+if [ $res = "reboot" ]; then
+    systemctl reboot
+fi
+if [ $res = "shutdown" ]; then
+    systemctl poweroff
+fi
+exit 0
