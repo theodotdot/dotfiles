@@ -6,10 +6,10 @@ This repo is a collection of my personal dotfiles inspired by what I have found 
 What I'm running:
 Rofi
 Lightdm
-i3-gaps-rounded-git (AUR)
+i3-gaps (no need for the rounded patch with the picom rounded corners branch)
 sowm/berry
 Polybar
-Picom
+Picom (rounded corners branch from sdhand/picom)
 Nitrogen
 Zsh (powerlever10k)
 Termite/alacritty
