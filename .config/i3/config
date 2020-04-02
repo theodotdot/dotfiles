@@ -25,11 +25,11 @@ gaps outer 0
 gaps top 0
 gaps bottom 0
 
-for_window [class   = "^.*"] border pixel 3
+for_window [class   = "^.*"] border pixel 4
 #for_window [title   = "^.*"] border pixel 0
 
-border_radius 3
-smart_borders on
+#border_radius 6
+#smart_borders on
 #smart_gaps on
 
 # Set colors from Xresources
@@ -71,41 +71,25 @@ floating_modifier $mod
 
 
 #
-# Launch Shortcuts
+# Launch Shortcuts -> see sxhkd config
 
 # Terminal
-bindsym $mod+t exec termite
+#bindsym $mod+t exec termite
 
 # Rofi drun menu
-bindsym $mod+d exec --no-startup-id rofi -show run
+#bindsym $mod+d exec --no-startup-id rofi -show run
 
 # Power menu
-bindsym $mod+Shift+q exec oblogout
+#bindsym $mod+Shift+q exec $HOME/.config/rofi/powermenu.sh
 
 # Take a screenshot
-bindsym Print exec "scrot '%Y-%m-%d_$wx$h_scrot.png' -e 'mv $f ~/Downloads/Screenshots/'"
-
-# Reset desktop UI components (Polybar, Compton etc)
-bindsym $mod+Shift+t exec --no-startup-id sh -c "desktop-reset.sh"
-
-# Show scratchpad app(s)
-bindsym $mod+n [class   = "Indicator-stickynotes"] scratchpad show
-
-# Shortcut to open dotfiles
+#bindsym Print exec scrot '%Y-%m-%d-%h-%m_$wx$h_scrot.png' -e 'mv $f ~/Downloads/Screenshots/'
 
 # Media volume controls
-bindsym XF86AudioMute exec amixer sset 'Master' toggle
-bindsym XF86AudioLowerVolume exec amixer sset 'Master' 5%-
-bindsym XF86AudioRaiseVolume exec amixer sset 'Master' 5%+
+#bindsym XF86AudioMute exec amixer sset 'Master' toggle
+#bindsym XF86AudioLowerVolume exec amixer sset 'Master' 5%-
+#bindsym XF86AudioRaiseVolume exec amixer sset 'Master' 5%+
 
-#
-# Workspace Navigation
-#
-# Move to workspace to the left
-bindsym $mod+Control+Left workspace prev
-
-# Move to workspace to the right
-bindsym $mod+Control+Right workspace next
 
 #
 # i3 base stuff 
@@ -198,8 +182,8 @@ bindsym $mod+Shift+9 move container to workspace $ws9
 bindsym $mod+Shift+0 move container to workspace $ws10
 
 #Gap size increase/decrease bind mode
-set $mode_gaps Gaps: [ UP ] increase, or [ DOWN ] decrease
-bindsym $mod+g mode "$mode_gaps"
+#set $mode_gaps Gaps: [ UP ] increase, or [ DOWN ] decrease
+#bindsym $mod+g mode "$mode_gaps"
 
 mode "$mode_gaps" {
     bindsym Up gaps inner current plus 5
@@ -214,8 +198,6 @@ mode "$mode_gaps" {
 #   | |\/| || || .` | _| 
 #   |_|  |_|___|_|\_|___|
 #
-
-# Shortcut for audio control
 
 
 # floating_minimum_size 921 x 897
@@ -242,11 +224,6 @@ for_window [class="Pavucontrol"] floating enable
 for_window [class="qt5ct"] floating enable sticky enable border normal
 for_window [class="Qtconfig-qt4"] floating enable sticky enable border normal
 
-# Move certain apps to the scratchpad
-for_window [class       = "Indicator-stickynotes"] move to scratchpad
-
-# No border for..
-for_window [class       = "Firefox"] border pixel 0
 
 #    ___ _____ _   ___ _____ _   _ ___ 
 #   / __|_   _/_\ | _ \_   _| | | | _ \
@@ -255,9 +232,4 @@ for_window [class       = "Firefox"] border pixel 0
 #                                      
 
 
-exec --no-startup-id firefox
-exec_always --no-startup-id $HOME/.config/polybar/launch.sh
-exec --no-startup-id nitrogen --restore; sleep 1; picom -b
-exec_always --no-startup-id xrandr --rate 144
-exec_always --no-startup-id udiskie
-exec_always --no-startup-id lxpolkit
+exec_always $HOME/.config/i3/autostarti3.sh
