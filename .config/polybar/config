@@ -32,7 +32,7 @@ yellow = #ebcb8b
 [bar/topbar]
 enable-ipc = true
 wm-restack = i3
-height = 22
+height = 20
 foreground = ${colors.foreground}
 background = ${colors.background}
 font-0 = Iosevka:style=Bold:size=10;2
@@ -40,7 +40,7 @@ font-1 = FontAwesome:style=Regular:size=10;2
 font-2 = Typicons:style=Book:size=12;2
 padding-right = 2
 module-margin = 2
-modules-left   = powermenu i3
+modules-left   = powermenu xworkspaces
 modules-center = date
 modules-right  = wired-network wireless-network cpu temperature memory battery pulseaudio
 cursor-click = pointer
@@ -54,8 +54,8 @@ click-left = ~/.config/rofi/powermenu.sh
 content-background = ${colors.foreground-alt}
 content-padding = 1
 
-[module/i3]
-type = internal/i3
+[module/xworkspaces]
+type = internal/xworkspaces
 
 pin-workspaces = false
 strip-wsnumbers = false
@@ -65,24 +65,18 @@ enable-scroll = true
 wrapping-scroll = false
 reverse-scroll = false
 
-;ws-icon-0 = Main;♚
-;ws-icon-1 = Dev;♛
-;ws-icon-2 = Games;♜
-;ws-icon-3 = Other;♝
-;ws-icon-default = ♟
-
 format            = <label-state>
 format-background = ${colors.background}
 
 ; %index%, %name% or %icon%
-label-focused              = %name%
-label-focused-foreground   = ${colors.foreground}
-label-focused-underline    = ${colors.foreground-alt}
-label-focused-padding      = 1
+label-active             = %name%
+label-active-foreground  = ${colors.foreground}
+label-active-underline   = ${colors.foreground-alt}
+label-active-padding     = 1
 
-label-unfocused            = %name%
-label-unfocused-foreground = ${colors.foreground}
-label-unfocused-padding      = 1
+label-empty            = %name%
+label-empty-foreground = ${colors.foreground}
+label-empty-padding      = 1
 
 [module/date]
 type = internal/date
