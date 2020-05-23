@@ -32,12 +32,15 @@ super + shift + q
 # bspwm hotkeys
 # 
 
-# quit/restart bspwm
+# restart bspwm
 super + shift + r
 	bspc wm -r
-# Close or kill window
+# Close a window
 super + q
-	bspc node -k
+	bspc node -c
+# Kill a window
+super + shift + k
+    bspc node -k
 # Focus or swap window in the current workspace
 super + {_,shift + }{h,j,k,l}
 	bspc node -{f,s} {west,south,north,east}
@@ -77,4 +80,8 @@ super + m
 
 # toggle full screen
 super + f
-	bspc node -t fullscreen
+    if [ -z "$(bspc query -N -n focused.fullscreen)" ]; then \                    
+        bspc node focused -t fullscreen; \                                        
+    else \                                                                      
+        bspc node focused -t tiled; \                                           
+    fi
