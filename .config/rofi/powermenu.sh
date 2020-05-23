@@ -6,7 +6,7 @@ res=$(echo "logout|reboot|shutdown" | rofi -sep "|" -dmenu -i -p 'Power Menu: ' 
 #    /home/khoaduccao/.config/lock.sh
 #fi
 if [ $res = "logout" ]; then
-    i3-msg exit
+    pkill -KILL -u theotime
 fi
 if [ $res = "reboot" ]; then
     systemctl reboot

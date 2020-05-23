@@ -26,6 +26,8 @@ XF86AudioRaiseVolume
 
 super + shift + q
     $HOME/.config/rofi/powermenu.sh
+
+    
 #
 # berry hotkeys
 #

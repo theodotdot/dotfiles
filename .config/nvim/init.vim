@@ -82,7 +82,6 @@ set cpoptions+=x  " stay at search item when <esc>
 
 set visualbell
 set t_vb=
-set relativenumber
 set viminfo='20,<1000  " allow copying of more than 50 lines to other applications
 
 
