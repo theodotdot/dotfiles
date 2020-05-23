@@ -7,13 +7,12 @@ What I'm running:
 Rofi
 Lightdm
 i3-gaps (no need for the rounded patch with the picom rounded corners branch)
-sowm/berry
 Polybar
-Picom (rounded corners branch from sdhand/picom)
-Nitrogen
+Picom (rounded corners branch from ibhagwan/picom)
+feh
 Zsh (powerlever10k)
-Termite/alacritty
-Doom emacs
+Termite
+Nvim
 Scrot
 yay
 lxsession (lxpolkit)
