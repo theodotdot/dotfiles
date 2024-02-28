@@ -1,0 +1,14 @@
+# Theme:
+import = [
+  # uncomment the flavour you want below:
+  "~/.config/alacritty/catppuccin-mocha.toml"
+  # "~/.config/alacritty/catppuccin-macchiato.toml"
+  # "~/.config/alacritty/catppuccin-frappe.toml"
+  # "~/.config/alacritty/catppuccin-latte.toml"
+]
+
+[font]
+normal = { family = "Monolisa Nerd Font", style = "Regular" }
+
+[window]
+decorations = "None"

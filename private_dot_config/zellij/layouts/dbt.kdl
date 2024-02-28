@@ -1,0 +1,29 @@
+layout {
+	cwd "~/dbt/michelangelo"
+    default_tab_template hide_floating_panes=true {
+    //    children
+	//    pane size=1 borderless=true {
+	//        plugin location="zellij:tab-bar"
+	//    }
+	//
+        // the default zellij tab-bar and status bar plugins
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        children
+        pane size=2 borderless=true {
+            plugin location="zellij:status-bar"
+        }
+	}
+	tab name="dbt"  {
+	    pane split_direction="vertical" {
+		    pane split_direction="horizontal" {
+		        pane size="70%" command="hx"
+				pane name="venv"
+	        }
+	    }
+		floating_panes {
+	        pane
+		}
+    }
+}
