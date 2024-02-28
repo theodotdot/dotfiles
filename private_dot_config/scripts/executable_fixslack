@@ -1,0 +1,5 @@
+# fix slack back button applying twice
+sedpattern='s/'
+sedpattern+='case"browser-backward":P0(-1,i.webContents);break;case"browser-forward":P0(1,i.webContents);break/'
+sedpattern+='case"browser-backward":P0( 0,i.webContents);break;case"browser-forward":P0(0,i.webContents);break/'
+sudo sed -i "$sedpattern" /usr/lib/slack/resources/app.asar
