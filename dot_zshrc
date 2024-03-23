@@ -2,8 +2,6 @@
 export PATH="$PATH:$HOME/.local/bin:$HOME/.local/bin/lua-language-server/bin:$HOME/.config/scripts"
 export EDITOR=hx
 export NNN_OPENER=helix-nnn-opener
-export DBT_MANIFEST_PATH="$HOME/dbt/michelangelo/src/prod_manifest/manifest.json"
-
 
 # Source and load
 #
@@ -57,6 +55,8 @@ alias ls='ls --color=auto'
 alias nnn='nnn -e'
 # gitui theme
 alias gitui='gitui -t macchiato.ron'
+# git
+alias gfp='git fetch && git pull'
 #cat and bat
 alias cat='bat'
 #
@@ -64,8 +64,8 @@ alias cat='bat'
 alias fixdiffs='sqlfluff fix $(git diff --name-only --diff-filter=d origin/master)'
 #alias dbtrun="dbt run --target=dev --exclude {list}"
 alias ymlupdate='dbt-invoke properties.update --select'
-alias deferdbtrun='dbt run --defer --state=/home/theotime.poulain/dbt/michelangelo/src/prod_manifest -s'
-alias deferdbttest='dbt test --defer --state=/home/theotime.poulain/dbt/michelangelo/src/prod_manifest -s'
+alias deferdbtrun='dbt run --defer --state=$DBT_MANIFEST_PATH'
+alias deferdbttest='dbt test --defer --state=$DBT_MANIFEST_PATH'
 #
 ## python aliases
 alias sourcevenv='source .venv/bin/activate'
