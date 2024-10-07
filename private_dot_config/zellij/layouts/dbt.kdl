@@ -1,5 +1,5 @@
 layout {
-	cwd "~/dbt/michelangelo"
+	cwd "~/dbt"
     default_tab_template hide_floating_panes=true {
     //    children
 	//    pane size=1 borderless=true {
@@ -17,13 +17,16 @@ layout {
 	}
 	tab name="dbt"  {
 	    pane split_direction="vertical" {
+	    	pane size="20%" cwd="~/dbt" {
+	    		plugin location="zellij:strider"
+	    	}
 		    pane split_direction="horizontal" {
 		        pane size="70%" command="hx"
 				pane name="venv"
 	        }
 	    }
-		floating_panes {
-	        pane
-		}
+		//floating_panes {
+	    //    pane
+		//}
     }
 }
