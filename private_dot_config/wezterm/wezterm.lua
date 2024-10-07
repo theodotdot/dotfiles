@@ -16,7 +16,7 @@ wezterm.on('gui-startup', function(cmd)
 
   -- Set a workspace for dbt on a current project
   -- Top pane is for the editor, bottom pane is for the build tool
-  local project_dir = wezterm.home_dir .. '/dbt/michelangelo'
+  local project_dir = wezterm.home_dir .. '/dbt'
   local tab, pane, window = mux.spawn_window {
     workspace = 'dbt',
     cwd = project_dir,
@@ -27,21 +27,17 @@ wezterm.on('gui-startup', function(cmd)
 
   wezterm.sleep_ms(2)
 
-  local nnn_pane = pane:split {
-    direction = 'Left',
-    size = 0.2,
-    cwd = project_dir,
-  }
   local terminal_pane = pane:split {
     direction = 'Bottom',
     size = 0.2,
     cwd = project_dir,
   }
 
-  -- send hx to editor pane  
-  pane:send_text 'hx'
-  -- send nnn to left pane  
-  nnn_pane:send_text 'nnn -c'
+-- Send 'hx' to the main pane (top)
+  pane:send_text 'hx\n'
+
+  -- Send 'sourcevenv' to the bottom pane (terminal)
+  --terminal_pane:send_text 'sourcevenv\n'
 
   -- We want to startup in the dbt workspace
   mux.set_active_workspace 'dbt'
@@ -74,10 +70,10 @@ c.keys = {
     { key = 'm', mods = 'LEADER', action = wezterm.action.TogglePaneZoomState },
 
     -- switch pane
-    { key = 'h', mods = 'SUPER|SHIFT', action = wezterm.action.ActivatePaneDirection 'Left' },
-    { key = 'j', mods = 'SUPER|SHIFT', action = wezterm.action.ActivatePaneDirection 'Down' },
-    { key = 'k', mods = 'SUPER|SHIFT', action = wezterm.action.ActivatePaneDirection 'Up' },
-    { key = 'l', mods = 'SUPER|SHIFT', action = wezterm.action.ActivatePaneDirection 'Right' },
+    { key = 'h', mods = 'ALT', action = wezterm.action.ActivatePaneDirection 'Left' },
+    { key = 'j', mods = 'ALT', action = wezterm.action.ActivatePaneDirection 'Down' },
+    { key = 'k', mods = 'ALT', action = wezterm.action.ActivatePaneDirection 'Up' },
+    { key = 'l', mods = 'ALT', action = wezterm.action.ActivatePaneDirection 'Right' },
     
     
     -- resize pane
