@@ -36,10 +36,8 @@ F = "file_picker_in_current_buffer_directory"
 p = "paste_clipboard_before"
 P = "paste_clipboard_after"
 
-[keys.normal.t]
-q = [":w /tmp/bq_tmp_query.sql", ":sh helix-bq-query"]
-h = [":w /tmp/bq_tmp_query.sql", ":sh helix-bq-query 10"]
-s = [":w /tmp/bq_tmp_query.sql", ":sh helix-bq-query 50"]
-
 [keys.select]
 A-s = [":pipe sort"]
+
+[keys.normal.space.","]
+t = ":sh helix-broot-side"
