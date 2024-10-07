@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-
-
-# Set the number of rows and query string
-num_rows=${1:-50}
-
-# Run the bq query with the --max_rows option
-zellij run -f -n "bq" -- zsh -c "cat /tmp/bq_tmp_query.sql | bq query --format=pretty --use_legacy_sql=false --max_rows=${num_rows}"
