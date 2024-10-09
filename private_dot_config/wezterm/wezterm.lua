@@ -216,7 +216,7 @@ c.keys = {
 
 
 -- the plugin is currently made for Catppuccin only
-c.color_scheme = "Catppuccin Mocha"
+c.color_scheme = "Catppuccin Macchiato"
 
 -- then finally apply the plugin
 -- these are currently the defaults:
