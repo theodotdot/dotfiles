@@ -58,8 +58,6 @@ alias cat='bat'
 # harlequin
 alias harlequin='harlequin -l us -p'
 ## dbt aliases:
-alias fixdiffs='sqlfluff fix $(git diff --name-only --diff-filter=d origin/master)'
-alias ymlupdate='dbt-invoke properties.update --select'
 alias deferdbtrun='dbt run --defer --state $DBT_MANIFEST_PATH'
 alias deferdbttest='dbt test --defer --state=$DBT_MANIFEST_PATH'
 #
@@ -80,6 +78,35 @@ function gitlog {
     local branch="$2"
     
 git log --since="$days days ago" --pretty=format:"%h - %ai - %an: %s" --name-only --perl-regexp --author='^((?!michelangelo-ci).*)$' "$branch" | bat
+}
+
+# dbt dev workflow utilities
+## function to lint sql files that diff vs origin/HEAD
+lintdiffs() {
+  # Detect the name of the main branch (master or main or other)
+  MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+
+  # Run the sqlfluff fix command with the correct branch
+  sqlfluff lint $(git diff --name-only --diff-filter=d origin/$MAIN_BRANCH)
+}
+
+# function to fix sql files that diff vs origin/HEAD
+fixdiffs() {
+  # Detect the name of the main branch (master or main or other)
+  MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+
+  # Run the sqlfluff fix command with the correct branch
+  sqlfluff fix $(git diff --name-only --diff-filter=d origin/$MAIN_BRANCH)
+}
+
+# function to update yml files of updated tables that diff vs origin/HEAD
+ymlupdate() {
+  # Detect the name of the main branch (master or main or other)
+  MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+
+  # Run the sqlfluff fix command with the correct branch
+  dbt run -s $(git diff --name-only --diff-filter=d origin/$MAIN_BRANCH)
+  dbt-osmosis yaml document $(git diff --name-only --diff-filter=d origin/$MAIN_BRANCH)
 }
 
 
