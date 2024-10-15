@@ -1,0 +1,49 @@
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/home/theotime.poulain/google-cloud-sdk/path.zsh.inc' ]; then . '/home/theotime.poulain/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/home/theotime.poulain/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/theotime.poulain/google-cloud-sdk/completion.zsh.inc'; fi
+
+
+# Aliases
+## harlequin
+alias harlequin='harlequin -l us -p'
+## dbt aliases:
+alias deferdbtrun='dbt run --defer --state $DBT_MANIFEST_PATH'
+alias deferdbttest='dbt test --defer --state=$DBT_MANIFEST_PATH'
+
+
+## planet vpn aliases
+alias stop_vpn="sudo ip link set planet down"
+alias start_vpn="sudo ip link set planet up"
+alias restart_vpn="stop_vpn && start_vpn"
+
+# Functions
+# dbt dev workflow utilities
+## function to lint sql files that diff vs origin/HEAD
+lintdiffs() {
+  # Detect the name of the main branch (master or main or other)
+  MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+
+  # Run the sqlfluff fix command with the correct branch
+  sqlfluff lint $(git diff --name-only --diff-filter=d origin/$MAIN_BRANCH)
+}
+
+# function to fix sql files that diff vs origin/HEAD
+fixdiffs() {
+  # Detect the name of the main branch (master or main or other)
+  MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+
+  # Run the sqlfluff fix command with the correct branch
+  sqlfluff fix $(git diff --name-only --diff-filter=d origin/$MAIN_BRANCH)
+}
+
+# function to update yml files of updated tables that diff vs origin/HEAD
+ymlupdate() {
+  # Detect the name of the main branch (master or main or other)
+  MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+
+  # Run the sqlfluff fix command with the correct branch
+  dbt run -s $(git diff --name-only --diff-filter=d origin/$MAIN_BRANCH)
+  dbt-osmosis yaml document $(git diff --name-only --diff-filter=d origin/$MAIN_BRANCH)
+}
