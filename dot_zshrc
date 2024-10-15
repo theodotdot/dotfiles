@@ -71,6 +71,8 @@ alias icat='kitten icat'
 alias stop_vpn="sudo ip link set planet down"
 alias start_vpn="sudo ip link set planet up"
 alias restart_vpn="stop_vpn && start_vpn"
+
+
 # Functions
 # get the list of commits for a given branch and number of days
 function gitlog {
@@ -78,6 +80,15 @@ function gitlog {
     local branch="$2"
     
 git log --since="$days days ago" --pretty=format:"%h - %ai - %an: %s" --name-only --perl-regexp --author='^((?!michelangelo-ci).*)$' "$branch" | bat
+}
+
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+	yazi "$@" --cwd-file="$tmp"
+	if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+		builtin cd -- "$cwd"
+	fi
+	rm -f -- "$tmp"
 }
 
 # dbt dev workflow utilities
