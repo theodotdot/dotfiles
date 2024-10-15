@@ -1,4 +1,4 @@
-theme "catppuccin-mocha" // or latte, frappe and macchiato
+theme "catppuccin-macchiato" // or latte, frappe and mocha
 
 // If you'd like to override the default keybindings completely, be sure to change "keybinds" to "keybinds clear-defaults=true"
 keybinds {

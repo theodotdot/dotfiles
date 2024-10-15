@@ -16,14 +16,9 @@ layout {
         }
 	}
 	tab name="dbt"  {
-	    pane split_direction="vertical" {
-	    	pane size="20%" cwd="~/dbt" {
-	    		plugin location="zellij:strider"
-	    	}
-		    pane split_direction="horizontal" {
-		        pane size="70%" command="hx"
-				pane name="venv"
-	        }
+	    pane split_direction="horizontal" {
+	        pane size="70%" command="hx"
+			pane name=""
 	    }
 		//floating_panes {
 	    //    pane
