@@ -1,5 +1,5 @@
 # Exports
-export PATH="$PATH:$HOME/.local/bin:$HOME/.local/bin/lua-language-server/bin:$HOME/.config/scripts"
+export PATH="$PATH:$HOME/.local/bin:$HOME/.local/bin/lua-language-server/bin:$HOME/.config/scripts:$HOME/go/bin"
 export EDITOR=hx
 export NNN_OPENER=helix-nnn-opener
 

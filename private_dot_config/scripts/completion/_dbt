@@ -110,7 +110,7 @@ try:
     }
 
     selectors = [
-        selector.replace(':', '\:')
+        selector
         for selector in (models | tags | sources | exposures | metrics | fqns | hard_coded)
         if selector != ''
     ]
@@ -215,7 +215,7 @@ _dbt_list_models() {
     else
         local models_list=( $(_parse_manifest "$manifest_path" "") )
     fi
-    _values -s , 'models' $models_list
+    _values -s ' ' 'models' $models_list
 }
 
 
@@ -237,7 +237,7 @@ _dbt_list_selectors() {
 
     local selectors_list=( $(_parse_selectors "$manifest_path") )
     if [ "$selectors_list" != "" ]; then
-        _values -s , 'selectors' $selectors_list
+        _values -s ' ' 'selectors' $selectors_list
     fi
 }
 
