@@ -9,7 +9,7 @@ if [ -f '/home/theotime.poulain/google-cloud-sdk/completion.zsh.inc' ]; then . '
 ## harlequin
 alias harlequin='harlequin -l us -p'
 ## dbt aliases:
-alias deferdbtrun='dbt run --defer --state $DBT_MANIFEST_PATH'
+alias deferdbtrun='dbt run --defer --state=$DBT_MANIFEST_PATH'
 alias deferdbttest='dbt test --defer --state=$DBT_MANIFEST_PATH'
 
 
