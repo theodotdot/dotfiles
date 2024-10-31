@@ -23,10 +23,11 @@ hidden = false
 
 [keys.normal]
 esc = ["collapse_selection", "keep_primary_selection"]
-J = ["delete_selection", "paste_after"]
-K = ["delete_selection", "move_line_up", "paste_before"]
+J = ["extend_to_line_bounds", "delete_selection", "paste_after"]
+K = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_before"]
 p = "paste_before"
 P = "paste_after"
+X = "extend_line_above"
 
 [keys.normal.g]
 x = ":buffer-close"
@@ -40,6 +41,5 @@ P = "paste_clipboard_after"
 A-s = [":pipe sort"]
 
 [keys.normal.space.","]
-# t = ":sh helix-broot-side"
 y = ":sh zellij run -c -f -x 10% -y 10% --width 80% --height 80% -- bash helix-yazi-zellij open"
 g = ":sh zellij run -c -f -x 10% -y 10% --width 80% --height 80% -- gitui -t macchiato.ron"
