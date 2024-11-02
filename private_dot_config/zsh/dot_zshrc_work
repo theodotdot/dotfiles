@@ -1,0 +1,18 @@
+#!/usr/bin/env zsh
+#
+# .zshrc - Zsh file loaded on interactive shell sessions for my work laptop.
+#
+
+ZFUNCDIR_WORK=${ZDOTDIR:-$HOME}/.zfunctions_work
+fpath=($ZFUNCDIR_WORK $fpath)
+autoload -Uz $ZFUNCDIR_WORK/*(.:t)
+
+# Run load_dbt_completion (checks if this is a dbt project dir)
+autoload -Uz add-zsh-hook  # Ensure add-zsh-hook is available
+add-zsh-hook chpwd load_dbt_completion
+
+# Also run it once when the shell starts, in case you start in a dbt directory
+load_dbt_completion
+
+# Load work aliases
+source $ZDOTDIR/.zshrc.d/aliases_work.zsh

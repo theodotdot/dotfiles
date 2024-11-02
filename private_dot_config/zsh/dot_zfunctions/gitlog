@@ -1,0 +1,9 @@
+#!/usr/bin/env zsh
+
+# get the list of commits for a given branch and number of days
+function gitlog {
+    local days="$1"
+    local branch="$2"
+    
+git log --since="$days days ago" --pretty=format:"%h - %ai - %an: %s" --name-only --perl-regexp --author='^((?!michelangelo-ci).*)$' "$branch" | bat
+}

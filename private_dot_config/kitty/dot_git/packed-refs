@@ -1,4 +1,0 @@
-# pack-refs with: peeled fully-peeled sorted 
-97bb37eaa6b2be5ce7e9c590f6d8fd60cdbe320b refs/remotes/origin/feat/whiskers-workflow
-d7d61716a83cd135344cbb353af9d197c5d7cec1 refs/remotes/origin/main
-144637d1171185cb75db11008f225a4ebf2b78ac refs/remotes/origin/refactor/move-to-themes-subdir
