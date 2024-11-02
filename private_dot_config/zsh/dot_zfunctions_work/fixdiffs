@@ -1,0 +1,11 @@
+#!/usr/bin/env zsh
+
+# function to lint sql files that diff vs origin/HEAD
+lintdiffs() {
+  # Detect the name of the main branch (master or main or other)
+  MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+
+  # Run the sqlfluff fix command with the correct branch
+  sqlfluff lint $(git diff --name-only --diff-filter=d origin/$MAIN_BRANCH)
+}
+
