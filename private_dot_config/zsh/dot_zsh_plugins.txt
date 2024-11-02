@@ -1,0 +1,26 @@
+#!/usr/bin/env zsh
+#
+# .zsh_plugins.txt - antidote plugins file
+#
+
+# Completions
+mattmc3/ez-compinit
+zsh-users/zsh-completions kind:fpath path:src
+aloxaf/fzf-tab
+lincheney/fzf-tab-completion path:zsh
+
+# # Keybindings
+belak/zsh-utils path:editor
+
+# # History
+belak/zsh-utils path:history
+
+# # Utilities
+# # romkatv/zsh-bench kind:path
+belak/zsh-utils path:utility
+ohmyzsh/ohmyzsh path:plugins/extract
+
+# # Other Fish-like features
+zdharma-continuum/fast-syntax-highlighting  # Syntax highlighting
+zsh-users/zsh-autosuggestions               # Auto-suggestions
+zsh-users/zsh-history-substring-search      # Up/Down to search history

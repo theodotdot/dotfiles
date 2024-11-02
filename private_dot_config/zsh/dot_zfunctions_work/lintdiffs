@@ -1,0 +1,11 @@
+#!/usr/bin/env zsh
+
+# function to fix sql files that diff vs origin/HEAD
+fixdiffs() {
+  # Detect the name of the main branch (master or main or other)
+  MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+
+  # Run the sqlfluff fix command with the correct branch
+  sqlfluff fix $(git diff --name-only --diff-filter=d origin/$MAIN_BRANCH)
+}
+

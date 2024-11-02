@@ -1,0 +1,13 @@
+#!/usr/bin/env zsh
+
+# Define a function to check for `dbt_project.yml` and load completions
+load_dbt_completion() {
+  if [[ -f "dbt_project.yml" ]]; then
+    # Load the custom completion file only if it's not already loaded
+    if ! [[ "${fpath}" == *"/path/to/dbt/completions"* ]]; then
+      fpath=($ZDOTDIR/completion $fpath)
+      autoload -Uz compinit && compinit
+      echo "dbt completions loaded"
+    fi
+  fi
+}

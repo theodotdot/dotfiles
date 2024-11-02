@@ -1,0 +1,49 @@
+#!/usr/bin/env zsh
+#
+# .zshenv - Zsh environment file, loaded always.
+#
+
+# NOTE: .zshenv needs to live at ~/.zshenv, not in $ZDOTDIR!
+
+# Moving zsh config files to .config/zsh
+export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+export XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
+export ZDOTDIR=${ZDOTDIR:-$XDG_CONFIG_HOME/zsh}
+
+# Ensure path arrays do not contain duplicates.
+typeset -gU path fpath
+
+# Set the list of directories that zsh searches for commands.
+path=(
+  $HOME/{,s}bin(N)
+  $HOME/.local/{,s}bin(N)
+  $HOME/.local/bin/lua-language-server/bin
+  $HOME/.config/scripts
+  $HOME/go/bin
+  /usr/local/{,s}bin(N)
+  /usr/local/go/bin
+  $ZDOTDIR/scripts
+  $path
+)
+
+# Setting misc env vars
+export EDITOR=hx
+
+# fzf theme (catppuccin macchiato)
+export FZF_DEFAULT_OPTS=" \
+--color=bg+:#363a4f,bg:#24273a,spinner:#f4dbd6,hl:#ed8796 \
+--color=fg:#cad3f5,header:#ed8796,info:#c6a0f6,pointer:#f4dbd6 \
+--color=marker:#f4dbd6,fg+:#cad3f5,prompt:#c6a0f6,hl+:#ed8796"
+
+# work stuff
+if [[ "$(hostname)" == "theo-planet" ]]; then
+  # The next line updates PATH for the Google Cloud SDK.
+  if [ -f '$HOME/google-cloud-sdk/path.zsh.inc' ]; then . '$HOME/google-cloud-sdk/path.zsh.inc'; fi
+  # The next line enables shell command completion for gcloud.
+  if [ -f '$HOME/google-cloud-sdk/completion.zsh.inc' ]; then . '$HOME/google-cloud-sdk/completion.zsh.inc'; fi
+fi
+
+
+
+

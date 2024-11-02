@@ -1,0 +1,11 @@
+#!/usr/bin/env zsh
+
+# function to update yml files of updated tables that diff vs origin/HEAD
+ymlupdate() {
+  # Detect the name of the main branch (master or main or other)
+  MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+
+  # Run the sqlfluff fix command with the correct branch
+  dbt run -s $(git diff --name-only --diff-filter=d origin/$MAIN_BRANCH)
+  dbt-osmosis yaml document $(git diff --name-only --diff-filter=d origin/$MAIN_BRANCH)
+}
