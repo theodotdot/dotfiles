@@ -4,8 +4,8 @@
 #
 
 # better ls
-alias ls='eza'
-alias la='eza -a'
+alias ls='exa --icons --tree --group-directories-first --level=1'
+alias la='exa --icons --tree --group-directories-first --level=1 -a'
 
 # find
 alias fd='find . -type d -name'
