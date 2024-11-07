@@ -28,6 +28,7 @@ K = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_before"
 p = "paste_before"
 P = "paste_after"
 X = "extend_line_above"
+"minus" = "select_register"
 
 [keys.normal.g]
 x = ":buffer-close"
