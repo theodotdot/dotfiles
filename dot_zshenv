@@ -21,6 +21,8 @@ path=(
   $HOME/.local/bin/lua-language-server/bin
   $HOME/.config/scripts
   $HOME/go/bin
+  $HOME/.cargo/env
+  $HOME/.cargo/bin
   /usr/local/{,s}bin(N)
   /usr/local/go/bin
   $ZDOTDIR/scripts
