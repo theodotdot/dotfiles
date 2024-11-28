@@ -1,0 +1,87 @@
+{
+  "ui": {
+    "anchors": {
+      "bottom": true,
+      "left": true,
+      "right": true,
+      "top": true
+    },
+    "window": {
+      "box": {
+        "ai_scroll": {
+          "content": {
+            "h_align": "fill",
+            "name": "aicontent",
+            "v_align": "fill"
+          },
+          "h_align": "fill",
+          "height": 300,
+          "margins": {
+            "top": 8
+          },
+          "max_height": 300,
+          "max_width": 400,
+          "min_width": 400,
+          "name": "aiscroll",
+          "v_align": "fill",
+          "width": 400
+        },
+        "bar": {
+          "entry": {
+            "h_align": "fill",
+            "h_expand": true,
+            "icon": {
+              "h_align": "center",
+              "h_expand": true,
+              "pixel_size": 24,
+              "theme": "Papirus"
+            }
+          },
+          "orientation": "horizontal",
+          "position": "end"
+        },
+        "h_align": "center",
+        "margins": {
+          "top": 200
+        },
+        "scroll": {
+          "list": {
+            "item": {
+              "activation_label": {
+                "h_align": "fill",
+                "v_align": "fill",
+                "width": 20,
+                "x_align": 0.5,
+                "y_align": 0.5
+              },
+              "icon": {
+                "pixel_size": 26,
+                "theme": "Papirus"
+              }
+            },
+            "margins": {
+              "top": 8
+            },
+            "max_height": 300,
+            "max_width": 400,
+            "min_width": 400,
+            "width": 400
+          }
+        },
+        "search": {
+          "input": {
+            "h_align": "fill",
+            "h_expand": true,
+            "icons": true
+          },
+          "spinner": {
+            "hide": true
+          }
+        },
+        "width": 450
+      },
+      "h_align": "fill",
+      "v_align": "fill"
+    }
+  }
+}
