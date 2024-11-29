@@ -1,0 +1,18 @@
+max-visible=10
+layer=top
+font=Sarasa UI SC 10
+border-radius=4
+max-icon-size=48
+default-timeout=10000
+anchor=top-right
+margin=20
+
+# Colors Catppuccin Macchiato Mauve
+
+background-color=#24273a
+text-color=#cad3f5
+border-color=#c6a0f6
+progress-color=over #363a4f
+
+[urgency=high]
+border-color=#f5a97f
