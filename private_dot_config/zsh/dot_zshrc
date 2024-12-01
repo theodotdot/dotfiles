@@ -35,3 +35,4 @@ unset _rc
 
 # Enable fzf tab completion
 enable-fzf-tab
+

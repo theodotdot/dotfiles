@@ -9,20 +9,28 @@
     "window": {
       "box": {
         "ai_scroll": {
-          "content": {
-            "h_align": "fill",
-            "name": "aicontent",
-            "v_align": "fill"
-          },
           "h_align": "fill",
           "height": 300,
+          "list": {
+            "item": {
+              "h_align": "fill",
+              "name": "aiItem",
+              "v_align": "fill",
+              "wrap": true,
+              "x_align": 0,
+              "y_align": 0
+            },
+            "name": "aiList",
+            "orientation": "vertical",
+            "spacing": 10,
+            "width": 400
+          },
           "margins": {
             "top": 8
           },
           "max_height": 300,
-          "max_width": 400,
           "min_width": 400,
-          "name": "aiscroll",
+          "name": "aiScroll",
           "v_align": "fill",
           "width": 400
         },
@@ -34,7 +42,7 @@
               "h_align": "center",
               "h_expand": true,
               "pixel_size": 24,
-              "theme": "Papirus"
+              "theme": ""
             }
           },
           "orientation": "horizontal",
@@ -56,7 +64,7 @@
               },
               "icon": {
                 "pixel_size": 26,
-                "theme": "Papirus"
+                "theme": ""
               }
             },
             "margins": {

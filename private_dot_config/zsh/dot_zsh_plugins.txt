@@ -19,6 +19,7 @@ belak/zsh-utils path:history
 # # romkatv/zsh-bench kind:path
 belak/zsh-utils path:utility
 ohmyzsh/ohmyzsh path:plugins/extract
+ohmyzsh/ohmyzsh path:plugins/ssh-agent
 
 # # Other Fish-like features
 zdharma-continuum/fast-syntax-highlighting  # Syntax highlighting

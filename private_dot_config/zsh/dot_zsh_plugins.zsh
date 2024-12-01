@@ -13,6 +13,8 @@ fpath+=( $HOME/.cache/antidote/belak/zsh-utils/utility )
 source $HOME/.cache/antidote/belak/zsh-utils/utility/utility.plugin.zsh
 fpath+=( $HOME/.cache/antidote/ohmyzsh/ohmyzsh/plugins/extract )
 source $HOME/.cache/antidote/ohmyzsh/ohmyzsh/plugins/extract/extract.plugin.zsh
+fpath+=( $HOME/.cache/antidote/ohmyzsh/ohmyzsh/plugins/ssh-agent )
+source $HOME/.cache/antidote/ohmyzsh/ohmyzsh/plugins/ssh-agent/ssh-agent.plugin.zsh
 fpath+=( $HOME/.cache/antidote/zdharma-continuum/fast-syntax-highlighting )
 source $HOME/.cache/antidote/zdharma-continuum/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 fpath+=( $HOME/.cache/antidote/zsh-users/zsh-autosuggestions )

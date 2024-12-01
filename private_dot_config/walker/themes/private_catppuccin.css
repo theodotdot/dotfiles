@@ -1,10 +1,25 @@
+/* Catppuccin Macchiato */
+:root {
+  --main-color: #cad3f5; /* text */
+  --main-border-color: #24273a; /* base */
+  --main-background: #24273a; /* base */
+  --search-background: rgba(54, 58, 79, 0.6); /* surface0 */
+  --search-icon-color: #cad3f5; /* text */
+  --typeahead-color: #ed8796; /* red */
+  --selected-background: #494d64; /* surface1 */
+  --selected-text: #c6a0f6; /* mauve */
+  /* --ai-color: rgba(255, 255, 255, 0.8); */
+  /* --ai-response-background: hsla(219, 28.6%, 19.2%, 0.8); */
+}
+
 #window,
 #box,
+#aiScroll,
+#aiList,
 #search,
 #password,
 #input,
 #typeahead,
-#spinner,
 #list,
 child,
 scrollbar,
@@ -13,128 +28,140 @@ slider,
 #text,
 #label,
 #bar,
-#listplaceholder,
 #sub,
 #activationlabel {
   all: unset;
+  font-family: Monolisa Nerd Font;
 }
 
 #window {
-  background: none;
+  color: var(--main-color);
 }
 
 #box {
-  background: #303446;
-  padding: 16px;
-  padding-top: 0px;
   border-radius: 8px;
+  background: var(--main-background);
+  padding: 20px;
+  border: 1px solid var(--main-border-color);
   box-shadow:
     0 19px 38px rgba(0, 0, 0, 0.3),
     0 15px 12px rgba(0, 0, 0, 0.22);
 }
 
-scrollbar {
-  background: none;
-  padding-left: 8px;
-}
-
-slider {
-  min-width: 2px;
-  background: #7f849c;
-  opacity: 0.5;
-}
-
 #search {
-  font-family: Monolisa Nerd Font;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.22);
+  border-radius: 5px;
+  background: var(--search-background);
+}
+
+#prompt {
 }
 
 #password,
 #input,
 #typeahead {
-  background: #363a4f;
-  background: none;
-  box-shadow: none;
-  border-radius: 0px;
-  border-radius: 32px;
-  color: #c6d0f5;
-  padding-left: 12px;
-  padding-right: 12px;
+  padding: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-radius: 5px;
 }
 
 #input {
   background: none;
 }
 
-#input>*:first-child,
-#typeahead>*:first-child {
-  color: #7f849c;
-  margin-right: 7px;
+#password {
 }
 
-#input>*:last-child,
-#typeahead>*:last-child {
-  opacity: 0;
+#spinner {
+  padding: 8px;
 }
-
-#spinner {}
 
 #typeahead {
-  color: #89b4fa;
+  color: var(--typeahead-color);
 }
 
 #input placeholder {
   opacity: 0.5;
 }
 
-#list {}
+#input > *:first-child,
+#typeahead > *:first-child {
+  margin-right: 16px;
+  margin-left: 4px;
+  color: var(--search-icon-color);
+  opacity: 0.2;
+}
 
-#listplaceholder {
-  color: #cad3f5;
+#input > *:last-child,
+#typeahead > *:last-child {
+  color: var(--selected-text);
+  opacity: 0.8;
+}
+
+#list {
 }
 
 child {
-  border-radius: 8px;
-  color: #cad3f5;
-  padding: 4px;
+  padding: 9px;
+  border-radius: 5px;
 }
 
 child:selected,
 child:hover {
-  background: #414559;
-  box-shadow: none;
-  color: #cad3f5;
+  background: var(--selected-background);
+  font-weight: 900;
+  color: var(--selected-text);
 }
 
-#item {}
+#item {
+}
 
-#icon {}
-
-#text {}
+#icon {
+  margin-right: 8px;
+}
 
 #label {
-  font-weight: bold;
-  color: #cad3f5;
-  font-family: Monolisa Nerd Font;
+  font-weight: 300;
 }
 
 #sub {
   opacity: 0.5;
-  color: #cad3f5;
+  font-size: 0.8em;
 }
 
 #activationlabel {
-  opacity: 0.5;
-  font-family: Monolisa Nerd Font;
-  padding-right: 4px;
+}
+
+#bar {
+}
+
+.barentry {
 }
 
 .activation #activationlabel {
-  font-weight: bold;
-  font-family: Monolisa Nerd Font;
-  color: #89b4fa;
-  opacity: 1;
 }
 
 .activation #text,
 .activation #icon,
-.activation #search {}
+.activation #search {
+  opacity: 0.5;
+}
+
+.aiItem {
+  padding: 10px;
+  border-radius: 2px;
+  color: var(--ai-color);
+}
+
+.aiItem.user {
+  background: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.aiItem.assistant {
+  background: var(--ai-response-background);
+}
