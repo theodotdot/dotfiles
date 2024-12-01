@@ -1,6 +1,15 @@
+# STYLE OPTIONS
+font=Monolisa Nerd Font 10
+width=300
+height=100
+padding=15
+icons=1
+icon-location=left
+markup=1
+actions=1
+history=1
+layer=overlay
 max-visible=10
-layer=top
-font=Sarasa UI SC 10
 border-radius=4
 max-icon-size=48
 default-timeout=10000
