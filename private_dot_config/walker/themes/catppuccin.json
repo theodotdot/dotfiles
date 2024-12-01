@@ -27,7 +27,7 @@
                 "revert": true
               }
             },
-            "max_height": 300,
+            "max_height": 350,
             "max_width": 600,
             "min_width": 600,
             "width": 600

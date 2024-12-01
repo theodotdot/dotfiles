@@ -1,54 +1,59 @@
 {
   "activation_mode": {
-    "labels": "jkl;asdf"
+    "labels": "hjkl;asd"
   },
   "as_window": false,
-  "disable_click_to_close": false,
-  "force_keyboard_focus": false,
-  "list": {
-    "keyboard_scroll_style": "emacs",
-    "max_entries": 50,
-    "placeholder": "No Results",
-    "show_initial_entries": true,
-    "single_click": true,
-    "visibility_threshold": 20
-  },
-  "monitor": "",
-  "search": {
-    "delay": 0,
-    "placeholder": "Search..."
-  },
-  "theme": "catppuccin",
-  "timeout": 0,
   "builtins": {
     "ai": {
       "anthropic": {
-        "max_tokens": 1000,
-        "model": "claude-3-5-sonnet-20241022",
         "prompts": [
           {
             "label": "General Assistant",
-            "prompt": "You are a helpful general assistant. Keep your answers short and precise."
+            "max_tokens": 1000,
+            "model": "claude-3-5-sonnet-20241022",
+            "prompt": "You are a helpful general assistant. Keep your answers short and precise.",
+            "temperature": 1
           }
         ]
       },
-      "icon": "accessories-calculator",
+      "icon": "help-browser",
       "name": "ai",
       "placeholder": "AI",
       "switcher_only": true,
       "weight": 5
     },
     "applications": {
-      "actions": false,
+      "actions": {
+        "enabled": false,
+        "hide_category": false,
+        "hide_without_query": true
+      },
       "context_aware": true,
       "hide_actions_with_empty_query": true,
       "name": "applications",
       "placeholder": "Applications",
       "prioritize_new": true,
       "refresh": true,
-      "show_generic": false,
+      "show_generic": true,
       "show_icon_when_single": true,
       "show_sub_when_single": true,
+      "weight": 5
+    },
+    "bookmarks": {
+      "entries": [
+        {
+          "keywords": [
+            "walker",
+            "github"
+          ],
+          "label": "Walker",
+          "url": "https://github.com/abenz1267/walker"
+        }
+      ],
+      "icon": "bookmark",
+      "name": "bookmarks",
+      "placeholder": "Bookmarks",
+      "switcher_only": true,
       "weight": 5
     },
     "calc": {
@@ -66,6 +71,7 @@
       "max_entries": 10,
       "name": "clipboard",
       "placeholder": "Clipboard",
+      "typeahead": true,
       "switcher_only": true,
       "weight": 5
     },
@@ -78,8 +84,8 @@
     },
     "custom_commands": {
       "icon": "utilities-terminal",
-      "name": "obs_scene_switcher",
-      "placeholder": "OBS Scene Switcher",
+      "name": "custom_commands",
+      "placeholder": "Custom Commands",
       "weight": 5
     },
     "dmenu": {
@@ -100,11 +106,12 @@
     },
     "finder": {
       "concurrency": 8,
-      "icon": "folder",
+      "icon": "file",
       "ignore_gitignore": true,
       "name": "finder",
       "placeholder": "Finder",
       "refresh": true,
+      "show_icon_when_single": true,
       "switcher_only": true,
       "weight": 5
     },
@@ -133,9 +140,36 @@
       "prefix": "/",
       "weight": 5
     },
+    "symbols": {
+      "after_copy": "",
+      "history": true,
+      "name": "symbols",
+      "placeholder": "Symbols",
+      "switcher_only": true,
+      "typeahead": true,
+      "weight": 5
+    },
     "websearch": {
-      "engines": [
-        "google"
+      "entries": [
+        {
+          "name": "Google",
+          "url": "https://www.google.com/search?q=%TERM%"
+        },
+        {
+          "name": "DuckDuckGo",
+          "switcher_only": true,
+          "url": "https://duckduckgo.com/?q=%TERM%"
+        },
+        {
+          "name": "Ecosia",
+          "switcher_only": true,
+          "url": "https://www.ecosia.org/search?q=%TERM%"
+        },
+        {
+          "name": "Yandex",
+          "switcher_only": true,
+          "url": "https://yandex.com/search/?text=%TERM%"
+        }
       ],
       "icon": "applications-internet",
       "name": "websearch",
@@ -146,18 +180,27 @@
       "icon": "view-restore",
       "name": "windows",
       "placeholder": "Windows",
+      "show_icon_when_single": true,
       "weight": 5
     }
   },
-  "plugins": [
-    {
-      "name": "obs_scene_switcher",
-      "placeholder": "OBS Scene Switcher",
-      "prefix": "~",
-      "terminal": true,
-      "src_once": "obs-cli scene list",
-      "refresh": true,
-      "cmd": "zsh -c \"obs-cli scene switch \"%RESULT%\"\""
-    }
-  ]
+  "disable_click_to_close": false,
+  "force_keyboard_focus": false,
+  "hotreload_theme": true,
+  "list": {
+    "keyboard_scroll_style": "emacs",
+    "max_entries": 50,
+    "placeholder": "No Results",
+    "show_initial_entries": true,
+    "single_click": true,
+    "visibility_threshold": 20
+  },
+  "monitor": "",
+  "search": {
+    "delay": 0,
+    "placeholder": "Search...",
+    "resume_last_query": false
+  },
+  "theme": "catppuccin",
+  "timeout": 0
 }

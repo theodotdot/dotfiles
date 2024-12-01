@@ -23,3 +23,7 @@ zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
 # switch group using `<` and `>`
 zstyle ':fzf-tab:*' switch-group '<' '>'
+
+# ohmyzsh/ssh-agent
+zstyle :omz:plugins:ssh-agent agent-forwarding yes
+zstyle :omz:plugins:ssh-agent identities *

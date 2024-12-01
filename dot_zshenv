@@ -23,6 +23,7 @@ path=(
   $HOME/go/bin
   $HOME/.cargo/env
   $HOME/.cargo/bin
+  $HOME/.spicetify
   /usr/local/{,s}bin(N)
   /usr/local/go/bin
   $ZDOTDIR/scripts
