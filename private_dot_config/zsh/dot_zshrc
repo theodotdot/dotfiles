@@ -36,3 +36,5 @@ unset _rc
 # Enable fzf tab completion
 enable-fzf-tab
 
+
+. "$HOME/.local/share/../bin/env"
