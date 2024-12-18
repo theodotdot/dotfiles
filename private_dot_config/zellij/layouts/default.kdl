@@ -48,8 +48,8 @@ layout {
             mode_move          "#[bg=$blue,fg=$bg,bold] move #[bg=$bg,fg=$blue]"
             mode_prompt        "#[bg=$blue,fg=$bg,bold] prompt #[bg=$bg,fg=$blue]"
 
-            tab_normal               "#[fg=$fg,bg=$bg] {index} {name} {fullscreen_indicator}{sync_indicator}{floating_indicator} "
-            tab_active               "#[fg=$mauve,bg=$bg,bold]#[fg=$bg,bg=$mauve,bold]{index} {name}{fullscreen_indicator}{sync_indicator}{floating_indicator}#[fg=$mauve,bg=$bg,bold]"
+            tab_normal               "#[fg=$fg,bg=$bg]{name}{fullscreen_indicator}{sync_indicator}{floating_indicator} "
+            tab_active               "#[fg=$mauve,bg=$bg,bold]#[fg=$bg,bg=$mauve,bold]{name}{fullscreen_indicator}{sync_indicator}{floating_indicator}#[fg=$mauve,bg=$bg,bold]"
             
             // separator between the tabs
             tab_separator           "#[bg=$bg] "

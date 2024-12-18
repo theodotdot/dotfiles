@@ -25,17 +25,17 @@
         "custom/media"
     ],
     "modules-center": [
-        //"hyprland/window"
         "clock#date",
         "custom/weather"
         //"custom/gammastep"
     ],
     "modules-right": [
         // "backlight",
+        "custom/keyboard",
         "custom/pacman",
-        "custom/storage",
+        // "custom/storage",
         "memory",
-        "cpu",
+        // "cpu",
         // "battery",
         //"pulseaudio",
         "wireplumber",
@@ -282,11 +282,11 @@
         "exec": "$HOME/.scripts/title"
     },
 
-    /*"custom/keyboard": {
-        "format": " {}",
+    "custom/keyboard": {
+        "format": "{}",
         "interval": 1,
-        "exec": "$HOME/.config/waybar/get_kbdlayout.sh"
-    },*/
+        "exec": "$HOME/.config/waybar/hyprxkblayout.sh"
+    },
 
     "hyprland/workspaces": {
     	"disable-scroll": true,
