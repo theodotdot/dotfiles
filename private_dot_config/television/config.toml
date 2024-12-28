@@ -1,0 +1,57 @@
+# General settings
+# ----------------------------------------------------------------------------
+frame_rate = 60
+tick_rate = 50
+
+[ui]
+# Whether to use nerd font icons in the UI
+# This option requires a font patched with Nerd Font in order to properly
+# display glyphs (see https://www.nerdfonts.com/ for more information)
+use_nerd_font_icons = true
+# How much space to allocate for the UI (in percentage of the screen)
+# ┌───────────────────────────────────────┐
+# │                                       │
+# │            Terminal screen            │
+# │    ┌─────────────────────────────┐    │
+# │    │                             │    │
+# │    │                             │    │
+# │    │                             │    │
+# │    │       Television UI         │    │
+# │    │                             │    │
+# │    │                             │    │
+# │    │                             │    │
+# │    │                             │    │
+# │    └─────────────────────────────┘    │
+# │                                       │
+# │                                       │
+# └───────────────────────────────────────┘
+ui_scale = 100
+# Whether to show the top help bar in the UI by default
+# This option can be toggled with the (default) `ctrl-g` keybinding
+show_help_bar = false
+# Whether to show the preview panel in the UI by default
+# This option can be toggled with the (default) `ctrl-o` keybinding
+show_preview_panel = true
+# Where to place the input bar in the UI (top or bottom)
+input_bar_position = "top"
+
+# Previewers settings
+# ----------------------------------------------------------------------------
+[previewers.file]
+# The theme to use for syntax highlighting.
+# Bulitin syntax highlighting uses the same syntax highlighting engine as bat.
+# To get a list of your currently available themes, run `bat --list-themes`
+theme = "Catppuccin Macchiato"
+
+# Keybindings
+# ----------------------------------------------------------------------------
+#
+# Channel mode
+# ------------------------
+[keybindings.Channel]
+# Scrolling the preview pane
+scroll_preview_half_page_down = "ctrl-j"
+scroll_preview_half_page_up = "ctrl-k"
+# Toggle the help bar
+toggle_help = "F1"
+

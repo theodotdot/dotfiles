@@ -1,0 +1,9 @@
+[[cable_channel]]
+name = "git-log"
+source_command = 'git log --oneline --date=short --pretty="format:%h %s %an %cd" "$@"'
+preview_command = 'git show -p --stat --pretty=fuller --color=always {0}'
+
+[[cable_channel]]
+name = "dots"
+source_command = 'find "$HOME/.config" -type f'
+preview_command = 'bat -n --color=always {0}'
