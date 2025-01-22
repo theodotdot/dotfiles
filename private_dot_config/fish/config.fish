@@ -13,7 +13,7 @@ set -x MANROFFOPT -c
 set -x MANPAGER "sh -c 'col -bx | bat -l man -p'"
 
 # Aliases
-alias update='sudo pacman -Syu'
+alias update='yay -Syu'
 alias cleanup='sudo pacman -Rns (pacman -Qtdq)'
 # better ls
 alias ls='exa --icons --tree --group-directories-first --level=1'
