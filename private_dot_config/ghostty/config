@@ -8,5 +8,8 @@ mouse-hide-while-typing = true
 window-decoration = false
 
 # Feature settings
-shell-integration = zsh
-shell-integration-features = cursor, sudo, title
+shell-integration = detect
+shell-integration-features = true
+
+# Shell
+command = fish
