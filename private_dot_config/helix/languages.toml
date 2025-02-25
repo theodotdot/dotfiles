@@ -6,3 +6,11 @@ formatter = { command = "goimports" }
 [[language]]
 name = "markdown"
 language-servers = [ "markdown-oxide", "marksman" ]
+
+[[language]]
+name = "python"
+language-servers = ["ruff", "pylsp"]
+
+[language-server.ruff]
+command = "ruff"
+args = ["server"]
