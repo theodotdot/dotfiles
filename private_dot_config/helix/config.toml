@@ -29,6 +29,9 @@ p = "paste_before"
 P = "paste_after"
 X = "extend_line_above"
 "minus" = "select_register"
+C-s = ":w"
+C-q = ":q"
+ret = "goto_word"
 
 [keys.normal.g]
 x = ":buffer-close"
