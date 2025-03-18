@@ -3,22 +3,37 @@
 // Check the wiki for a full description of the configuration:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Overview
 
-spawn-at-startup "gsettings" "set" "org.gnome.desktop.interface" "cursor-theme" "'catppuccin-macchiato-dark-cursors'"
 spawn-at-startup "walker" "--gapplication-service"
 spawn-at-startup "waybar" "-c" ".config/waybar/config-niri"
-spawn-at-startup "fcitx5" "-d"
 spawn-at-startup "mako"
 spawn-at-startup "nm-applet" "--indicator"
 spawn-at-startup "systemctl" "--user" "start" "hyprpolkitagent"
 spawn-at-startup "hypridle"
 spawn-at-startup "waypaper" "--restore"
-spawn-at-startup "systemctl" "--user" "start" "hyprpolkitagent"
 spawn-at-startup "hypridle"
-spawn-at-startup "zen-browser"
-spawn-at-startup "telegram-desktop"
-spawn-at-startup "vesktop"
+spawn-at-startup "xwayland-satellite"
+spawn-at-startup "flatpak" "run" "io.github.zen_browser.zen"
+spawn-at-startup "flatpak" "run" "org.telegram.desktop"
+spawn-at-startup "flatpak" "run" "dev.vencord.Vesktop"
 
+cursor {
+    xcursor-theme "catppuccin-macchiato-dark-cursors"
+    xcursor-size 20
 
+    hide-when-typing
+    hide-after-inactive-ms 10000
+}
+
+prefer-no-csd
+
+environment {
+    XDG_SESSION_TYPE "wayland"
+    SDL_VIDEODRIVER "wayland"
+    EGL_PLATFORM "wayland"
+    QT_STYLE_OVERRIDE "kvantum"
+    QT_QPA_PLATFORM "wayland"
+    DISPLAY ":0"
+}
 
 // Input device configuration.
 // Find the full list of options on the wiki:
@@ -169,16 +184,14 @@ layout {
         // off
         hide-when-single-tab
         place-within-column
-        gap 5
-        width 4
-        length total-proportion=1.0
-        position "right"
-        gaps-between-tabs 2
+        gap 8
+        width 8
+        length total-proportion=0.80
+        position "left"
+        gaps-between-tabs 3
         corner-radius 8
-        active-color "red"
-        inactive-color "gray"
-        // active-gradient from="#80c8ff" to="#bbddff" angle=45
-        // inactive-gradient from="#505050" to="#808080" angle=45 relative-to="workspace-view"
+        active-color "#c6a0f6"
+        inactive-color "#b8c0e0"
     }
 
     // Struts shrink the area occupied by windows, similarly to layer-shell panels.
@@ -268,9 +281,8 @@ animations {
 }
 
 // Workspaces
-workspace "term"
 workspace "main"
-workspace "chat"
+workspace "work"
 
 // Window rules let you adjust behavior for individual windows.
 // Find more information on the wiki:
@@ -339,11 +351,12 @@ binds {
 
     // Mod-Shift-/, which is usually the same as Mod-?,
     // shows a list of important hotkeys.
-    Mod+Shift+Slash { show-hotkey-overlay; }
+    Mod+Shift+H { show-hotkey-overlay; }
 
     // Utilities
     Mod+Return { spawn "kitty"; }
-    Mod+space { spawn "walker --modules applications"; }
+    Mod+space { spawn "walker" "--modules" "applications"; }
+    Mod+Alt+V { spawn "walker" "--modules" "clipboard"; }
     
     Ctrl+Alt+L { spawn "hyprlock"; }
 
@@ -425,10 +438,10 @@ binds {
     // To avoid scrolling through workspaces really fast, you can use
     // the cooldown-ms property. The bind will be rate-limited to this value.
     // You can set a cooldown on any bind, but it's most useful for the wheel.
-    Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
-    Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
-    Mod+Shift+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
-    Mod+Shift+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
+    Mod+WheelScrollDown      cooldown-ms=50 { focus-workspace-down; }
+    Mod+WheelScrollUp        cooldown-ms=50 { focus-workspace-up; }
+    Mod+Shift+WheelScrollDown cooldown-ms=50 { focus-column-right; }
+    Mod+Shift+WheelScrollUp   cooldown-ms=50 { focus-column-left; }
 
     // Mod+WheelScrollRight      { focus-column-right; }
     // Mod+WheelScrollLeft       { focus-column-left; }
