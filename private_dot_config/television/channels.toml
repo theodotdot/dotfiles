@@ -4,6 +4,25 @@ source_command = 'git log --oneline --date=short --pretty="format:%h %s %an %cd"
 preview_command = 'git show -p --stat --pretty=fuller --color=always {0}'
 
 [[cable_channel]]
-name = "dots"
-source_command = 'find "$HOME/.config" -type f'
-preview_command = 'bat -n --color=always {0}'
+name = "git-branch"
+source_command = 'git --no-pager branch --all --format="%(refname:short)"'
+preview_command = 'git show -p --stat --pretty=fuller --color=always {0}'
+
+[[cable_channel]]
+name = "git-diff"
+source_command = "git diff --name-only"
+preview_command = "git diff --color=always {0}"
+
+[[cable_channel]]
+name = "git-reflog"
+source_command = 'git reflog'
+preview_command = 'git show -p --stat --pretty=fuller --color=always {0}'
+
+[[cable_channel]]
+name = "dotfiles"
+source_command = "fd -t f . $HOME/.config"
+preview_command = ":files:"
+
+[[cable_channel]]
+name = "fish-history"
+source_command = "fish -c 'history'"
