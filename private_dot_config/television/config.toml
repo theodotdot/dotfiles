@@ -33,7 +33,7 @@ show_help_bar = false
 # This option can be toggled with the (default) `ctrl-o` keybinding
 show_preview_panel = true
 # Where to place the input bar in the UI (top or bottom)
-input_bar_position = "top"
+input_bar_position = "bottom"
 
 # Previewers settings
 # ----------------------------------------------------------------------------
@@ -43,15 +43,7 @@ input_bar_position = "top"
 # To get a list of your currently available themes, run `bat --list-themes`
 theme = "Catppuccin Macchiato"
 
-# Keybindings
-# ----------------------------------------------------------------------------
-#
-# Channel mode
-# ------------------------
-[keybindings.Channel]
-# Scrolling the preview pane
-scroll_preview_half_page_down = "ctrl-j"
-scroll_preview_half_page_up = "ctrl-k"
-# Toggle the help bar
-toggle_help = "F1"
-
+[shell_integration.commands]
+"git switch" = "git-branches"
+"ls" = "dirs"
+"cat" = "files"
