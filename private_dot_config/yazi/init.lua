@@ -2,4 +2,4 @@
 require("git"):setup()
 
 -- auto-layout
-require("auto-layout")
+-- require("auto-layout")
