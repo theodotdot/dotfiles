@@ -16,7 +16,7 @@ spawn-at-startup "xwayland-satellite"
 spawn-at-startup "zen-browser"
 spawn-at-startup "telegram-desktop"
 spawn-at-startup "vesktop"
-spawn-at-startup "$HOME/Downloads/zmkBATx/zmkbatx"
+spawn-at-startup "zmkbatx"
 
 cursor {
     xcursor-theme "catppuccin-macchiato-dark-cursors"
@@ -391,15 +391,13 @@ binds {
     Print { screenshot-screen; }
     Mod+Shift+Print { screenshot-window; }
 
-    Mod+N { spawn "hyprsunset" "-t" "4000"; }
-    Mod+Shift+N { spawn "hyprsunset" "i"; }
-
     // Reload waybar
     Mod+O { spawn "killall" "-SIGUSR2" "waybar"; }
 
     // Switch scaling for gaming
     Mod+Shift+G { spawn "niri" "msg" "output" "DP-1" "scale" "1"; }
-    Mod+G { spawn "niri" "msg" "output" "DP-1" "scale" "1.25"; }
+    Mod+Alt+G { spawn "niri" "msg" "output" "DP-1" "scale" "2"; }
+    Mod+G { spawn "niri" "msg" "output" "DP-1" "scale" "1.5"; }
 
     // You can also use a shell. Do this if you need pipes, multiple commands, etc.
     // Note: the entire command goes as a single argument in the end.
@@ -407,8 +405,8 @@ binds {
 
     // Volume control
     // The allow-when-locked=true property makes them work even when the session is locked.
-    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
     XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
     XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
 
