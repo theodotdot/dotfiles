@@ -9,12 +9,14 @@ spawn-at-startup "mako"
 spawn-at-startup "nm-applet" "--indicator"
 spawn-at-startup "systemctl" "--user" "start" "hyprpolkitagent"
 spawn-at-startup "hypridle"
+spawn-at-startup "wlsunset" "-l" "52.5" "-L" "13.4"
 spawn-at-startup "waypaper" "--restore"
 spawn-at-startup "hypridle"
 spawn-at-startup "xwayland-satellite"
-spawn-at-startup "flatpak" "run" "io.github.zen_browser.zen"
-spawn-at-startup "flatpak" "run" "org.telegram.desktop"
-spawn-at-startup "flatpak" "run" "dev.vencord.Vesktop"
+spawn-at-startup "zen-browser"
+spawn-at-startup "telegram-desktop"
+spawn-at-startup "vesktop"
+spawn-at-startup "$HOME/Downloads/zmkBATx/zmkbatx"
 
 cursor {
     xcursor-theme "catppuccin-macchiato-dark-cursors"
@@ -30,9 +32,25 @@ environment {
     XDG_SESSION_TYPE "wayland"
     SDL_VIDEODRIVER "wayland"
     EGL_PLATFORM "wayland"
+    EDITOR "hx"
+
+    // theming
     QT_STYLE_OVERRIDE "kvantum"
     QT_QPA_PLATFORM "wayland"
+    GTK_THEME "catppuccin-macchiato-mauve-standard+default"
+
+    // xwayland
     DISPLAY ":0"
+
+    // nvidia
+    LIBVA_DRIVER_NAME "nvidia"
+    GBM_BACKEND "nvidia-drm"
+    __GLX_VENDOR_LIBRARY_NAME "nvidia"
+    WLR_DRM_NO_ATOMIC "1"
+    __NV_PRIME_RENDER_OFFLOAD "1"
+    __VK_LAYER_NV_optimus "NVIDIA_only"
+    WLR_RENDERER_ALLOW_SOFTWARE "1"
+    MOZ_DISABLE_RDD_SANDBOX "1"
 }
 
 // Input device configuration.
@@ -47,7 +65,7 @@ input {
             // For example:
             layout "fr,us"
             variant "ergol,intl"
-            // options "grp:win_space_toggle,compose:ralt,ctrl:nocaps"
+            options "grp:alt_space_toggle"
         }
     }
 
@@ -101,10 +119,10 @@ input {
 // Remember to uncomment the node by removing "/-"!
 output "DP-1" {
     // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
-    mode "2560x1440@164.958"
+    mode "3840x2160@240"
 
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
-    scale 1
+    scale 1.25
 
     // Transform allows to rotate the output counter-clockwise, valid values are:
     // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
@@ -282,7 +300,8 @@ animations {
 
 // Workspaces
 workspace "main"
-workspace "work"
+workspace "chat"
+workspace "steam"
 
 // Window rules let you adjust behavior for individual windows.
 // Find more information on the wiki:
@@ -294,6 +313,12 @@ window-rule {
     open-on-workspace "main"
 }
 
+// Zen in main workspace
+window-rule {
+    match at-startup=true app-id=r#"^steam$"#
+    open-on-workspace "steam"
+}
+
 // Telegram and discord in chat workspace
 window-rule {
     // Match all Telegram windows...
@@ -301,7 +326,7 @@ window-rule {
     // ...except the media viewer window.
     exclude title="^Media viewer$"
 
-    match app-id=r#"^org\.vesktop$"#
+    match app-id=r#"^vesktop$"#
 
     // Properties to apply.
     open-on-workspace "chat"
@@ -353,6 +378,8 @@ binds {
     // shows a list of important hotkeys.
     Mod+Shift+H { show-hotkey-overlay; }
 
+    // Mod+D {toggle-overview}
+
     // Utilities
     Mod+Return { spawn "kitty"; }
     Mod+space { spawn "walker" "--modules" "applications"; }
@@ -369,6 +396,10 @@ binds {
 
     // Reload waybar
     Mod+O { spawn "killall" "-SIGUSR2" "waybar"; }
+
+    // Switch scaling for gaming
+    Mod+Shift+G { spawn "niri" "msg" "output" "DP-1" "scale" "1"; }
+    Mod+G { spawn "niri" "msg" "output" "DP-1" "scale" "1.25"; }
 
     // You can also use a shell. Do this if you need pipes, multiple commands, etc.
     // Note: the entire command goes as a single argument in the end.
