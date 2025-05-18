@@ -44,6 +44,6 @@ input_bar_position = "bottom"
 theme = "Catppuccin Macchiato"
 
 [shell_integration.commands]
-"git switch" = "git-branches"
+"git switch" = "git-branch"
 "ls" = "dirs"
 "cat" = "files"

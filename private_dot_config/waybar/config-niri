@@ -29,14 +29,12 @@
     "modules-right": [
         // "backlight",
         "custom/keyboard",
-        // "custom/pacman",
+        "custom/pacman",
         // "custom/storage",
-        // "memory",
+        "memory",
         // "cpu",
-        "battery",
-        "pulseaudio",
-        "backlight",
-        // "wireplumber",
+        // "battery",
+        "wireplumber",
         // "custom/screenshot_t",
         "tray",
         "custom/power",
@@ -90,7 +88,8 @@
         "format": "{icon} {percent}%",
         "format-alt": "{percent}% {icon}",
         "format-alt-click": "click-right",
-        "format-icons": ["", ""],
+        //"format-icons": ["", ""],
+        "format-icons": ["", ""],
         "on-scroll-down": "brightnessctl s 5%-",
         "on-scroll-up": "brightnessctl s +5%"
     },
@@ -174,35 +173,13 @@
      "custom/keyboard": {
         "format": "{}",
         "interval": 1,
-        "exec": "$HOME/.config/waybar/hyprxkblayout.sh"
+        "exec": "$HOME/.config/waybar/nirixkblayout.sh"
     },
 
     "niri/workspaces": {
     	"disable-click": false
     },
 
-    "pulseaudio": {
-        "scroll-step": 3, // %, can be a float
-        "format": "{icon} {volume}% {format_source}",
-        "format-bluetooth": "{volume}% {icon} {format_source}",
-        "format-bluetooth-muted": " {icon} {format_source}",
-        "format-muted": " {format_source}",
-        //"format-source": "{volume}% ",
-        //"format-source-muted": "",
-        "format-source": "",
-        "format-source-muted": "",
-        "format-icons": {
-            "headphone": "",
-            "hands-free": "󰋋",
-            "headset": "󰋋",
-            "phone": "",
-            "portable": "",
-            "car": "",
-            "default": ["", "", ""]
-        },
-        "on-click": "pavucontrol",
-        "on-click-right": "amixer sset Master toggle"
-    },
 
     "wireplumber": {
         "on-click": "pavucontrol",

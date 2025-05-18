@@ -39,8 +39,8 @@ alias cat='bat'
 ## python aliases
 alias sourcevenv='source .venv/bin/activate'
 
-
 # Loading utilities
 zoxide init fish --cmd cd | source
 starship init fish | source
 direnv hook fish | source
+tv init fish | source
