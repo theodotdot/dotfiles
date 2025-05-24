@@ -8,7 +8,6 @@ spawn-at-startup "waybar" "-c" ".config/waybar/config-niri"
 spawn-at-startup "mako"
 spawn-at-startup "nm-applet" "--indicator"
 spawn-at-startup "systemctl" "--user" "start" "hyprpolkitagent"
-spawn-at-startup "hypridle"
 spawn-at-startup "wlsunset" "-l" "52.5" "-L" "13.4"
 spawn-at-startup "waypaper" "--restore"
 spawn-at-startup "hypridle"
@@ -16,7 +15,7 @@ spawn-at-startup "xwayland-satellite"
 spawn-at-startup "zen-browser"
 spawn-at-startup "telegram-desktop"
 spawn-at-startup "vesktop"
-spawn-at-startup "zmkbatx"
+spawn-at-startup "/home/theotime/Downloads/zmkBATx/zmkbatx.sh"
 
 cursor {
     xcursor-theme "catppuccin-macchiato-dark-cursors"
@@ -41,6 +40,8 @@ environment {
 
     // xwayland
     DISPLAY ":0"
+    // electron and wayland
+    ELECTRON_OZONE_PLATFORM_HINT "wayland"
 
     // nvidia
     LIBVA_DRIVER_NAME "nvidia"
@@ -131,10 +132,18 @@ output "DP-1" {
     // variable-refresh-rate
 }
 
+overview {
+    backdrop-color "#24273a"
+    zoom 0.6
+}
+
 // Settings that influence how windows are positioned and sized.
 // Find more information on the wiki:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
 layout {
+    // for static wallpaper with overview    
+    background-color "transparent"
+
     // Set gaps around windows in logical pixels.
     gaps 8
 
@@ -298,10 +307,18 @@ animations {
     }
 }
 
+// Layer rules
+// Make the wallpaper stationary, rather than moving with workspaces.
+layer-rule {
+    // Find the right namespace by running niri msg layers.
+    match namespace="^swww-daemon$"
+    place-within-backdrop true
+}
+
 // Workspaces
 workspace "main"
 workspace "chat"
-workspace "steam"
+workspace "games"
 
 // Window rules let you adjust behavior for individual windows.
 // Find more information on the wiki:
@@ -309,14 +326,15 @@ workspace "steam"
 
 // Zen in main workspace
 window-rule {
-    match at-startup=true app-id=r#"^zen-beta$"#
+    match app-id=r#"^zen-beta$"#
     open-on-workspace "main"
 }
 
-// Zen in main workspace
+// game stuff in games workspace
 window-rule {
-    match at-startup=true app-id=r#"^steam$"#
-    open-on-workspace "steam"
+    match app-id=r#"^org\.prismlauncher\.PrismLauncher$"#
+    match app-id=r#"^steam$"#
+    open-on-workspace "games"
 }
 
 // Telegram and discord in chat workspace
@@ -383,9 +401,12 @@ binds {
     // Utilities
     Mod+Return { spawn "kitty"; }
     Mod+space { spawn "walker" "--modules" "applications"; }
+    Mod+Shift+space { spawn "walker" "--modules" "runner"; }
     Mod+Alt+V { spawn "walker" "--modules" "clipboard"; }
     
     Ctrl+Alt+L { spawn "hyprlock"; }
+
+    Mod+N { toggle-overview; }
 
     Mod+Print { screenshot; }
     Print { screenshot-screen; }
