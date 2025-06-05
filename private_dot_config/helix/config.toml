@@ -47,3 +47,8 @@ A-s = [":pipe sort"]
 [keys.normal.space.","]
 y = ":sh zellij run -c -f -x 10% -y 10% --width 80% --height 80% -- bash helix-yazi-zellij open"
 g = ":sh zellij run -c -f -x 10% -y 10% --width 80% --height 80% -- gitui -t macchiato.ron"
+
+[keys.normal.space.c]
+c = "@:sh<space>wl-copy<space><C-r>%<ret>"
+f = "@:sh<space>basename<space><C-r>%<space>|<space>wl-copy<space>-n<ret>"
+n = "@:sh<space>basename<space><C-r>%<space>|<space>cut<space>-d.<space>-f1<space>|<space>wl-copy<space>-n<ret>"
