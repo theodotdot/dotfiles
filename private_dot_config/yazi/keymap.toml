@@ -1,5 +1,5 @@
 # jump-to-char.yazi
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = "f"
 run  = "plugin jump-to-char"
 desc = "Jump to char"
