@@ -315,6 +315,24 @@ layer-rule {
     place-within-backdrop true
 }
 
+layer-rule {
+    // Find the right namespace by running niri msg layers.
+    match namespace="^kitty-quick-access$"
+
+    shadow {
+        on
+        // off
+        softness 40
+        spread 500
+        offset x=0 y=9
+        draw-behind-window true
+        color "#00181926"
+        // inactive-color "#00000064"
+    }
+
+    
+}
+
 // Workspaces
 workspace "main"
 workspace "chat"
@@ -399,26 +417,27 @@ binds {
     // Mod+D {toggle-overview}
 
     // Utilities
-    Mod+Return { spawn "kitty"; }
-    Mod+space { spawn "walker" "--modules" "applications"; }
-    Mod+Shift+space { spawn "walker" "--modules" "runner"; }
-    Mod+Alt+V { spawn "walker" "--modules" "clipboard"; }
+    Mod+Return repeat=false { spawn "kitty"; }
+    Mod+space repeat=false { spawn "walker" "--modules" "applications"; }
+    Mod+Shift+space repeat=false { spawn "walker" "--modules" "runner"; }
+    Mod+Alt+V repeat=false { spawn "walker" "--modules" "clipboard"; }
+    Mod+minus repeat=false { spawn "kitten" "quick-access-terminal"; }
     
     Ctrl+Alt+L { spawn "hyprlock"; }
 
     Mod+N { toggle-overview; }
 
-    Mod+Print { screenshot; }
-    Print { screenshot-screen; }
-    Mod+Shift+Print { screenshot-window; }
+    Mod+Print repeat=false { screenshot; }
+    Print repeat=false { screenshot-screen; }
+    Mod+Shift+Print repeat=false { screenshot-window; }
 
     // Reload waybar
-    Mod+O { spawn "killall" "-SIGUSR2" "waybar"; }
+    Mod+O repeat=false { spawn "killall" "-SIGUSR2" "waybar"; }
 
     // Switch scaling for gaming
-    Mod+Shift+G { spawn "niri" "msg" "output" "DP-1" "scale" "1"; }
-    Mod+Alt+G { spawn "niri" "msg" "output" "DP-1" "scale" "2"; }
-    Mod+G { spawn "niri" "msg" "output" "DP-1" "scale" "1.5"; }
+    Mod+Shift+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "1"; }
+    Mod+Alt+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "2"; }
+    Mod+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "1.25"; }
 
     // You can also use a shell. Do this if you need pipes, multiple commands, etc.
     // Note: the entire command goes as a single argument in the end.
@@ -432,7 +451,7 @@ binds {
     XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
 
     // Window manipulation
-    Mod+Q { close-window; }
+    Mod+Q repeat=false { close-window; }
 
     // Move the focused window between the floating and the tiling layout.
     Mod+T       { toggle-window-floating; }
@@ -561,7 +580,7 @@ binds {
     // Makes the column "fill the rest of the space".
     Mod+Ctrl+F { expand-column-to-available-width; }
 
-    Mod+C { center-column; }
+    Mod+Shift+C { center-column; }
 
     // Finer width adjustments.
     // This command can also:
