@@ -13,7 +13,7 @@ spawn-at-startup "waypaper" "--restore"
 spawn-at-startup "hypridle"
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "zen-browser"
-spawn-at-startup "telegram-desktop"
+spawn-at-startup "Telegram"
 spawn-at-startup "vesktop"
 spawn-at-startup "/home/theotime/Downloads/zmkBATx/zmkbatx.sh"
 
