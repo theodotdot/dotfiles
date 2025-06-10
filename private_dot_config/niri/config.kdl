@@ -3,6 +3,7 @@
 // Check the wiki for a full description of the configuration:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Overview
 
+spawn-at-startup "dbus-update-activation-environment" "--systemd"
 spawn-at-startup "walker" "--gapplication-service"
 spawn-at-startup "waybar" "-c" ".config/waybar/config-niri"
 spawn-at-startup "mako"
@@ -449,6 +450,9 @@ binds {
     XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
     XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
     XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+    XF86AudioPlay        allow-when-locked=true { spawn "playerctl" "--ignore-player=firefox" "play-pause"; }
+    XF86AudioPrev        allow-when-locked=true { spawn "playerctl" "previous"; }
+    XF86AudioNext        allow-when-locked=true { spawn "playerctl" "next"; }
 
     // Window manipulation
     Mod+Q repeat=false { close-window; }
