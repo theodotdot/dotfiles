@@ -2,4 +2,7 @@
 # ~/.bashrc
 #
 
-exec fish
+# Launch fish for interactive non-login shells
+if [[ $- == *i* ]] && [[ -z "$FISH_VERSION" ]] && [[ $(ps --no-header --pid=$PPID --format=comm) != "fish" ]]; then
+    exec fish
+fi
