@@ -4,15 +4,15 @@
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Overview
 
 spawn-at-startup "dbus-update-activation-environment" "--systemd"
-spawn-at-startup "walker" "--gapplication-service"
 spawn-at-startup "waybar" "-c" ".config/waybar/config-niri"
+spawn-at-startup "walker" "--gapplication-service"
 spawn-at-startup "mako"
 spawn-at-startup "nm-applet" "--indicator"
 spawn-at-startup "systemctl" "--user" "start" "hyprpolkitagent"
 spawn-at-startup "wlsunset" "-l" "52.5" "-L" "13.4"
-spawn-at-startup "waypaper" "--restore"
 spawn-at-startup "hypridle"
 spawn-at-startup "xwayland-satellite"
+spawn-at-startup "waypaper" "--restore"
 spawn-at-startup "zen-browser"
 spawn-at-startup "Telegram"
 spawn-at-startup "vesktop"

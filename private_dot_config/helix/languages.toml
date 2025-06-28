@@ -14,3 +14,9 @@ language-servers = ["ruff", "pylsp"]
 [language-server.ruff]
 command = "ruff"
 args = ["server"]
+
+[language-server.rust-analyzer.config.check]
+command = "clippy"
+
+[language-server.rust-analyzer.config.cargo]
+features = "all"
