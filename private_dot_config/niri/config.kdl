@@ -422,6 +422,7 @@ binds {
     Mod+space repeat=false { spawn "walker" "--modules" "applications"; }
     Mod+Shift+space repeat=false { spawn "walker" "--modules" "runner"; }
     Mod+Alt+V repeat=false { spawn "walker" "--modules" "clipboard"; }
+    Mod+A repeat=false { spawn "walker" "--modules" "audio"; }
     Mod+minus repeat=false { spawn "kitten" "quick-access-terminal"; }
     
     Ctrl+Alt+L { spawn "hyprlock"; }
