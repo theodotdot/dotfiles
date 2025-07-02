@@ -3,6 +3,10 @@
 // Check the wiki for a full description of the configuration:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Overview
 
+hotkey-overlay {
+    skip-at-startup
+}
+
 spawn-at-startup "dbus-update-activation-environment" "--systemd"
 spawn-at-startup "waybar" "-c" ".config/waybar/config-niri"
 spawn-at-startup "walker" "--gapplication-service"
@@ -411,9 +415,7 @@ binds {
     // Most actions that you can bind here can also be invoked programmatically with
     // `niri msg action do-something`.
 
-    // Mod-Shift-/, which is usually the same as Mod-?,
-    // shows a list of important hotkeys.
-    Mod+Shift+H { show-hotkey-overlay; }
+    // Mod+Shift+H { show-hotkey-overlay; }
 
     // Mod+D {toggle-overview}
 
@@ -440,10 +442,6 @@ binds {
     Mod+Shift+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "1"; }
     Mod+Alt+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "2"; }
     Mod+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "1.25"; }
-
-    // You can also use a shell. Do this if you need pipes, multiple commands, etc.
-    // Note: the entire command goes as a single argument in the end.
-    // Mod+T { spawn "bash" "-c" "notify-send hello && exec alacritty"; }
 
     // Volume control
     // The allow-when-locked=true property makes them work even when the session is locked.
