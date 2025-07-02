@@ -232,3 +232,32 @@ weight = 5
 name = "dmenu"
 placeholder = "Dmenu"
 switcher_only = true
+
+[[plugins]]
+keep_sort = false
+name = "power"
+placeholder = "Power"
+recalculate_score = true
+show_icon_when_single = true
+switcher_only = true
+
+[[plugins.entries]]
+exec = "shutdown now"
+icon = "system-shutdown"
+label = "Shutdown"
+
+[[plugins.entries]]
+exec = "reboot"
+icon = "system-reboot"
+label = "Reboot"
+
+[[plugins.entries]]
+exec = "playerctl --all-players pause & hyprlock"
+icon = "system-lock-screen"
+label = "Lock Screen"
+
+[[plugins]]
+name = "audio"
+placeholder = "Audio Switch"
+src_once = "./.config/walker/scripts/audio-switch.sh -l"
+cmd = "./.config/walker/scripts/audio-switch.sh -i %RESULT%"
