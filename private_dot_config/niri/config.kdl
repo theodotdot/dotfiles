@@ -9,13 +9,13 @@ hotkey-overlay {
 
 spawn-at-startup "dbus-update-activation-environment" "--systemd"
 spawn-at-startup "waybar" "-c" ".config/waybar/config-niri"
-spawn-at-startup "walker" "--gapplication-service"
 spawn-at-startup "mako"
 spawn-at-startup "nm-applet" "--indicator"
 spawn-at-startup "systemctl" "--user" "start" "hyprpolkitagent"
 spawn-at-startup "wlsunset" "-l" "52.5" "-L" "13.4"
 spawn-at-startup "hypridle"
-spawn-at-startup "xwayland-satellite"
+spawn-sh-at-startup "wl-paste --watch cliphist store"
+// spawn-at-startup "xwayland-satellite"
 spawn-at-startup "waypaper" "--restore"
 spawn-at-startup "zen-browser"
 spawn-at-startup "Telegram"
@@ -44,19 +44,19 @@ environment {
     GTK_THEME "catppuccin-macchiato-mauve-standard+default"
 
     // xwayland
-    DISPLAY ":0"
+    // DISPLAY ":0"
     // electron and wayland
     ELECTRON_OZONE_PLATFORM_HINT "wayland"
 
     // nvidia
-    LIBVA_DRIVER_NAME "nvidia"
-    GBM_BACKEND "nvidia-drm"
-    __GLX_VENDOR_LIBRARY_NAME "nvidia"
-    WLR_DRM_NO_ATOMIC "1"
-    __NV_PRIME_RENDER_OFFLOAD "1"
-    __VK_LAYER_NV_optimus "NVIDIA_only"
-    WLR_RENDERER_ALLOW_SOFTWARE "1"
-    MOZ_DISABLE_RDD_SANDBOX "1"
+    // LIBVA_DRIVER_NAME "nvidia"
+    // GBM_BACKEND "nvidia-drm"
+    // __GLX_VENDOR_LIBRARY_NAME "nvidia"
+    // WLR_DRM_NO_ATOMIC "1"
+    // __NV_PRIME_RENDER_OFFLOAD "1"
+    // __VK_LAYER_NV_optimus "NVIDIA_only"
+    // WLR_RENDERER_ALLOW_SOFTWARE "1"
+    // MOZ_DISABLE_RDD_SANDBOX "1"
 }
 
 // Input device configuration.
@@ -123,12 +123,13 @@ input {
 // Find more information on the wiki:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
 // Remember to uncomment the node by removing "/-"!
-output "DP-1" {
+output "DP-2" {
     // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
-    mode "3840x2160@240"
+    // mode "3840x2160@240"
 
+    mode "1920x1080@143.981"
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
-    scale 1.25
+    scale 1
 
     // Transform allows to rotate the output counter-clockwise, valid values are:
     // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
@@ -421,10 +422,12 @@ binds {
 
     // Utilities
     Mod+Return repeat=false { spawn "kitty"; }
-    Mod+space repeat=false { spawn "walker" "--modules" "applications"; }
-    Mod+Shift+space repeat=false { spawn "walker" "--modules" "runner"; }
-    Mod+Alt+V repeat=false { spawn "walker" "--modules" "clipboard"; }
-    Mod+A repeat=false { spawn "walker" "--modules" "audio"; }
+    Mod+Shift+space repeat=false { spawn "rofi" "-show" "run"; }
+    Mod+space repeat=false { spawn "rofi" "-show" "drun"; }
+    // Mod+Alt+V repeat=false { spawn "walker" "--modules" "clipboard"; }
+    Mod+Alt+V repeat=false { spawn-sh "rofi -modi clipboard:/home/theotime/.config/rofi/cliphist/cliphist-rofi-img -show clipboard -show-icons"; }
+    // Mod+A repeat=false { spawn "walker" "--modules" "audio"; }
+    Mod+A repeat=false { spawn "rofi-mixer"; }
     Mod+minus repeat=false { spawn "kitten" "quick-access-terminal"; }
     
     Ctrl+Alt+L { spawn "hyprlock"; }

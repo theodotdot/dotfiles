@@ -1,4 +1,8 @@
 /* Catppuccin Macchiato */
+@define-color foreground #cad3f5; /* text */
+@define-color background #24273a; /* base */
+@define-color color1 #c6a0f6; /* mauve */
+
 :root {
   --main-color: #cad3f5; /* text */
   --main-border-color: #24273a; /* base */
@@ -8,8 +12,8 @@
   --typeahead-color: #ed8796; /* red */
   --selected-background: #494d64; /* surface1 */
   --selected-text: #c6a0f6; /* mauve */
-  /* --ai-color: rgba(255, 255, 255, 0.8); */
-  /* --ai-response-background: hsla(219, 28.6%, 19.2%, 0.8); */
+  --ai-color: rgba(255, 255, 255, 0.8);
+  --ai-response-background: hsla(219, 28.6%, 19.2%, 0.8);
 }
 
 #window,
@@ -19,6 +23,8 @@
 #search,
 #password,
 #input,
+#prompt,
+#clear,
 #typeahead,
 #list,
 child,
@@ -32,6 +38,13 @@ slider,
 #activationlabel {
   all: unset;
   font-family: Monolisa Nerd Font;
+}
+
+#cfgerr {
+  background: rgba(255, 0, 0, 0.4);
+  margin-top: 20px;
+  padding: 8px;
+  font-size: 1.2em;
 }
 
 #window {
@@ -54,9 +67,19 @@ slider,
     0 1px 2px rgba(0, 0, 0, 0.22);
   border-radius: 5px;
   background: var(--search-background);
+  padding: 8px;
 }
 
 #prompt {
+  margin-left: 4px;
+  margin-right: 12px;
+  color: var(--search-icon-color);
+  opacity: 0.2;
+}
+
+#clear {
+  color: var(--selected-text);
+  opacity: 0.8;
 }
 
 #password,
@@ -87,20 +110,6 @@ slider,
   opacity: 0.5;
 }
 
-#input > *:first-child,
-#typeahead > *:first-child {
-  margin-right: 16px;
-  margin-left: 4px;
-  color: var(--search-icon-color);
-  opacity: 0.2;
-}
-
-#input > *:last-child,
-#typeahead > *:last-child {
-  color: var(--selected-text);
-  opacity: 0.8;
-}
-
 #list {
 }
 
@@ -121,6 +130,9 @@ child:hover {
 
 #icon {
   margin-right: 8px;
+}
+
+#text {
 }
 
 #label {
@@ -154,6 +166,7 @@ child:hover {
   padding: 10px;
   border-radius: 2px;
   color: var(--ai-color);
+  background: var(--main-background);
 }
 
 .aiItem.user {
@@ -165,3 +178,4 @@ child:hover {
 .aiItem.assistant {
   background: var(--ai-response-background);
 }
+
