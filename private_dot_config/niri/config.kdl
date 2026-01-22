@@ -13,7 +13,7 @@ spawn-at-startup "mako"
 spawn-at-startup "nm-applet" "--indicator"
 spawn-at-startup "systemctl" "--user" "start" "hyprpolkitagent"
 spawn-at-startup "wlsunset" "-l" "52.5" "-L" "13.4"
-spawn-at-startup "hypridle"
+// spawn-at-startup "hypridle"
 spawn-sh-at-startup "wl-paste --watch cliphist store"
 // spawn-at-startup "xwayland-satellite"
 spawn-at-startup "waypaper" "--restore"
@@ -47,6 +47,7 @@ environment {
     // DISPLAY ":0"
     // electron and wayland
     ELECTRON_OZONE_PLATFORM_HINT "wayland"
+    // MOZ_ENABLE_WAYLAND "0"
 
     // nvidia
     // LIBVA_DRIVER_NAME "nvidia"
@@ -57,6 +58,10 @@ environment {
     // __VK_LAYER_NV_optimus "NVIDIA_only"
     // WLR_RENDERER_ALLOW_SOFTWARE "1"
     // MOZ_DISABLE_RDD_SANDBOX "1"
+
+    // cedilla setup
+    GTK_IM_MODULE "cedilla"
+    QT_IM_MODULE "cedilla"
 }
 
 // Input device configuration.
@@ -125,11 +130,10 @@ input {
 // Remember to uncomment the node by removing "/-"!
 output "DP-2" {
     // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
-    // mode "3840x2160@240"
+    mode "3840x2160@240"
 
-    mode "1920x1080@143.981"
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
-    scale 1
+    scale 1.5
 
     // Transform allows to rotate the output counter-clockwise, valid values are:
     // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
@@ -169,6 +173,7 @@ layout {
         proportion 0.33333
         proportion 0.5
         proportion 0.66667
+        proportion 1.0
 
         // Fixed sets the width in logical pixels exactly.
         // fixed 1920
@@ -350,7 +355,7 @@ workspace "games"
 
 // Zen in main workspace
 window-rule {
-    match app-id=r#"^zen-beta$"#
+    match app-id=r#"^zen$"#
     open-on-workspace "main"
 }
 
@@ -442,9 +447,9 @@ binds {
     Mod+O repeat=false { spawn "killall" "-SIGUSR2" "waybar"; }
 
     // Switch scaling for gaming
-    Mod+Shift+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "1"; }
-    Mod+Alt+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "2"; }
-    Mod+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "1.25"; }
+    Mod+Shift+G repeat=false { spawn "niri" "msg" "output" "DP-2" "scale" "1"; }
+    Mod+Alt+G repeat=false { spawn "niri" "msg" "output" "DP-2" "scale" "2"; }
+    Mod+G repeat=false { spawn "niri" "msg" "output" "DP-2" "scale" "1.5"; }
 
     // Volume control
     // The allow-when-locked=true property makes them work even when the session is locked.
@@ -452,6 +457,7 @@ binds {
     XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
     XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
     XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+    // XF86AudioPlay        allow-when-locked=true { spawn "playerctl" "play-pause"; }
     XF86AudioPlay        allow-when-locked=true { spawn "playerctl" "--ignore-player=firefox" "play-pause"; }
     XF86AudioPrev        allow-when-locked=true { spawn "playerctl" "previous"; }
     XF86AudioNext        allow-when-locked=true { spawn "playerctl" "next"; }
@@ -465,15 +471,15 @@ binds {
 
     // Move focus
     Mod+Left  { focus-column-left; }
-    Mod+Down  { focus-window-down; }
-    Mod+Up    { focus-window-up; }
+    Mod+Down  { focus-window-or-workspace-down; }
+    Mod+Up    { focus-window-or-workspace-up; }
     Mod+Right { focus-column-right; }
     Mod+Home { focus-column-first; }
     Mod+End  { focus-column-last; }
-    // Mod+Shift+Left  { focus-monitor-left; }
-    // Mod+Shift+Down  { focus-monitor-down; }
-    // Mod+Shift+Up    { focus-monitor-up; }
-    // Mod+Shift+Right { focus-monitor-right; }
+    Mod+Alt+Left  { focus-monitor-left; }
+    Mod+Alt+Down  { focus-monitor-down; }
+    Mod+Alt+Up    { focus-monitor-up; }
+    Mod+Alt+Right { focus-monitor-right; }
 
     Mod+Tab      { focus-workspace-down; }
     Mod+Shift+Tab        { focus-workspace-up; }
@@ -513,10 +519,10 @@ binds {
     // To avoid scrolling through workspaces really fast, you can use
     // the cooldown-ms property. The bind will be rate-limited to this value.
     // You can set a cooldown on any bind, but it's most useful for the wheel.
-    Mod+WheelScrollDown      cooldown-ms=50 { focus-workspace-down; }
-    Mod+WheelScrollUp        cooldown-ms=50 { focus-workspace-up; }
-    Mod+Shift+WheelScrollDown cooldown-ms=50 { focus-column-right; }
-    Mod+Shift+WheelScrollUp   cooldown-ms=50 { focus-column-left; }
+    Mod+WheelScrollDown      cooldown-ms=50 { focus-column-left; }
+    Mod+WheelScrollUp        cooldown-ms=50 { focus-column-right; }
+    Mod+Shift+WheelScrollDown cooldown-ms=50 { focus-workspace-down; }
+    Mod+Shift+WheelScrollUp   cooldown-ms=50 { focus-workspace-up; }
 
     // Mod+WheelScrollRight      { focus-column-right; }
     // Mod+WheelScrollLeft       { focus-column-left; }
@@ -563,7 +569,7 @@ binds {
     // Mod+Ctrl+1 { move-window-to-workspace 1; }
 
     // Switches focus between the current and the previous workspace.
-    Alt+Tab { focus-workspace-previous; }
+    // Alt+Tab { focus-workspace-previous; }
 
     // The following binds move the focused window in and out of a column.
     // If the window is alone, they will consume it into the nearby column to the side.
@@ -579,7 +585,7 @@ binds {
     Mod+R { switch-preset-column-width; }
     Mod+Shift+R { switch-preset-window-height; }
     Mod+Ctrl+R { reset-window-height; }
-    Mod+F { maximize-column; }
+    Mod+F { maximize-window-to-edges; }
     Mod+Shift+F { fullscreen-window; }
 
     // Expand the focused column to space not taken up by other fully visible columns.

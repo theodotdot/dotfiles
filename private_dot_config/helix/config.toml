@@ -45,8 +45,8 @@ P = "paste_clipboard_after"
 A-s = [":pipe sort"]
 
 [keys.normal.space.","]
-y = ":sh zellij run -c -f -x 10% -y 10% --width 80% --height 80% -- bash helix-yazi-zellij open"
-g = ":sh zellij run -c -f -x 10% -y 10% --width 80% --height 80% -- gitui -t macchiato.ron"
+y = ":sh zellij run -c -f -x 10%% -y 10%% --width 80%% --height 80%% -- bash helix-yazi-zellij open"
+g = ":sh zellij run -c -f -x 10%% -y 10%% --width 80%% --height 80%% -- gitui -t macchiato.ron"
 
 [keys.normal.space.c]
 c = "@:sh<space>wl-copy<space><C-r>%<ret>"
