@@ -5,8 +5,7 @@ line-number = "relative"
 cursorline = true
 color-modes = true
 bufferline = "always"
-jump-label-alphabet = "nespocv-xrtimdhg,"
-
+jump-label-alphabet = "nretsiaupmodvh-g"
 [editor.cursor-shape]
 insert = "bar"
 normal = "block"
@@ -23,8 +22,8 @@ hidden = false
 
 [keys.normal]
 esc = ["collapse_selection", "keep_primary_selection"]
-J = ["extend_to_line_bounds", "delete_selection", "paste_after"]
-K = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_before"]
+# J = ["extend_to_line_bounds", "delete_selection", "paste_after"]
+# K = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_before"]
 p = "paste_before"
 P = "paste_after"
 X = "extend_line_above"
@@ -32,21 +31,38 @@ X = "extend_line_above"
 C-s = ":w"
 C-q = ":q"
 ret = "goto_word"
+A-S-up = [
+  "extend_to_line_bounds",
+  "delete_selection",
+  "move_line_up",
+  "paste_before",
+]
+A-S-down = ["extend_to_line_bounds", "delete_selection", "paste_after"]
 
 [keys.normal.g]
 x = ":buffer-close"
+left = "goto_previous_buffer"
+right = "goto_next_buffer"
 
 [keys.normal.space]
 F = "file_picker_in_current_buffer_directory"
 p = "paste_clipboard_before"
 P = "paste_clipboard_after"
+b = [":sh git blame -L %{cursor_line},%{cursor_line} %{buffer_name}"]
 
 [keys.select]
 A-s = [":pipe sort"]
 
 [keys.normal.space.","]
-y = ":sh zellij run -c -f -x 10%% -y 10%% --width 80%% --height 80%% -- bash helix-yazi-zellij open"
-g = ":sh zellij run -c -f -x 10%% -y 10%% --width 80%% --height 80%% -- gitui -t macchiato.ron"
+# y = ":sh zellij run -c -f -x 10% -y 10% --width 80% --height 80% -- bash helix-yazi-zellij open"
+# g = ":sh zellij run -c -f -x 10% -y 10% --width 80% --height 80% -- gitui -t macchiato.ron"
+y = [
+  ':sh rm -f /tmp/unique-file',
+  ':insert-output yazi "%{buffer_name}" --chooser-file=/tmp/unique-file',
+  ':sh printf "\x1b[?1049h\x1b[?2004h" > /dev/tty',
+  ':open %sh{cat /tmp/unique-file}',
+  ':redraw',
+]
 
 [keys.normal.space.c]
 c = "@:sh<space>wl-copy<space><C-r>%<ret>"

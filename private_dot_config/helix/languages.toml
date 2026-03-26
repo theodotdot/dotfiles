@@ -20,3 +20,13 @@ command = "clippy"
 
 [language-server.rust-analyzer.config.cargo]
 features = "all"
+
+[language-server.dbt-language-server]
+command = "/home/theotime.poulain/dbt-language-server/dbt-language-server"
+args = ["--debug"]
+
+[[language]]
+name = "sql"
+scope = "dbt_project.yml"
+file-types = ["sql","yml","yaml"]
+language-servers = ["dbt-language-server"]
