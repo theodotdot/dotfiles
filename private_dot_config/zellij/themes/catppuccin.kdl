@@ -41,6 +41,20 @@ themes {
     white "#cad3f5" // Text
   }
 
+  catppuccin-macchiato-mauve {
+    bg "#5b6078" // Surface2
+    fg "#cad3f5" // Text
+    red "#ed8796"
+    green "#c6a0f6" // is actually mauve
+    blue "#8aadf4"
+    yellow "#eed49f"
+    magenta "#f5bde6" // Pink
+    orange "#f5a97f" // Peach
+    cyan "#91d7e3" // Sky
+    black "#1e2030" // Mantle
+    white "#cad3f5" // Text
+  }
+
   catppuccin-mocha {
     bg "#585b70" // Surface2
     fg "#cdd6f4" // Text
