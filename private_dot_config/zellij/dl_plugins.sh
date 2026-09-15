@@ -8,6 +8,9 @@ mkdir -p "$DOWNLOAD_FOLDER"
 REPOS=(
     "karimould/zellij-forgot"
     "dj95/zjstatus"
+    "Nacho114/harpoon"
+    "AlexZasorin/zellij-newtab-plus"
+    "b0o/zjstatus-hints"
 )
 
 for REPO in "${REPOS[@]}"; do

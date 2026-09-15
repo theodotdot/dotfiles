@@ -4,7 +4,7 @@
 
 keybinds clear-defaults=true {
     locked {
-        bind "Ctrl Shift g" { SwitchToMode "normal"; }
+        bind "Ctrl Alt g" { SwitchToMode "normal"; }
     }
     pane {
         bind "left" { MoveFocus "left"; }
@@ -49,7 +49,15 @@ keybinds clear-defaults=true {
         bind "j" { GoToNextTab; }
         bind "k" { GoToPreviousTab; }
         bind "l" { GoToNextTab; }
-        bind "n" { NewTab; SwitchToMode "normal"; }
+        bind "n" {
+            LaunchOrFocusPlugin "file:/home/theotime.poulain/.config/zellij/plugins/zellij-newtab-plus.wasm" {
+                floating true
+
+                use_zoxide true
+            };
+            SwitchToMode "normal";
+        }
+        bind "N" { NewTab; SwitchToMode "normal"; }
         bind "r" { SwitchToMode "renametab"; TabNameInput 0; }
         bind "s" { ToggleActiveSyncTab; SwitchToMode "normal"; }
         bind "Ctrl t" { SwitchToMode "normal"; }
@@ -146,13 +154,18 @@ keybinds clear-defaults=true {
         bind "Alt -" { Resize "Decrease"; }
         bind "Alt =" { Resize "Increase"; }
         bind "Alt f" { ToggleFloatingPanes; }
-        bind "Ctrl Shift g" { SwitchToModen "locked"; }
+        bind "Ctrl Alt g" { SwitchToMode "locked"; }
         bind "Alt Shift left" { MoveTab "left"; }
         bind "Alt n" { NewPane; }
         bind "Alt Shift right" { MoveTab "right"; }
         bind "Alt p" { TogglePaneInGroup; }
         bind "Alt Shift p" { ToggleGroupMarking; }
         bind "Ctrl Shift q" { Quit; }
+        bind "Ctrl Tab" {
+            LaunchOrFocusPlugin "file:/home/theotime.poulain/.config/zellij/plugins/harpoon.wasm" {
+                floating true; move_to_focused_tab true;
+            }
+        }
     }
     shared_except "locked" "move" {
         bind "Ctrl h" { SwitchToMode "move"; }
@@ -164,7 +177,7 @@ keybinds clear-defaults=true {
         bind "Ctrl b" { SwitchToMode "tmux"; }
     }
     shared_except "locked" "scroll" "search" {
-        bind "Ctrl Shift s" { SwitchToMode "scroll"; }
+        bind "Ctrl Alt s" { SwitchToMode "scroll"; }
     }
     shared_except "locked" "tab" {
         bind "Ctrl t" { SwitchToMode "tab"; }
@@ -265,6 +278,18 @@ plugins {
 // eg. "file:/path/to/my-plugin.wasm"
 // eg. "https://example.com/my-plugin.wasm"
 load_plugins {
+    "file:$HOME/.config/zellij/plugins/zjframes.wasm" {
+        hide_frame_for_single_pane       "true"
+        hide_frame_except_for_search     "true"
+        hide_frame_except_for_scroll     "true"
+        hide_frame_except_for_fullscreen "true"
+    }
+    "file:$HOME/.config/zellij/plugins/zjstatus-hints.wasm" {
+        max_length 0
+        overflow_str "..."
+        pipe_name "zjstatus_hints"
+        hide_in_base_mode false
+    }
 }
 web_client {
     font "monospace"
