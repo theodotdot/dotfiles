@@ -161,7 +161,7 @@ keybinds clear-defaults=true {
         bind "Alt p" { TogglePaneInGroup; }
         bind "Alt Shift p" { ToggleGroupMarking; }
         bind "Ctrl Shift q" { Quit; }
-        bind "Ctrl Tab" {
+        bind "Ctrl y" {
             LaunchOrFocusPlugin "file:/home/theotime.poulain/.config/zellij/plugins/harpoon.wasm" {
                 floating true; move_to_focused_tab true;
             }
@@ -285,10 +285,10 @@ load_plugins {
         hide_frame_except_for_fullscreen "true"
     }
     "file:$HOME/.config/zellij/plugins/zjstatus-hints.wasm" {
-        max_length 0
+        max_length 80
         overflow_str "..."
         pipe_name "zjstatus_hints"
-        hide_in_base_mode false
+        hide_in_base_mode true
     }
 }
 web_client {
