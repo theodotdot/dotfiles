@@ -50,7 +50,7 @@ keybinds clear-defaults=true {
         bind "k" { GoToPreviousTab; }
         bind "l" { GoToNextTab; }
         bind "n" {
-            LaunchOrFocusPlugin "file:/home/theotime.poulain/.config/zellij/plugins/zellij-newtab-plus.wasm" {
+            LaunchOrFocusPlugin "file:/home/{{ .chezmoi.username }}/.config/zellij/plugins/zellij-newtab-plus.wasm" {
                 floating true
 
                 use_zoxide true
@@ -162,7 +162,7 @@ keybinds clear-defaults=true {
         bind "Alt Shift p" { ToggleGroupMarking; }
         bind "Ctrl Shift q" { Quit; }
         bind "Ctrl y" {
-            LaunchOrFocusPlugin "file:/home/theotime.poulain/.config/zellij/plugins/harpoon.wasm" {
+            LaunchOrFocusPlugin "file:/home/{{ .chezmoi.username }}/.config/zellij/plugins/harpoon.wasm" {
                 floating true; move_to_focused_tab true;
             }
         }
