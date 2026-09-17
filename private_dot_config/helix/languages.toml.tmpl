@@ -22,7 +22,7 @@ command = "clippy"
 features = "all"
 
 [language-server.dbt-language-server]
-command = "/home/theotime.poulain/dbt-language-server/dbt-language-server"
+command = "/home/{{ .chezmoi.username }}/dbt-language-server/dbt-language-server"
 args = ["--debug"]
 
 [[language]]

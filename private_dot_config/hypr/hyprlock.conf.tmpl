@@ -13,7 +13,7 @@ general {
 # LAYOUT
 label {
   monitor =
-  text = cmd[update:43200000] /home/theotime/.config/waybar/nirixkblayout.sh
+  text = cmd[update:43200000] /home/{{ .chezmoi.username }}/.config/waybar/nirixkblayout.sh
   color = $text
   font_size = 15
   font_family = $font
@@ -25,7 +25,7 @@ label {
 # BACKGROUND
 background {
   monitor =
-  path = /home/theotime/Downloads/walls/originals/anime-forest.png
+  path = /home/{{ .chezmoi.username }}/Downloads/walls/originals/anime-forest.png
   # blur_passes = 2
   # color = $base
 }
@@ -57,7 +57,7 @@ label {
 # USER AVATAR
 image {
   monitor =
-  path = /home/theotime/Downloads/sticker.webp
+  path = /home/{{ .chezmoi.username }}/Downloads/sticker.webp
   size = 300
   border_color = $accent
   position = 0, 75

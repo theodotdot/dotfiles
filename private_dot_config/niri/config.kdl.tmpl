@@ -20,7 +20,7 @@ spawn-at-startup "waypaper" "--restore"
 spawn-at-startup "zen-browser"
 spawn-at-startup "Telegram"
 spawn-at-startup "vesktop"
-spawn-at-startup "/home/theotime/Downloads/zmkBATx/zmkbatx.sh"
+spawn-at-startup "/home/{{ .chezmoi.username }}/Downloads/zmkBATx/zmkbatx.sh"
 spawn-at-startup "moonshine"
 
 cursor {
@@ -437,7 +437,7 @@ binds {
     Mod+Shift+space repeat=false { spawn "rofi" "-show" "run"; }
     Mod+space repeat=false { spawn "rofi" "-show" "drun"; }
     // Mod+Alt+V repeat=false { spawn "walker" "--modules" "clipboard"; }
-    Mod+Alt+V repeat=false { spawn-sh "rofi -modi clipboard:/home/theotime/.config/rofi/cliphist/cliphist-rofi-img -show clipboard -show-icons"; }
+    Mod+Alt+V repeat=false { spawn-sh "rofi -modi clipboard:/home/{{ .chezmoi.username }}/.config/rofi/cliphist/cliphist-rofi-img -show clipboard -show-icons"; }
     // Mod+A repeat=false { spawn "walker" "--modules" "audio"; }
     Mod+A repeat=false { spawn "rofi-mixer"; }
     Mod+minus repeat=false { spawn "kitten" "quick-access-terminal"; }
