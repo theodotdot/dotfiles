@@ -1,7 +1,6 @@
-// This config is in the KDL format: https://kdl.dev
-// "/-" comments out the following node.
-// Check the wiki for a full description of the configuration:
-// https://github.com/YaLTeR/niri/wiki/Configuration:-Overview
+
+//secrets
+include "secrets.kdl"
 
 hotkey-overlay {
     skip-at-startup
@@ -11,16 +10,18 @@ spawn-at-startup "dbus-update-activation-environment" "--systemd"
 spawn-at-startup "waybar" "-c" ".config/waybar/config-niri"
 spawn-at-startup "mako"
 spawn-at-startup "nm-applet" "--indicator"
-spawn-at-startup "systemctl" "--user" "start" "hyprpolkitagent"
+// spawn-at-startup "systemctl" "--user" "start" "hyprpolkitagent"
 spawn-at-startup "wlsunset" "-l" "52.5" "-L" "13.4"
 // spawn-at-startup "hypridle"
 spawn-sh-at-startup "wl-paste --watch cliphist store"
 // spawn-at-startup "xwayland-satellite"
+spawn-at-startup "awww-daemon"
 spawn-at-startup "waypaper" "--restore"
 spawn-at-startup "zen-browser"
 spawn-at-startup "Telegram"
 spawn-at-startup "vesktop"
 spawn-at-startup "/home/theotime/Downloads/zmkBATx/zmkbatx.sh"
+spawn-at-startup "moonshine"
 
 cursor {
     xcursor-theme "catppuccin-macchiato-dark-cursors"
@@ -74,8 +75,8 @@ input {
             // For more information, see xkeyboard-config(7).
 
             // For example:
-            layout "fr,us"
-            variant "ergol,intl"
+            layout "us,fr"
+            variant "intl,ergol"
             options "grp:alt_space_toggle"
         }
     }
@@ -130,7 +131,7 @@ input {
 // Remember to uncomment the node by removing "/-"!
 output "DP-2" {
     // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
-    mode "3840x2160@240"
+    mode "3840x2160@119.999"
 
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
     scale 1.5
@@ -322,7 +323,7 @@ animations {
 // Make the wallpaper stationary, rather than moving with workspaces.
 layer-rule {
     // Find the right namespace by running niri msg layers.
-    match namespace="^swww-daemon$"
+    match namespace="^awww-daemon$"
     place-within-backdrop true
 }
 
@@ -364,6 +365,12 @@ window-rule {
     match app-id=r#"^org\.prismlauncher\.PrismLauncher$"#
     match app-id=r#"^steam$"#
     open-on-workspace "games"
+}
+
+// steam games in full screen all the time
+window-rule {
+    match app-id=r#"^steam_app_\d+"#
+    open-fullscreen true
 }
 
 // Telegram and discord in chat workspace

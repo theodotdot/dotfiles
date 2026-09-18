@@ -123,12 +123,11 @@
     },
     "custom/pacman": {
         "format": "<big>󰄓</big>  {}",
-        "interval": 3600,                     // every hour
+        "interval": 600,                     // every 10min
         "exec": "checkupdates | wc -l",       // # of updates
         "exec-if": "exit 0",                  // always run; consider advanced run conditions
-        // "on-click": "alacritty -e 'paru'; pkill -SIGRTMIN+8 waybar", // update system
         "signal": 8,
-        "max-length": 5,
+        "max-length": 9,
         "min-length": 3
     },
 
@@ -201,7 +200,7 @@
         "format": "<span foreground='#fab387'>{icon}</span>  {volume}%",
         "format-muted": " ",
         "format-source": "",
-        "format-source-muted": "",
+        "format-source-muted": " ",
         //"format-muted": "<span foreground='#fab387'> </span>",
         //"format-icons": [ "<span foreground='#fab387'></span>" ]
         "format-icons": {
