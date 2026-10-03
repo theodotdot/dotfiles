@@ -4,6 +4,7 @@ layout {
         plugin location="file:$HOME/.config/zellij/plugins/zjstatus.wasm" {
 
             color_bg "#24273a" // base
+            color_surface "#363a4f" // surface0
             color_fg "#cad3f5" // Text
             color_red "#ed8796"
             color_mauve "#c6a0f6"
@@ -23,13 +24,10 @@ layout {
 
             // bar content
             format_left   "{mode}#[bg=$bg] {tabs}"
-            format_center ""
-            format_right  "{pipe_zjstatus_hints}#[bg=$bg,fg=$blue] {session} "
+            format_right  "#[bg=$bg,fg=$blue] {session} "
             format_space  ""
             format_hide_on_overlength "true"
             format_precedence "lrc"
-
-            pipe_zjstatus_hints_format "{output}"
 
             mode_normal        "#[bg=$magenta,fg=$bg,bold] normal #[bg=$bg,fg=$magenta]"
             mode_locked        "#[bg=$red,fg=$bg,bold] locked  #[bg=$bg,fg=$red]"
@@ -45,7 +43,7 @@ layout {
             mode_move          "#[bg=$blue,fg=$bg,bold] move #[bg=$bg,fg=$blue]"
             mode_prompt        "#[bg=$blue,fg=$bg,bold] prompt #[bg=$bg,fg=$blue]"
 
-            tab_normal               "#[fg=$fg,bg=$bg]{name}{fullscreen_indicator}{sync_indicator}{floating_indicator} "
+            tab_normal               "#[fg=$surface,bg=$bg]#[fg=$fg,bg=$surface]{name}{fullscreen_indicator}{sync_indicator}{floating_indicator}#[fg=$surface,bg=$bg]"
             tab_active               "#[fg=$mauve,bg=$bg,bold]#[fg=$bg,bg=$mauve,bold]{name}{fullscreen_indicator}{sync_indicator}{floating_indicator}#[fg=$mauve,bg=$bg,bold]"
             
             // separator between the tabs
@@ -54,5 +52,51 @@ layout {
     }
     pane split_direction="vertical" {
         pane
+    }
+    pane size=1 borderless=true {
+        plugin location="file:$HOME/.config/zellij/plugins/zjhints.wasm" {
+
+            discover_hints true
+            direction_keys "arrows"
+
+            color_bg "#24273a" // base
+            color_surface "#363a4f" // surface0
+            color_fg "#cad3f5" // Text
+            color_red "#ed8796"
+            color_mauve "#c6a0f6"
+            color_green "#a6da95"
+            color_blue "#8aadf4"
+            color_yellow "#eed49f"
+            color_magenta "#f5bde6" // Pink
+            color_orange "#f5a97f" // Peach
+            color_cyan "#91d7e3" // Sky
+            color_black "#1e2030" // Mantle
+            color_white "#cad3f5" // Text
+
+            key_format  "#[fg=$mauve,bg=$bg]#[fg=$bg,bg=$mauve,bold]{key} "
+            desc_format "#[fg=$fg,bg=$surface] {desc}#[fg=$surface,bg=$bg]"
+            hint_spacer "#[fg=$fg,bg=$bg]  "
+
+            key_alias_enter     "󰌑"
+            key_alias_esc       "󱊷"
+            key_alias_tab       "󰌒"
+            key_alias_space     "󱁐"
+            key_alias_backspace "⌫"
+            key_alias_delete    "⌦"
+            key_alias_insert    "⎀"
+            key_alias_left      "←"
+            key_alias_down      "↓"
+            key_alias_up        "↑"
+            key_alias_right     "→"
+            key_alias_home      "⇱"
+            key_alias_end       "⇲"
+            key_alias_pageup    "⇞"
+            key_alias_pagedown  "⇟"
+
+            mod_alias_ctrl  "󰘴"
+            mod_alias_alt   "󰘵"
+            mod_alias_shift "󰘶"
+            mod_alias_super ""
+        }
     }
 }

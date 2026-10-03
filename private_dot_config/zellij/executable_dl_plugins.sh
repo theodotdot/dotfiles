@@ -10,7 +10,8 @@ REPOS=(
     "dj95/zjstatus"
     "Nacho114/harpoon"
     "AlexZasorin/zellij-newtab-plus"
-    "b0o/zjstatus-hints"
+    "myah-mitchell/zjhints"
+    "KiryuuLight/zellij-attention"
 )
 
 for REPO in "${REPOS[@]}"; do
