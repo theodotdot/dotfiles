@@ -161,7 +161,7 @@ keybinds clear-defaults=true {
         bind "Alt p" { TogglePaneInGroup; }
         bind "Alt Shift p" { ToggleGroupMarking; }
         bind "Ctrl Shift q" { Quit; }
-        bind "Ctrl y" {
+        bind "Ctrl u" {
             LaunchOrFocusPlugin "file:/home/{{ .chezmoi.username }}/.config/zellij/plugins/harpoon.wasm" {
                 floating true; move_to_focused_tab true;
             }
@@ -284,11 +284,10 @@ load_plugins {
         hide_frame_except_for_scroll     "true"
         hide_frame_except_for_fullscreen "true"
     }
-    "file:$HOME/.config/zellij/plugins/zjstatus-hints.wasm" {
-        max_length 80
-        overflow_str "..."
-        pipe_name "zjstatus_hints"
-        hide_in_base_mode true
+    "file:$HOME/.config/zellij/plugins/zellij-attention.wasm" {
+        enabled "true"
+        waiting_icon ""
+        completed_icon " "
     }
 }
 web_client {
