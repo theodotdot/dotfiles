@@ -1,0 +1,77 @@
+# Noctalia lock screen + idle — staged fragment
+# Drop into ~/.config/noctalia/ (any *.toml name; every *.toml there is auto-loaded, merged
+# alphabetically, and hot-reloaded). GUI-written overrides in
+# ~/.local/state/noctalia/settings.toml win over this file.
+#
+# Validated with: noctalia config validate
+# Reference: https://docs.noctalia.dev/noctalia/configuration/shell/#lock-screen
+#            https://docs.noctalia.dev/noctalia/services/idle/
+
+# ---------------------------------------------------------------------------
+# Lock screen — replaces hyprlock. Noctalia takes an ext-session-lock-v1 lock
+# (niri 26.04 advertises ext_session_lock_manager_v1/surface_v1) and integrates
+# with logind, so `loginctl lock-session` routes here too.
+[lockscreen]
+enabled = true                # false = no session lock at all (lock actions no-op)
+
+lock_before_suspend = true    # locks on logind PrepareForSleep (lid close, systemctl suspend)
+                              # — this is what hypridle's before_sleep_cmd = loginctl lock-session did
+
+fingerprint = false           # no fprintd installed here (pacman -Qq fprintd → nothing),
+                              # so the PAM path has nothing to offer. Set true after installing it.
+
+allow_empty_password = false  # only needed for security-key PAM stacks
+
+blurred_desktop = false       # true = capture the desktop before locking and use that as the
+                              # background (needs wlr-screencopy; niri has zwlr_screencopy_manager_v1)
+
+transition = ["fade", "wipe", "disc", "stripes", "zoom", "honeycomb"]
+transition_duration = 1500    # ms
+edge_smoothness = 0.3
+blur_intensity = 0.5
+tint_intensity = 0.3
+
+wallpaper = ""                # empty = per-output desktop wallpaper
+monitors = []                 # empty = all outputs; listing connectors leaves the others black
+
+# ---------------------------------------------------------------------------
+# Idle — replaces hypridle (no separate daemon). Uses ext_idle_notifier_v1 and
+# honours idle inhibitors. Native actions: lock, screen_off, suspend,
+# lock_and_suspend, command (command also takes resume_command).
+#
+# Built-in "lock" and "screen-off" behaviors are seeded but DISABLED by default,
+# so an empty config means no idle behavior at all (the current state).
+
+[idle]
+behavior_order = ["screen-off", "lock", "suspend"]
+pre_action_fade_seconds = 2.0  # fade a fullscreen overlay before running the action; 0 disables
+
+# Mirrors the only live rule in ~/.config/hypr/hypridle.conf (timeout 1200 →
+# `niri msg action power-off-monitors`, on resume `niri msg action power-on-monitors
+# & pkill -USR2 waybar`). screen_off is native, so no waybar reload is needed.
+[idle.behavior.screen-off]
+timeout = 1200
+action = "screen_off"
+enabled = true
+
+# Not currently done by hypridle on this machine (its 600 s lock listener is commented out).
+# Pick a timeout, or leave enabled = false to keep locking manual only (Ctrl+Alt+L).
+[idle.behavior.lock]
+timeout = 900
+action = "lock"
+enabled = false
+
+# Also commented out in hypridle.conf. lock_and_suspend covers "lock first, then sleep"
+# without a separate before-sleep hook.
+[idle.behavior.suspend]
+timeout = 1800
+action = "lock_and_suspend"
+enabled = false
+
+# ---------------------------------------------------------------------------
+# Equivalent actions, for reference
+#   noctalia msg session lock            # Ctrl+Alt+L bind target
+#   noctalia msg session lock-and-suspend
+#   noctalia msg session logout / reboot / shutdown
+#   noctalia msg dpms-off / dpms-on      # mirrors niri's power-off-monitors
+# loginctl lock-session also reaches the Noctalia lock screen while it runs.
