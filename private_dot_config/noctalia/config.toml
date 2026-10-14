@@ -1,0 +1,273 @@
+[bar.default]
+background_opacity = 0.74999998323619366
+border = "primary"
+center = [ "group:g1" ]
+end = [ "caffeine", "network", "volume", "tray", "notifications", "session" ]
+margin_edge = 3
+margin_ends = 550
+margin_opposite_edge = 3
+radius = 20
+shadow = false
+start = [ "workspaces", "keyboard_layout", "media" ]
+widget_spacing = 10
+
+    [bar.default.dead_zone.actions]
+    left = "panel-toggle control-center home"
+    right = "annotate"
+
+    [[bar.default.capsule_group]]
+    accordion = true
+    accordion_direction = "end"
+    border_width = 0.0
+    enabled = true
+    fill = "surface_variant"
+    id = "g1"
+    members = [ "clock", "weather" ]
+    opacity = 1.0
+    padding = 9.0
+
+[battery.device."/org/freedesktop/UPower/devices/keyboard_dev_CF_F7_A1_B2_07_60"]
+warning_threshold = 10
+
+[brightness]
+enable_ddcutil = true
+
+[calendar]
+
+[control_center.calendar]
+show_events_card = false
+
+[[control_center.shortcuts]]
+type = "wifi"
+
+[[control_center.shortcuts]]
+type = "bluetooth"
+
+[[control_center.shortcuts]]
+type = "caffeine"
+
+[[control_center.shortcuts]]
+type = "notification"
+
+[[control_center.shortcuts]]
+type = "power_profile"
+
+[[control_center.shortcuts]]
+type = "audio"
+
+[desktop_widgets]
+schema_version = 2
+widget_order = []
+
+    [desktop_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [desktop_widgets.widget]
+
+[idle]
+behavior_order = [ "screen-off", "lock", "suspend" ]
+pre_action_fade_seconds = 2.0
+
+    [idle.behavior.lock]
+    action = "lock"
+    enabled = false
+    timeout = 900
+
+    [idle.behavior.screen-off]
+    action = "screen_off"
+    enabled = true
+    timeout = 1200
+
+    [idle.behavior.suspend]
+    action = "lock_and_suspend"
+    enabled = false
+    timeout = 1800
+
+[location]
+address = "Berlin, Germany"
+
+[lockscreen]
+allow_empty_password = false
+blur_intensity = 0.5
+blurred_desktop = false
+edge_smoothness = 0.29999999999999999
+enabled = true
+fingerprint = false
+lock_before_suspend = true
+monitors = []
+tint_intensity = 0.29999999999999999
+transition = [ "fade" ]
+transition_duration = 1500
+wallpaper = ""
+
+[lockscreen_widgets]
+enabled = false
+schema_version = 2
+widget_order = [ "lockscreen-login-box@DP-2", "lockscreen-widget-0000000000000001", "lockscreen-widget-0000000000000002" ]
+
+    [lockscreen_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@DP-2"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 1280.0
+    cy = 1258.0
+    output = "DP-2"
+    placement_height = 1440.0
+    placement_width = 2560.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@DP-2".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+
+    [lockscreen_widgets.widget.lockscreen-widget-0000000000000001]
+    box_height = 464.0
+    box_width = 816.0
+    cx = 1280.0
+    cy = 624.0
+    output = "DP-2"
+    placement_height = 1440.0
+    placement_width = 2560.0
+    rotation = 0.0
+    type = "clock"
+
+        [lockscreen_widgets.widget.lockscreen-widget-0000000000000001.settings]
+        background = false
+        shadow = false
+
+    [lockscreen_widgets.widget.lockscreen-widget-0000000000000002]
+    box_height = 112.0
+    box_width = 272.0
+    cx = 1024.0
+    cy = 776.0
+    output = "DP-2"
+    placement_height = 1440.0
+    placement_width = 2560.0
+    rotation = 0.0
+    type = "weather"
+
+        [lockscreen_widgets.widget.lockscreen-widget-0000000000000002.settings]
+        background = false
+        shadow = false
+
+[notification]
+history_retention_hours = 48
+layer = "overlay"
+
+[osd]
+border = false
+
+[shell]
+app_icon_color = "primary"
+avatar_path = "/home/theotime/Downloads/momo.png"
+clipboard_auto_paste = "off"
+font_family = "MonoLisa Nerd Font"
+polkit_agent = true
+popup_shadows = false
+
+    [shell.animation]
+    speed = 1.2500000186264515
+
+    [shell.greeter_sync]
+    auto_sync = true
+
+    [shell.keyboard_layout.custom_labels]
+    "English (US, intl., with dead keys)" = "usintl"
+    "French (Ergo‑L)" = "ergol"
+
+    [shell.launcher]
+    categories = false
+    compact = true
+    fetch_exchange_rates = false
+    show_app_origin_indicator = false
+    show_icons = true
+
+        [shell.launcher.providers.calculator]
+        global = false
+
+    [shell.screenshot]
+    annotate = true
+    confirm_region = true
+    save_to_file = false
+    show_cursor = true
+    skip_annotate_on_copy_save = true
+
+    [shell.session]
+    show_shortcuts = false
+
+    [shell.shadow]
+    alpha = 0.0
+
+[theme]
+builtin = "Catppuccin"
+community_palette = "Catppuccin Macchiato Mauve"
+mode = "dark"
+source = "community"
+
+    [theme.templates]
+    builtin_ids = [ "gtk3", "gtk4", "kcolorscheme", "qt" ]
+
+[wallpaper]
+directory = "/home/theotime/Downloads/walls"
+
+    [wallpaper.automation]
+    enabled = false
+
+    [wallpaper.default]
+    path = "/home/theotime/Downloads/walls/anime-forest_catppuccin-macchiato.png"
+
+    [wallpaper.last]
+    path = "/home/theotime/Downloads/walls/anime-forest_catppuccin-macchiato.png"
+
+    [wallpaper.monitors.DP-2]
+    path = "/home/theotime/Downloads/walls/anime-forest_catppuccin-macchiato.png"
+
+[widget.clock]
+format = "%A, %d %B  %H:%M "
+
+[widget.keyboard_layout]
+icon_color = "primary"
+
+[widget.media]
+hide_when_no_media = true
+icon_color = "primary"
+title_scroll = "on_hover"
+
+[widget.network]
+show_label = false
+
+[widget.tray]
+drawer = true
+icon_color = "primary"
+match_adjacent_spacing = true
+
+[widget.weather]
+icon_color = "primary"
+
+[widget.workspaces]
+empty_color = "surface_variant"
+label_source = "name"
+labels_only_when_occupied = true
+max_label_chars = 5
+occupied_color = "surface_variant"
+scale = 1.05
+show_tooltip = false
