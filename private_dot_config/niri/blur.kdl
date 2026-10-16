@@ -1,0 +1,42 @@
+// Blur + transparency. Included from config.kdl.
+
+// Blur what's actually behind noctalia surfaces, avoids wallpaper-colored corner pixels.
+layer-rule {
+    match namespace="^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd)$"
+    background-effect {
+        xray false
+    }
+}
+
+// Everything. Tiled windows use cheap wallpaper-only (xray) blur.
+window-rule {
+    opacity 0.92
+    // Otherwise the border color fills the window background and shows through.
+    draw-border-with-background false
+    background-effect {
+        blur true
+    }
+}
+
+window-rule {
+    match is-floating=true
+    background-effect {
+        xray false
+    }
+}
+
+window-rule {
+    match app-id="^kitty$"
+    // background_opacity + background_blur in kitty.conf instead
+    opacity 1.0
+}
+
+window-rule {
+    match app-id="dev.noctalia.Noctalia"
+    // Noctalia draws its own translucent background here, so don't fade the text too.
+    opacity 1.0
+}
+
+binds {
+    Mod+Shift+O { toggle-window-rule-opacity; }
+}
