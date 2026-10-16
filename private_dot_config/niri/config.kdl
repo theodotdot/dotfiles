@@ -407,6 +407,8 @@ window-rule {
     default-window-height { fixed 920; }
 }
 
+include "blur.kdl"
+
 debug {
     // Allows notification actions and window activation coming from Noctalia.
     honor-xdg-activation-with-invalid-serial
