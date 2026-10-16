@@ -170,6 +170,7 @@ widget_order = [ "lockscreen-login-box@DP-2", "lockscreen-widget-000000000000000
         shadow = false
 
 [notification]
+background_opacity = 0.75
 history_retention_hours = 48
 layer = "overlay"
 
@@ -183,6 +184,7 @@ clipboard_auto_paste = "off"
 font_family = "MonoLisa Nerd Font"
 polkit_agent = true
 popup_shadows = false
+settings_window_translucent = true
 
     [shell.animation]
     speed = 1.2500000186264515
@@ -213,6 +215,9 @@ popup_shadows = false
 
     [shell.session]
     show_shortcuts = false
+
+    [shell.panel]
+    transparency_mode = "soft"
 
     [shell.shadow]
     alpha = 0.0
