@@ -1,0 +1,7 @@
+[Unit]
+Description=Pocknix: restore default gamepad profile for game mode
+PartOf=pocknix-game-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/pocknix/pocknix-gamepad-profile.sh reset

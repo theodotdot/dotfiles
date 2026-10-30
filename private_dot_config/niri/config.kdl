@@ -15,7 +15,8 @@ spawn-at-startup "noctalia"
 spawn-at-startup "zen-browser"
 spawn-at-startup "vesktop"
 spawn-at-startup "Telegram"
-spawn-at-startup "/home/@@CHEZMOI_USERNAME@@/Downloads/zmkBATx/zmkbatx.sh"
+// ZMK keyboard battery script from another machine; path does not exist here.
+// spawn-at-startup "/home/@@CHEZMOI_USERNAME@@/Downloads/zmkBATx/zmkbatx.sh"
 spawn-at-startup "moonshine"
 
 cursor {
@@ -124,18 +125,29 @@ input {
 // Find more information on the wiki:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
 // Remember to uncomment the node by removing "/-"!
-output "DP-2" {
-    // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
-    mode "3840x2160@240.084"
+// AYN Thor (SM8550 dual-screen handheld, Pocknix OS) outputs.
+// Connectors per /usr/lib/pocknix/boards/thor.conf:
+//   top panel    = DSI-2  (native 1080x1920@120 portrait, mounted 90° CW = "right")
+//   bottom panel = DSI-1  (1080x1240 landscape secondary screen)
+//   external     = DP-1   (USB-C dock)
+// Modes are left unset so niri uses each output's preferred mode.
 
-    // You can use integer or fractional scale, for example use 1.5 for 150% scale.
+output "DP-1" {
+    // Dock monitor. 150% scale by default; adjust with Mod+G / Mod+Shift+G / Mod+Alt+G.
     scale 1.5
-
-    // Transform allows to rotate the output counter-clockwise, valid values are:
-    // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
-    transform "normal"
-
     // variable-refresh-rate
+}
+
+output "DSI-2" {
+    // Top panel. niri transforms are counter-clockwise, and the panel is mounted
+    // 90° clockwise ("right"), so "270". If the picture is upside down, use "90".
+    transform "270"
+    scale 2.5
+}
+
+output "DSI-1" {
+    // Bottom secondary panel (already landscape).
+    scale 2.5
 }
 
 overview {
@@ -450,9 +462,9 @@ binds {
     Mod+O repeat=false { spawn-sh "noctalia msg config-reload"; }
 
     // Switch scaling for gaming
-    Mod+Shift+G repeat=false { spawn "niri" "msg" "output" "DP-2" "scale" "1"; }
-    Mod+Alt+G repeat=false { spawn "niri" "msg" "output" "DP-2" "scale" "2"; }
-    Mod+G repeat=false { spawn "niri" "msg" "output" "DP-2" "scale" "1.5"; }
+    Mod+Shift+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "1"; }
+    Mod+Alt+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "2"; }
+    Mod+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "1.5"; }
 
     // Volume control
     // The allow-when-locked=true property makes them work even when the session is locked.
