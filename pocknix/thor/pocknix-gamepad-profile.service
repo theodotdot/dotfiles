@@ -1,0 +1,12 @@
+[Unit]
+Description=Pocknix: re-assert the gamepad profile for the current session
+After=inputplumber.service pocknix-gamepad-target.service
+BindsTo=inputplumber.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/lib/pocknix/pocknix-gamepad-profile.sh apply-session
+
+[Install]
+WantedBy=inputplumber.service
