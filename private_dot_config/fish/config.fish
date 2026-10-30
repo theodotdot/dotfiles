@@ -43,4 +43,3 @@ alias sourcevenv='source .venv/bin/activate'
 zoxide init fish --cmd cd | source
 starship init fish | source
 direnv hook fish | source
-tv init fish | source
