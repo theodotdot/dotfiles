@@ -1,0 +1,9 @@
+# AnkiWeb add-on IDs from the desktop install (Anki 26.09.3).
+# Installed by run_anki-addons.sh.tmpl; add-ons with no AnkiWeb ID live in local-addons/.
+124672614
+1771074083
+200813220
+2055492159
+24411424
+688199788
+759844606
