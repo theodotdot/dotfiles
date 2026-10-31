@@ -1,0 +1,111 @@
+#!/bin/sh
+# Installs Anki's add-ons and seeds their user config on a fresh machine.
+# Idempotent: existing add-on dirs and existing config.json files are left alone,
+# so runtime changes made in Anki are never reverted.
+set -eu
+
+src="{{ .chezmoi.sourceDir }}"
+ids_file="${1:-$src/anki/addons.txt}"
+data_dir="${XDG_DATA_HOME:-$HOME/.local/share}/Anki2"
+addons_dir="$data_dir/addons21"
+
+# Nothing to do until Anki is installed and has been started once.
+if ! command -v anki >/dev/null 2>&1 || [ ! -d "$data_dir" ]; then
+    exit 0
+fi
+[ -f "$ids_file" ] || exit 0
+mkdir -p "$addons_dir"
+
+extract() { # archive, destination
+    if command -v unzip >/dev/null 2>&1; then
+        unzip -qo "$1" -d "$2"
+    elif command -v bsdtar >/dev/null 2>&1; then
+        mkdir -p "$2"
+        bsdtar -xf "$1" -C "$2"
+    else
+        echo "anki-addons: need unzip or bsdtar to unpack add-ons" >&2
+        return 1
+    fi
+}
+
+seed_config() { # id, [force]
+    cfg="$src/anki/config/$1/config.json"
+    target="$addons_dir/$1/config.json"
+    [ -f "$cfg" ] || return 0
+    [ -d "$addons_dir/$1" ] || return 0
+    if [ "${2:-}" = force ] || [ ! -e "$target" ]; then
+        echo "anki-addons: seeding config for $1"
+        install -Dm644 "$cfg" "$target"
+    fi
+}
+
+point='' # AnkiWeb wants the point version (26.09.3 -> 260903) to pick a compatible build.
+while IFS= read -r id; do
+    case "$id" in ''|'#'*) continue ;; esac
+    if [ -d "$addons_dir/$id" ]; then
+        continue
+    fi
+    if [ -z "$point" ]; then
+        point=$(
+            anki --version 2>/dev/null | sed -n 's/^Anki //p' | head -n1 |
+                awk -F. '{printf "%d%02d%02d", $1, $2, $3}'
+        )
+        [ -n "$point" ] || point=260903
+    fi
+
+    tmp=$(mktemp -d)
+    url="https://ankiweb.net/shared/download/$id?v=2.1&p=$point"
+    if ! final=$(curl -fsSL -o "$tmp/addon.ankiaddon" -w '%{url_effective}' "$url"); then
+        echo "anki-addons: download failed for $id" >&2
+        rm -rf "$tmp"
+        continue
+    fi
+    echo "anki-addons: installing $id"
+    if ! extract "$tmp/addon.ankiaddon" "$addons_dir/$id"; then
+        rm -rf "$tmp" "$addons_dir/$id"
+        continue
+    fi
+
+    # Anki's own installer derives meta.json from the redirect's compat query;
+    # mirror it so the add-on is not flagged as pending update.
+    if [ ! -e "$addons_dir/$id/meta.json" ] && command -v python3 >/dev/null 2>&1; then
+        python3 - "$addons_dir/$id" "$final" <<'PY'
+import json, os, sys
+from urllib.parse import parse_qs, urlparse
+
+dest, url = sys.argv[1], sys.argv[2]
+query = parse_qs(urlparse(url).query)
+meta = {}
+manifest = os.path.join(dest, "manifest.json")
+if os.path.exists(manifest):
+    with open(manifest, encoding="utf8") as f:
+        meta.update(json.load(f))
+meta.update(
+    mod=int(query.get("t", ["0"])[0]),
+    min_point_version=int(query.get("minpt", ["0"])[0]),
+    max_point_version=int(query.get("maxpt", ["0"])[0]),
+    branch_index=int(query.get("bidx", ["0"])[0]),
+)
+with open(os.path.join(dest, "meta.json"), "w", encoding="utf8") as f:
+    json.dump(meta, f, indent=1)
+PY
+    fi
+    seed_config "$id" force
+    rm -rf "$tmp"
+done < "$ids_file"
+
+# Add-ons that were already installed but have no config.json yet.
+for cfg in "$src"/anki/config/*/config.json; do
+    [ -f "$cfg" ] || continue
+    seed_config "$(basename "$(dirname "$cfg")")"
+done
+
+# Add-ons with no AnkiWeb ID are shipped in the source state and copied as-is.
+for dir in "$src"/anki/local-addons/*/; do
+    [ -d "$dir" ] || continue
+    name=$(basename "$dir")
+    if [ ! -d "$addons_dir/$name" ]; then
+        echo "anki-addons: installing local add-on $name"
+        cp -a "$dir" "$addons_dir/$name"
+    fi
+done
