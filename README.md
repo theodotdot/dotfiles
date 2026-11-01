@@ -69,3 +69,23 @@ until the shell is restarted.
 state (tile list, wizard flags, status bar scale are rewritten at runtime) and stays
 unmanaged; the script only inserts the id when it is missing or not first.
 
+#### Game Mode (gamescope)
+
+Steam's slider does not go through PowerDevil. `steamclient.so`/`steamui.so` run
+
+```
+/usr/bin/steamos-polkit-helpers/steamos-priv-write /sys/class/backlight/<dev>/brightness <value>
+```
+
+and fall back to `echo <value> | sudo -n tee <path>` when that helper is missing. pocknix
+ships the other `steamos-polkit-helpers` but not this one, so every slider step logged
+`sudo[…]: deck : a password is required ; … COMMAND=/usr/bin/tee /sys/class/backlight/ae94000.dsi.0/brightness`
+and nothing changed — and even with sudo it would have moved the wrong screen, because
+Steam takes the first entry in `/sys/class/backlight` (`ae94000.dsi.0`, the 620×540 bottom
+panel) while Game Mode runs on the top panel (DSI-2).
+
+| Where | What |
+|---|---|
+| `pocknix/thor/steamos-priv-write` → `/usr/bin/steamos-polkit-helpers/steamos-priv-write` | Implements the SteamOS interface for the brightness path only: rescales the value from the panel Steam named into `ae96000.dsi.0` (what Armada calls `ARMADA_PRIMARY_BACKLIGHT`), mirrors the request back to the source panel so Steam's read-back matches, and writes through logind `SetBrightness` — active-session authorised, no password — or straight to sysfs when it is writable. The bottom panel's driver returns `EINVAL` while still applying the value, so success is judged by reading the backlight back. `POCKNIX_BRIGHTNESS_DEVICE` overrides the target panel. |
+
+

@@ -1,10 +1,12 @@
 #!/bin/bash
-# Installs the Pocknix Plasma Mobile gamepad mapping.
+# Installs the Pocknix Plasma Mobile gamepad mapping, and the SteamOS privileged-write
+# helper that Game Mode's brightness slider calls.
 # Run as root:  sudo bash /home/deck/pocknix-install/install.sh
 set -e
 S="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 install -D -m755 "$S/pocknix-gamepad-profile.sh" /usr/lib/pocknix/pocknix-gamepad-profile.sh
+install -D -m755 "$S/steamos-priv-write" /usr/bin/steamos-polkit-helpers/steamos-priv-write
 install -D -m755 "$S/10-plasma-mobile-gamepad.sh" /usr/lib/pocknix/desktop.d/10-plasma-mobile-gamepad.sh
 install -D -m644 "$S/plasma-mobile.yaml" /etc/inputplumber/profiles/plasma-mobile.yaml
 install -D -m644 "$S/pocknix-gamepad-reset.service" /etc/systemd/user/pocknix-gamepad-reset.service
