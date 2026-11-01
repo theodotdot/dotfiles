@@ -14,23 +14,32 @@ I use [catppuccin](https://catppuccin.com/) macchiato everywhere I can 🐈‍�
 
 ### 🛠️ Tools I use
 
-#### Zsh
+#### Fish
 
-[Antidote](https://getantidote.github.io/) is the plugin manager. Zsh config layout inspired by [antidote's zdotdir project](https://github.com/getantidote/zdotdir).  
+[Fisher](https://github.com/jorgebucaran/fisher) is the plugin manager. Plugins are listed in [fish_plugins](./private_dot_config/fish/fish_plugins).
 
-|     Plugins                                                                                                       |     Others                                                                     |
-| ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| **[mattmc3/ez-compinit](https://github.com/mattmc3/ez-compinit)**                                                 | **[starship prompt](https://starship.rs/)**                                    |
-| **[zsh-users/zsh-completions](https://github.com/zsh-users/zsh-completions)**                                     | **[direnv](https://direnv.net/)**                                              |
-| **[aloxaf/fzf-tab](https://github.com/Aloxaf/fzf-tab)**                                                           | **[jump](https://github.com/gsamokovarov/jump)**                               |
-| **[lincheney/fzf-tab-completion](https://github.com/lincheney/fzf-tab-completion)**                               | **[zoxide](https://github.com/ajeetdsouza/zoxide)**                            |
-| **[belak/zsh-utils/editor](https://github.com/belak/zsh-utils/tree/main/editor)**                                 | **[modified dbt completion](https://github.com/dbt-labs/dbt-completion.bash)** |
-| **[belak/zsh-utils/history](https://github.com/belak/zsh-utils/tree/main/history)**                               |
-| **[belak/zsh-utils/utility](https://github.com/belak/zsh-utils/tree/main/utility)**                               |
-| **[ohmyzsh/ohmyzsh/extract](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/extract)**                     |
-| **[zdharma-continuum/fast-syntax-highlighting](https://github.com/zdharma-continuum/fast-syntax-highlighting)**   |
-| **[zsh-users/zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)**                             |
-| **[zsh-users/zsh-history-substring-search](https://github.com/zsh-users/zsh-history-substring-search)**           |
+|     Plugins                                                     |     Others                                          |
+| --------------------------------------------------------------- | --------------------------------------------------- |
+| **[catppuccin/fish](https://github.com/catppuccin/fish)**       | **[starship prompt](https://starship.rs/)**         |
+| **[patrickf1/fzf.fish](https://github.com/patrickf1/fzf.fish)** | **[direnv](https://direnv.net/)**                   |
+| **[joseluisq/gitnow](https://github.com/joseluisq/gitnow)**     | **[zoxide](https://github.com/ajeetdsouza/zoxide)** |
+| **[laughedelic/pisces](https://github.com/laughedelic/pisces)** | **[fzf](https://github.com/junegunn/fzf)**          |
+
+#### Everything else
+
+|     Tool                                                                          |     Use                               |
+| --------------------------------------------------------------------------------- | ------------------------------------- |
+| **[kitty](https://sw.kovidgoyal.net/kitty/)**                                     | terminal                              |
+| **[helix](https://helix-editor.com/)**                                            | editor                                |
+| **[yazi](https://yazi-rs.github.io/)**                                            | file manager                          |
+| **[zellij](https://zellij.dev/)**                                                 | multiplexer                           |
+| **[niri](https://github.com/YaLTeR/niri)** / **[Hyprland](https://hypr.land/)**   | Wayland compositors                   |
+| **[waybar](https://github.com/Alexays/Waybar)**                                   | bar (Hyprland)                        |
+| **[noctalia](https://github.com/noctalia-dev/noctalia)**                          | bar, notifications, wallpaper (niri)  |
+| **[bat](https://github.com/sharkdp/bat)**                                         | cat with wings                        |
+| **[btop](https://github.com/aristocratos/btop)**                                  | system monitor                        |
+| **[gitui](https://github.com/extrawurst/gitui)**                                  | git TUI                               |
+| **[zathura](https://pwmt.org/projects/zathura/)**                                 | PDF viewer                            |
 
 ### 🕹️ Thor gamepad
 
