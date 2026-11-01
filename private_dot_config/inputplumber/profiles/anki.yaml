@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ShadowBlip/InputPlumber/main/rootfs/usr/share/inputplumber/schema/device_profile_v1.json
+# Anki review profile for the AYN Thor gamepad.
+#
+# Two targets: the pad itself (face buttons/sticks, read by the add-on) and the
+# keyboard target, because InputPlumber's Thor capability map turns the d-pad
+# into KEY_UP/DOWN/LEFT/RIGHT events on the keyboard target. The add-on reads
+# both evdev devices directly and grabs the keyboard one, so the keys never
+# reach Anki/KDE twice.
+version: 1
+kind: DeviceProfile
+name: Anki
+description: Xbox 360 pad + keyboard target for the Anki add-on
+
+target_devices:
+  - xb360
+  - keyboard
+
+mapping: []
