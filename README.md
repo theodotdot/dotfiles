@@ -62,7 +62,7 @@ until the shell is restarted.
 | Where | What |
 |---|---|
 | `~/.local/share/plasma/quicksettings/org.kde.plasma.quicksetting.brightness/` | Quick setting tile, first in the shade: `toggle()` cycles 100 → 75 → 50 → 25 → 10 % and wraps, `status` is the live percentage. It drives the same `ScreenBrightnessUtil` as the slider, so both panels move together. `available` is bound to `maxBrightness` (which notifies) instead of `brightnessAvailable` (which does not), and a 1.5 s retry re-fetches while PowerDevil is absent, so the tile heals itself after a late start. |
-| `~/.config/systemd/user/plasma-plasmashell.service.d/10-wait-for-powerdevil.conf` | `After=`/`Wants=plasma-powerdevil.service`. That unit is `Type=dbus` with `BusName=org.kde.Solid.PowerManagement`, so the shell now waits for the name to be owned and the slider is valid from the first frame. |
+| `~/.config/systemd/user/plasma-plasmashell.service.d/10-wait-for-powerdevil.conf` | `ExecStartPre` that polls PowerDevil's brightness method (0.1 s steps, 6 s cap, failure ignored) so the shell only starts once `org.kde.Solid.PowerManagement` answers, and the slider is valid from the first frame. Deliberately **not** `After=`/`Wants=plasma-powerdevil.service`: that unit is `After=plasma-core.target`, which pulls plasmashell in, so the edge forms an ordering cycle — systemd breaks it by deleting the plasmashell start job, leaving a black screen with no shell. |
 
 `run_onchange_enable-brightness-quicksetting.sh` keeps the tile first in
 `[QuickSettings] enabledQuickSettings` of `~/.config/plasmamobilerc`. That file is shell
