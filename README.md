@@ -105,13 +105,26 @@ the top at 1059/3413 (31 %) and the bottom at 79/255 (31 %), and it looked wrong
 
 | Where | What |
 |---|---|
-| `~/.config/scripts/pocknix-brightness-sync` + `pocknix-brightness-sync.service` | Polls the top panel and drives the bottom through `bottom = max_bottom · (top / top_max) ** GAMMA`, so the bottom sits lower at low levels and both still reach full at 100 %. Only the bottom panel is written — kwin, PowerDevil and Steam stay authoritative for the screen being looked at — and it survives Game Mode round trips (`WantedBy=default.target`, not `PartOf=graphical-session.target`). Steady state: three sysfs reads every 200 ms, no subprocesses, ~0.3 % CPU. |
+| `~/.config/scripts/pocknix-brightness-sync` + `pocknix-brightness-sync.service` | Subscribes to `org.kde.ScreenBrightness.BrightnessChanged` and drives the bottom through `bottom = max_bottom · (top / top_max) ** GAMMA`, so it sits lower at low levels while both still reach full at 100 %. Only the bottom panel is written — kwin, PowerDevil and Steam stay authoritative for the screen being looked at. Survives Game Mode round trips (`WantedBy=default.target`, not `PartOf=graphical-session.target`); idle cost ~0.2 % CPU and no polling. |
 
-`GAMMA` is a constant in the script (default `1.6`); `POCKNIX_BRIGHTNESS_GAMMA` overrides it
-for a quick comparison. Change the constant, `chezmoi apply`, and the enabling script
-restarts the unit. At the default, 40 % on the top panel puts the bottom at 59/255 instead of
-102/255; the bottom's driver answers `EINVAL` on write while still applying the value, so the
-helper judges success by reading the backlight back and falls back to logind otherwise.
+`GAMMA` is a constant in the script (`2.0`); `POCKNIX_BRIGHTNESS_GAMMA` overrides it for a
+quick comparison. Change the constant, `chezmoi apply`, and the enabling script restarts the
+unit. At 2.0, 40 % on the top panel puts the bottom at 41/255 instead of 102/255.
+
+Two things the implementation had to work around:
+
+* kwin writes **both** panels and emits `BrightnessChanged` per display, with its own write of
+  the bottom landing after the signal we see. Reacting on every signal races the
+  slider animation and the bottom flickers between our value and kwin's — so the burst is
+  coalesced and the curve is applied once the value has been quiet for 150 ms. During a drag
+  the bottom follows kwin; it settles afterwards.
+* the bottom's driver answers `EINVAL` on the sysfs write while still applying the value, so
+  success is judged by reading the backlight back, with logind `SetBrightness` as fallback.
+
+Game Mode is skipped entirely: while a `gamescope` process exists the bottom panel is not
+written at all, because gamescope drives only the top panel and SteamOS has no dual-screen
+support yet. Revisit when a patch makes the second screen usable there.
+
 
 
 

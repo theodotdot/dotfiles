@@ -1,26 +1,27 @@
 #!/usr/bin/env python3
 """pocknix-brightness-sync — keep the Thor's bottom panel in step with the top.
 
-Both panels are driven to the same *percentage* by whatever owns brightness
-(kwin/PowerDevil in Plasma, Steam through steamos-priv-write in Game Mode), but
-the 620x540 bottom panel (ae94000.dsi.0, raw 0..255) reads visibly brighter than
-the 1920x1080 top panel (ae96000.dsi.0, raw 0..3413) at low levels: the two
-backlights do not share a curve, and the kernel reports no scale information for
-either (type=raw, scale=unknown).
+Both panels are put on the same *percentage* by whatever owns brightness, but the two
+backlights do not share a curve (both report type=raw, scale=unknown), so at low levels the
+620x540 bottom panel (ae94000.dsi.0, 0..255) reads brighter than the 1920x1080 top panel
+(ae96000.dsi.0, 0..3413). At 40 % on both, the bottom is visibly the brighter screen.
 
-So the top panel stays the reference and the bottom one is re-driven through a
-gamma curve:
+The top panel therefore stays the reference and the bottom one is re-driven through
 
     bottom = round(bottom_max * (top / top_max) ** GAMMA)
 
-GAMMA=1 is identity; >1 pulls the bottom down at low levels while both still
-reach full brightness at 100 %. Override it for a quick try with
-POCKNIX_BRIGHTNESS_GAMMA=1.4, then set GAMMA here — same knob.
+GAMMA=1.6 was the first guess; 2.0 is what actually matches on this panel pair. Override it
+with POCKNIX_BRIGHTNESS_GAMMA for a quick comparison, then set GAMMA here.
 
-Only the bottom panel is ever written, so kwin, PowerDevil and Steam stay
-authoritative for the screen being looked at. Steady state is three small sysfs
-reads per INTERVAL and no subprocesses; D-Bus is only touched when the direct
-write does not take effect.
+Correcting *after* kwin writes both panels means the bottom is briefly on kwin's linear
+value, which reads as a flash. So this does not poll and it does not chase kwin either: it
+subscribes to org.kde.ScreenBrightness.BrightnessChanged and coalesces the burst of changes
+a slider drag produces, correcting once the value has been quiet for DEBOUNCE. During the
+drag the bottom simply follows kwin, then it settles onto the curve. Costs nothing while
+idle, and nothing when no kwin is running (Game Mode).
+
+Game Mode is left alone: gamescope only drives the top panel and SteamOS has no dual-screen
+support yet, so the bottom is not written at all while a gamescope process exists.
 """
 
 from __future__ import annotations
@@ -29,13 +30,25 @@ import os
 import subprocess
 import time
 
+import dbus
+import dbus.mainloop.glib
+from gi.repository import GLib
+
 BACKLIGHT = "/sys/class/backlight"
 TOP = os.environ.get("POCKNIX_BRIGHTNESS_TOP", "ae96000.dsi.0")
 BOTTOM = os.environ.get("POCKNIX_BRIGHTNESS_BOTTOM", "ae94000.dsi.0")
-GAMMA = float(os.environ.get("POCKNIX_BRIGHTNESS_GAMMA", "1.6"))
-INTERVAL = 0.2
-# How long to wait before retrying when a backlight device is missing or unreadable.
-RETRY = 1.0
+GAMMA = float(os.environ.get("POCKNIX_BRIGHTNESS_GAMMA", "2.0"))
+# kwin animates a slider drag as a burst of BrightnessChanged + sysfs writes ~45 ms
+# apart, and its own write of the bottom panel lands after the signal we would react to.
+# Correcting on each signal therefore races the animation and the bottom flickers between
+# our value and kwin's. Wait for the burst to finish instead, then settle onto the curve.
+DEBOUNCE = 0.15
+# Safety net for brightness written by something other than kwin; the signals do the work.
+SAFETY_INTERVAL = 30
+# How long a "is gamescope running" answer is trusted.
+GAME_MODE_TTL = 2.0
+
+_game_mode = (0.0, False)
 
 
 def read_int(path: str) -> int:
@@ -43,11 +56,37 @@ def read_int(path: str) -> int:
         return int(handle.read().strip())
 
 
+def in_game_mode() -> bool:
+    """True while a gamescope session owns the screen (its process appears then)."""
+    global _game_mode
+    stamp, cached = _game_mode
+    now = time.monotonic()
+    if now - stamp < GAME_MODE_TTL:
+        return cached
+
+    found = False
+    try:
+        for entry in os.listdir("/proc"):
+            if not entry.isdigit():
+                continue
+            try:
+                with open(f"/proc/{entry}/comm") as handle:
+                    if handle.read().strip() == "gamescope":
+                        found = True
+                        break
+            except OSError:
+                continue
+    except OSError:
+        pass
+    _game_mode = (now, found)
+    return found
+
+
 def write_bottom(value: int) -> bool:
     """Set the bottom panel, returning whether the value is really in effect.
 
-    The bottom panel's driver answers EINVAL from the sysfs write while still
-    applying the value, so the exit status means nothing here: the read-back does.
+    The bottom panel's driver answers EINVAL from the sysfs write while still applying
+    the value, so the exit status means nothing here: the read-back does.
     """
     path = f"{BACKLIGHT}/{BOTTOM}/brightness"
     try:
@@ -61,8 +100,8 @@ def write_bottom(value: int) -> bool:
     except (OSError, ValueError):
         return False
 
-    # Fall back to logind, which authorises the caller's own session and needs no
-    # sudo; it is what kwin/PowerDevil use on the same attribute.
+    # Fall back to logind, which authorises the caller's own session and needs no sudo;
+    # it is what kwin/PowerDevil use on the same attribute.
     subprocess.run(
         [
             "busctl", "--system", "call", "org.freedesktop.login1",
@@ -79,33 +118,61 @@ def write_bottom(value: int) -> bool:
         return False
 
 
+def correct(*_args, **_kwargs) -> None:
+    """Bring the bottom panel to the curve for the top panel's current level."""
+    if in_game_mode():
+        return
+    try:
+        top_max = read_int(f"{BACKLIGHT}/{TOP}/max_brightness")
+        bottom_max = read_int(f"{BACKLIGHT}/{BOTTOM}/max_brightness")
+        if top_max <= 0 or bottom_max <= 0:
+            return
+
+        level = min(1.0, max(0.0, read_int(f"{BACKLIGHT}/{TOP}/brightness") / top_max))
+        target = max(1, round(bottom_max * level**GAMMA))
+        if read_int(f"{BACKLIGHT}/{BOTTOM}/brightness") != target:
+            write_bottom(target)
+    except (OSError, ValueError):
+        # Panel briefly missing (mode switch); the next signal or safety pass retries.
+        return
+
+
+_pending = None
+
+
+def schedule(*_args, **_kwargs) -> None:
+    """Coalesce a burst of kwin changes into one correction once it goes quiet."""
+    global _pending
+    if _pending is not None:
+        GLib.source_remove(_pending)
+    _pending = GLib.timeout_add(int(DEBOUNCE * 1000), _run_scheduled)
+
+
+def _run_scheduled() -> bool:
+    global _pending
+    _pending = None
+    correct()
+    return False
+
+
 def main() -> int:
-    top_brightness = f"{BACKLIGHT}/{TOP}/brightness"
-    top_max_path = f"{BACKLIGHT}/{TOP}/max_brightness"
-    bottom_brightness = f"{BACKLIGHT}/{BOTTOM}/brightness"
-    bottom_max_path = f"{BACKLIGHT}/{BOTTOM}/max_brightness"
+    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+    bus = dbus.SessionBus()
+    bus.add_signal_receiver(
+        schedule,
+        signal_name="BrightnessChanged",
+        dbus_interface="org.kde.ScreenBrightness",
+    )
 
-    while True:
-        try:
-            top_max = read_int(top_max_path)
-            bottom_max = read_int(bottom_max_path)
-            if top_max <= 0 or bottom_max <= 0:
-                raise ValueError("zero backlight range")
+    def watchdog() -> bool:
+        correct()
+        # Leave if the session bus went away; Restart=always brings us back on the new one.
+        return bool(bus.get_is_connected())
 
-            level = min(1.0, max(0.0, read_int(top_brightness) / top_max))
-            target = max(1, round(bottom_max * level**GAMMA))
-
-            if read_int(bottom_brightness) != target:
-                write_bottom(target)
-        except FileNotFoundError:
-            # Panel not probed yet (or gone); nothing to do until it is back.
-            time.sleep(RETRY)
-            continue
-        except (OSError, ValueError):
-            time.sleep(RETRY)
-            continue
-
-        time.sleep(INTERVAL)
+    GLib.timeout_add_seconds(SAFETY_INTERVAL, watchdog)
+    correct()
+    GLib.MainLoop().run()
+    return 0
 
 
 if __name__ == "__main__":
