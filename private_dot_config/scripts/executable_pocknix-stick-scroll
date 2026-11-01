@@ -44,8 +44,10 @@ GATE = os.environ.get("POCKNIX_STICK_SCROLL_GATE", "profile")
 DEADZONE = 0.25  # fraction of full deflection ignored
 MIN_RATE = 3.0  # wheel notches per second just past the deadzone
 MAX_RATE = 20.0  # wheel notches per second at full deflection
-TICK = 0.016  # seconds per scroll step
-HOUSEKEEPING = 1.0  # seconds between profile/target checks
+TICK = 0.016  # seconds per scroll step while the stick is deflected
+IDLE_TICK = 0.25  # seconds to sleep when nothing is deflected (axis events wake us)
+PROFILE_INTERVAL = 3.0  # seconds between profile checks
+TARGETS_INTERVAL = 15.0  # seconds between pad-target safety checks
 FULL = 32767.0
 
 _COMPOSITE = re.compile(r"/org/shadowblip/InputPlumber/CompositeDevice\d+")
@@ -141,6 +143,10 @@ class Scroller:
         self.axes = [0.0, 0.0]
         self.pending = [0.0, 0.0]
 
+    def scrolling(self) -> bool:
+        """True while a deflection is large enough to produce wheel steps."""
+        return any(notches(axis, 1.0) for axis in self.axes)
+
     def step(self, elapsed: float, active: bool) -> None:
         if not active:
             self.reset()
@@ -175,23 +181,30 @@ def main() -> int:
     path: Optional[str] = None
     pad = None
     gate = GATE == "none"
-    was_gate = not gate
-    last_housekeeping = 0.0
+    was_gate = False  # so the first successful check logs and re-asserts the target
+    last_profile_check = 0.0
+    last_targets_check = 0.0
     last = time.monotonic()
 
     while True:
         now = time.monotonic()
-        if GATE != "none" and now - last_housekeeping >= HOUSEKEEPING:
-            last_housekeeping = now
-            if path is None or profile_name(path) is None:
-                path = composite_device()
+        if GATE != "none" and now - last_profile_check >= PROFILE_INTERVAL:
+            last_profile_check = now
             name = profile_name(path) if path else None
+            if name is None:  # inputplumber restarted or we lost the object path
+                path = composite_device()
+                name = profile_name(path) if path else None
             gate = name == PROFILE
-            if gate != was_gate:
+            switched = gate != was_gate
+            if switched:
                 log(f"profile {name or 'unknown'}: {'scrolling' if gate else 'idle'}")
                 was_gate = gate
-            if gate and path:
+            # The pad target is re-asserted when the profile changes and then only
+            # occasionally: each check is a D-Bus round trip and nothing else in the
+            # session removes it.
+            if gate and path and (switched or now - last_targets_check >= TARGETS_INTERVAL):
                 ensure_pad_target(path)
+                last_targets_check = now
 
         if pad is None:
             pad_path = find_pad(PAD_NAME)
@@ -207,7 +220,8 @@ def main() -> int:
                 continue
             log(f"reading {pad_path}")
 
-        timeout = max(0.0, TICK - (now - last))
+        timeout = (TICK if scroller.scrolling() else IDLE_TICK) - (now - last)
+        timeout = max(0.0, timeout)
         try:
             readable, _, _ = select.select([pad.fd], [], [], timeout)
         except (OSError, ValueError):
