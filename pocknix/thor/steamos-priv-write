@@ -70,10 +70,7 @@ if ! set_brightness "${primary}" "${scaled}"; then
     exit 1
 fi
 
-# Keep the panel Steam asked about (the bottom one) on the same percentage: it is where
-# Steam reads the slider position back from, and Plasma's own slider moves both panels too.
-if [[ $device != "$primary" ]]; then
-    (( value < 1 )) && value=1
-    set_brightness "${device}" "${value}" || true
-fi
+# The bottom panel Steam names is deliberately not written: pocknix-brightness-sync owns it
+# and drives it through a gamma curve so both panels look equally bright. Writing it here
+# would fight that helper at 5 Hz.
 

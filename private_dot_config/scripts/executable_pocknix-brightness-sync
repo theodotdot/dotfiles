@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+"""pocknix-brightness-sync — keep the Thor's bottom panel in step with the top.
+
+Both panels are driven to the same *percentage* by whatever owns brightness
+(kwin/PowerDevil in Plasma, Steam through steamos-priv-write in Game Mode), but
+the 620x540 bottom panel (ae94000.dsi.0, raw 0..255) reads visibly brighter than
+the 1920x1080 top panel (ae96000.dsi.0, raw 0..3413) at low levels: the two
+backlights do not share a curve, and the kernel reports no scale information for
+either (type=raw, scale=unknown).
+
+So the top panel stays the reference and the bottom one is re-driven through a
+gamma curve:
+
+    bottom = round(bottom_max * (top / top_max) ** GAMMA)
+
+GAMMA=1 is identity; >1 pulls the bottom down at low levels while both still
+reach full brightness at 100 %. Override it for a quick try with
+POCKNIX_BRIGHTNESS_GAMMA=1.4, then set GAMMA here — same knob.
+
+Only the bottom panel is ever written, so kwin, PowerDevil and Steam stay
+authoritative for the screen being looked at. Steady state is three small sysfs
+reads per INTERVAL and no subprocesses; D-Bus is only touched when the direct
+write does not take effect.
+"""
+
+from __future__ import annotations
+
+import os
+import subprocess
+import time
+
+BACKLIGHT = "/sys/class/backlight"
+TOP = os.environ.get("POCKNIX_BRIGHTNESS_TOP", "ae96000.dsi.0")
+BOTTOM = os.environ.get("POCKNIX_BRIGHTNESS_BOTTOM", "ae94000.dsi.0")
+GAMMA = float(os.environ.get("POCKNIX_BRIGHTNESS_GAMMA", "1.6"))
+INTERVAL = 0.2
+# How long to wait before retrying when a backlight device is missing or unreadable.
+RETRY = 1.0
+
+
+def read_int(path: str) -> int:
+    with open(path) as handle:
+        return int(handle.read().strip())
+
+
+def write_bottom(value: int) -> bool:
+    """Set the bottom panel, returning whether the value is really in effect.
+
+    The bottom panel's driver answers EINVAL from the sysfs write while still
+    applying the value, so the exit status means nothing here: the read-back does.
+    """
+    path = f"{BACKLIGHT}/{BOTTOM}/brightness"
+    try:
+        with open(path, "w") as handle:
+            handle.write(str(value))
+    except OSError:
+        pass
+    try:
+        if read_int(path) == value:
+            return True
+    except (OSError, ValueError):
+        return False
+
+    # Fall back to logind, which authorises the caller's own session and needs no
+    # sudo; it is what kwin/PowerDevil use on the same attribute.
+    subprocess.run(
+        [
+            "busctl", "--system", "call", "org.freedesktop.login1",
+            "/org/freedesktop/login1/session/auto",
+            "org.freedesktop.login1.Session",
+            "SetBrightness", "ssu", "backlight", BOTTOM, str(value),
+        ],
+        check=False,
+        capture_output=True,
+    )
+    try:
+        return read_int(path) == value
+    except (OSError, ValueError):
+        return False
+
+
+def main() -> int:
+    top_brightness = f"{BACKLIGHT}/{TOP}/brightness"
+    top_max_path = f"{BACKLIGHT}/{TOP}/max_brightness"
+    bottom_brightness = f"{BACKLIGHT}/{BOTTOM}/brightness"
+    bottom_max_path = f"{BACKLIGHT}/{BOTTOM}/max_brightness"
+
+    while True:
+        try:
+            top_max = read_int(top_max_path)
+            bottom_max = read_int(bottom_max_path)
+            if top_max <= 0 or bottom_max <= 0:
+                raise ValueError("zero backlight range")
+
+            level = min(1.0, max(0.0, read_int(top_brightness) / top_max))
+            target = max(1, round(bottom_max * level**GAMMA))
+
+            if read_int(bottom_brightness) != target:
+                write_bottom(target)
+        except FileNotFoundError:
+            # Panel not probed yet (or gone); nothing to do until it is back.
+            time.sleep(RETRY)
+            continue
+        except (OSError, ValueError):
+            time.sleep(RETRY)
+            continue
+
+        time.sleep(INTERVAL)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

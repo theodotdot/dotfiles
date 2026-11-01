@@ -93,6 +93,25 @@ panel) while Game Mode runs on the top panel (DSI-2).
 
 | Where | What |
 |---|---|
-| `pocknix/thor/steamos-priv-write` → `/usr/bin/steamos-polkit-helpers/steamos-priv-write` | Implements the SteamOS interface for the brightness path only: rescales the value from the panel Steam named into `ae96000.dsi.0` (what Armada calls `ARMADA_PRIMARY_BACKLIGHT`), mirrors the request back to the source panel so Steam's read-back matches, and writes through logind `SetBrightness` — active-session authorised, no password — or straight to sysfs when it is writable. The bottom panel's driver returns `EINVAL` while still applying the value, so success is judged by reading the backlight back. `POCKNIX_BRIGHTNESS_DEVICE` overrides the target panel. |
+| `pocknix/thor/steamos-priv-write` → `/usr/bin/steamos-polkit-helpers/steamos-priv-write` | Implements the SteamOS interface for the brightness path only: rescales the value from the panel Steam named into `ae96000.dsi.0` (what Armada calls `ARMADA_PRIMARY_BACKLIGHT`) and writes through logind `SetBrightness` — active-session authorised, no password — or straight to sysfs when it is writable. The bottom panel is left to `pocknix-brightness-sync` (below). `POCKNIX_BRIGHTNESS_DEVICE` overrides the target panel. |
+
+#### Bottom panel curve
+
+Plasma and Steam both put the two backlights on the *same percentage*, but the panels do not
+share a curve — `type=raw`, `scale=unknown` for both — so at low levels the 620×540 bottom
+panel (`ae94000.dsi.0`, 0..255) reads noticeably brighter than the top one
+(`ae96000.dsi.0`, 0..3413). Measured before the fix: 3100/10000 on the PowerDevil scale left
+the top at 1059/3413 (31 %) and the bottom at 79/255 (31 %), and it looked wrong.
+
+| Where | What |
+|---|---|
+| `~/.config/scripts/pocknix-brightness-sync` + `pocknix-brightness-sync.service` | Polls the top panel and drives the bottom through `bottom = max_bottom · (top / top_max) ** GAMMA`, so the bottom sits lower at low levels and both still reach full at 100 %. Only the bottom panel is written — kwin, PowerDevil and Steam stay authoritative for the screen being looked at — and it survives Game Mode round trips (`WantedBy=default.target`, not `PartOf=graphical-session.target`). Steady state: three sysfs reads every 200 ms, no subprocesses, ~0.3 % CPU. |
+
+`GAMMA` is a constant in the script (default `1.6`); `POCKNIX_BRIGHTNESS_GAMMA` overrides it
+for a quick comparison. Change the constant, `chezmoi apply`, and the enabling script
+restarts the unit. At the default, 40 % on the top panel puts the bottom at 59/255 instead of
+102/255; the bottom's driver answers `EINVAL` on write while still applying the value, so the
+helper judges success by reading the backlight back and falls back to logind otherwise.
+
 
 
