@@ -26,27 +26,25 @@ mapping:
           motion:
             speed_pps: 800
 
-  # Left trigger = back.
-  - name: Left Trigger Back
+  # Left trigger = left control.
+  - name: Left Trigger Control
     source_event:
       gamepad:
         trigger:
           name: LeftTrigger
           deadzone: 0.2
     target_events:
-      - keyboard: KeyLeftAlt
-      - keyboard: KeyLeft
+      - keyboard: KeyLeftCtrl
 
-  # Right trigger = forward.
-  - name: Right Trigger Forward
+  # Right trigger = left shift.
+  - name: Right Trigger Shift
     source_event:
       gamepad:
         trigger:
           name: RightTrigger
           deadzone: 0.2
     target_events:
-      - keyboard: KeyLeftAlt
-      - keyboard: KeyRight
+      - keyboard: KeyLeftShift
 
   # D-pad = arrow keys.
   - name: Dpad Up
@@ -86,25 +84,23 @@ mapping:
       - mouse:
           button: Left
 
-  # Left bumper = scroll down.
-  - name: Left Bumper Scroll Down
+  # Left bumper = back.
+  - name: Left Bumper Back
     source_event:
       gamepad:
         button: LeftBumper
     target_events:
-      - mouse:
-          wheel:
-            direction: down
+      - keyboard: KeyLeftAlt
+      - keyboard: KeyLeft
 
-  # Right bumper = scroll up.
-  - name: Right Bumper Scroll Up
+  # Right bumper = forward.
+  - name: Right Bumper Forward
     source_event:
       gamepad:
         button: RightBumper
     target_events:
-      - mouse:
-          wheel:
-            direction: up
+      - keyboard: KeyLeftAlt
+      - keyboard: KeyRight
 
   # B = right click.
   - name: B Right Click
