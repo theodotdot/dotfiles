@@ -10,8 +10,11 @@ The top panel therefore stays the reference and the bottom one is re-driven thro
 
     bottom = round(bottom_max * (top / top_max) ** GAMMA)
 
-GAMMA=1.6 was the first guess; 2.0 is what actually matches on this panel pair. Override it
-with POCKNIX_BRIGHTNESS_GAMMA for a quick comparison, then set GAMMA here.
+GAMMA started at 1.6, then 2.0; the bottom is still brighter at low levels, so the default is
+2.2. The curve only has to satisfy "both look equal at every level", and only the person
+looking at the panels can settle it, so the value can also be set live, without restarting:
+`echo GAMMA=2.4 > ~/.config/pocknix/brightness-sync.conf` is picked up on the next change.
+POCKNIX_BRIGHTNESS_GAMMA overrides both for a one-off test.
 
 Correcting *after* kwin writes both panels means the bottom is briefly on kwin's linear
 value, which reads as a flash. So this does not poll and it does not chase kwin either: it
@@ -37,18 +40,36 @@ from gi.repository import GLib
 BACKLIGHT = "/sys/class/backlight"
 TOP = os.environ.get("POCKNIX_BRIGHTNESS_TOP", "ae96000.dsi.0")
 BOTTOM = os.environ.get("POCKNIX_BRIGHTNESS_BOTTOM", "ae94000.dsi.0")
-GAMMA = float(os.environ.get("POCKNIX_BRIGHTNESS_GAMMA", "2.0"))
-# kwin animates a slider drag as a burst of BrightnessChanged + sysfs writes ~45 ms
-# apart, and its own write of the bottom panel lands after the signal we would react to.
-# Correcting on each signal therefore races the animation and the bottom flickers between
-# our value and kwin's. Wait for the burst to finish instead, then settle onto the curve.
+DEFAULT_GAMMA = 2.2
+GAMMA = float(os.environ.get("POCKNIX_BRIGHTNESS_GAMMA", DEFAULT_GAMMA))
+# Live tuning knob, re-read on every correction so the service does not need a restart.
+CONFIG = os.path.expanduser("~/.config/pocknix/brightness-sync.conf")
+# kwin animates a slider drag as many sysfs writes (up to ~0.5 s for a full-range jump) but
+# signals can arrive before the animation, so "wait a bit after the last signal" is not
+# enough: the write would land mid-animation and be overwritten. Instead wait for the *value*
+# to stop moving — first after DEBOUNCE, then every SETTLE_STEP until two reads agree.
 DEBOUNCE = 0.15
+SETTLE_STEP = 0.12
+SETTLE_TRIES = 25
 # Safety net for brightness written by something other than kwin; the signals do the work.
 SAFETY_INTERVAL = 30
 # How long a "is gamescope running" answer is trusted.
 GAME_MODE_TTL = 2.0
 
 _game_mode = (0.0, False)
+
+
+def gamma() -> float:
+    """Curve exponent: the built-in constant unless the tuning file says otherwise."""
+    try:
+        with open(CONFIG) as handle:
+            for line in handle:
+                key, _, value = line.partition("=")
+                if key.strip() == "GAMMA":
+                    return float(value)
+    except (OSError, ValueError):
+        pass
+    return GAMMA
 
 
 def read_int(path: str) -> int:
@@ -129,7 +150,7 @@ def correct(*_args, **_kwargs) -> None:
             return
 
         level = min(1.0, max(0.0, read_int(f"{BACKLIGHT}/{TOP}/brightness") / top_max))
-        target = max(1, round(bottom_max * level**GAMMA))
+        target = max(1, round(bottom_max * level ** gamma()))
         if read_int(f"{BACKLIGHT}/{BOTTOM}/brightness") != target:
             write_bottom(target)
     except (OSError, ValueError):
@@ -138,20 +159,41 @@ def correct(*_args, **_kwargs) -> None:
 
 
 _pending = None
+_last_seen = None
+_tries = 0
 
 
 def schedule(*_args, **_kwargs) -> None:
-    """Coalesce a burst of kwin changes into one correction once it goes quiet."""
-    global _pending
+    """Restart the settle watch when kwin reports a change."""
+    global _pending, _last_seen, _tries
     if _pending is not None:
         GLib.source_remove(_pending)
-    _pending = GLib.timeout_add(int(DEBOUNCE * 1000), _run_scheduled)
+    _last_seen = None
+    _tries = 0
+    _pending = GLib.timeout_add(int(DEBOUNCE * 1000), _step)
 
 
-def _run_scheduled() -> bool:
-    global _pending
-    _pending = None
-    correct()
+def _step() -> bool:
+    """Correct once the top panel has stopped moving."""
+    global _pending, _last_seen, _tries
+    try:
+        seen = read_int(f"{BACKLIGHT}/{TOP}/brightness")
+    except (OSError, ValueError):
+        seen = None
+
+    if seen is not None and seen == _last_seen:
+        _pending = None
+        correct()
+        return False
+
+    _last_seen = seen
+    _tries += 1
+    if _tries > SETTLE_TRIES:
+        # Still moving after ~3 s: stop watching, the safety pass will pick it up.
+        _pending = None
+        return False
+
+    _pending = GLib.timeout_add(int(SETTLE_STEP * 1000), _step)
     return False
 
 

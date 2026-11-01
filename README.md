@@ -105,19 +105,22 @@ the top at 1059/3413 (31 %) and the bottom at 79/255 (31 %), and it looked wrong
 
 | Where | What |
 |---|---|
-| `~/.config/scripts/pocknix-brightness-sync` + `pocknix-brightness-sync.service` | Subscribes to `org.kde.ScreenBrightness.BrightnessChanged` and drives the bottom through `bottom = max_bottom · (top / top_max) ** GAMMA`, so it sits lower at low levels while both still reach full at 100 %. Only the bottom panel is written — kwin, PowerDevil and Steam stay authoritative for the screen being looked at. Survives Game Mode round trips (`WantedBy=default.target`, not `PartOf=graphical-session.target`); idle cost ~0.2 % CPU and no polling. |
+| `~/.config/scripts/pocknix-brightness-sync` + `pocknix-brightness-sync.service` | Follows `org.kde.ScreenBrightness.BrightnessChanged` and drives the bottom through `bottom = max_bottom · (top / top_max) ** GAMMA`, so it sits lower at low levels while both still reach full at 100 %. Only the bottom panel is written — kwin, PowerDevil and Steam stay authoritative for the screen being looked at. Survives Game Mode round trips (`WantedBy=default.target`, not `PartOf=graphical-session.target`); idle cost ~0.2 % CPU and no polling. |
 
-`GAMMA` is a constant in the script (`2.0`); `POCKNIX_BRIGHTNESS_GAMMA` overrides it for a
-quick comparison. Change the constant, `chezmoi apply`, and the enabling script restarts the
-unit. At 2.0, 40 % on the top panel puts the bottom at 41/255 instead of 102/255.
+`GAMMA` is a constant in the script (`2.2`). It is a judgement call, so it can be tuned live
+without a restart: `echo GAMMA=2.5 > ~/.config/pocknix/brightness-sync.conf` is picked up on
+the next change, and deleting the file returns to the built-in value. `POCKNIX_BRIGHTNESS_GAMMA`
+overrides both for a one-off test. At 2.2, 40 % on the top panel puts the bottom at 34/255
+instead of 102/255, and 31 % at 19/255 instead of 79/255.
 
 Two things the implementation had to work around:
 
-* kwin writes **both** panels and emits `BrightnessChanged` per display, with its own write of
-  the bottom landing after the signal we see. Reacting on every signal races the
-  slider animation and the bottom flickers between our value and kwin's — so the burst is
-  coalesced and the curve is applied once the value has been quiet for 150 ms. During a drag
-  the bottom follows kwin; it settles afterwards.
+* kwin writes **both** panels and animates a slider drag over up to ~0.5 s (7 sysfs steps for
+  a 10 %→100 % jump), and its signals can arrive before that animation rather than after it.
+  Correcting on each signal, or a fixed wait after the last one, therefore lands mid-animation
+  and gets overwritten. So the helper waits for the *value* to stop moving — 150 ms after the
+  last signal, then every 120 ms until two reads agree — and applies the curve then. During a
+  drag the bottom follows kwin; it settles once afterwards.
 * the bottom's driver answers `EINVAL` on the sysfs write while still applying the value, so
   success is judged by reading the backlight back, with logind `SetBrightness` as fallback.
 
