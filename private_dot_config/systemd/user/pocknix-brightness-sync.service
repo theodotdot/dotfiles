@@ -1,0 +1,14 @@
+[Unit]
+Description=Pocknix: bottom panel brightness follows the top panel
+
+[Service]
+Type=simple
+ExecStart=%h/.config/scripts/pocknix-brightness-sync
+# Brightness is owned per session (kwin/PowerDevil in Plasma, Steam in Game Mode),
+# so this has to outlive graphical-session.target being stopped on every Game Mode
+# round trip — same reasoning as pocknix-stick-scroll.service.
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target graphical-session.target
