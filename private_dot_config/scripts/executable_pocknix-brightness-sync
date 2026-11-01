@@ -10,8 +10,7 @@ The top panel therefore stays the reference and the bottom one is re-driven thro
 
     bottom = round(bottom_max * (top / top_max) ** GAMMA)
 
-GAMMA started at 1.6, then 2.0; the bottom is still brighter at low levels, so the default is
-2.2. The curve only has to satisfy "both look equal at every level", and only the person
+GAMMA went 1.6 -> 2.0 -> 2.2 -> 2.7 as the bottom kept reading brighter at low levels. The curve only has to satisfy "both look equal at every level", and only the person
 looking at the panels can settle it, so the value can also be set live, without restarting:
 `echo GAMMA=2.4 > ~/.config/pocknix/brightness-sync.conf` is picked up on the next change.
 POCKNIX_BRIGHTNESS_GAMMA overrides both for a one-off test.
@@ -22,6 +21,10 @@ subscribes to org.kde.ScreenBrightness.BrightnessChanged and coalesces the burst
 a slider drag produces, correcting once the value has been quiet for DEBOUNCE. During the
 drag the bottom simply follows kwin, then it settles onto the curve. Costs nothing while
 idle, and nothing when no kwin is running (Game Mode).
+
+Known limit: the bottom panel's brightness write costs ~33 ms, so correcting after kwin's
+write is always a visible (if short) overshoot. Applying the curve inside the panel driver
+would remove both the helper and the flash; that needs the kernel rebuilt.
 
 Game Mode is left alone: gamescope only drives the top panel and SteamOS has no dual-screen
 support yet, so the bottom is not written at all while a gamescope process exists.
@@ -40,17 +43,22 @@ from gi.repository import GLib
 BACKLIGHT = "/sys/class/backlight"
 TOP = os.environ.get("POCKNIX_BRIGHTNESS_TOP", "ae96000.dsi.0")
 BOTTOM = os.environ.get("POCKNIX_BRIGHTNESS_BOTTOM", "ae94000.dsi.0")
-DEFAULT_GAMMA = 2.2
+DEFAULT_GAMMA = 2.7
 GAMMA = float(os.environ.get("POCKNIX_BRIGHTNESS_GAMMA", DEFAULT_GAMMA))
 # Live tuning knob, re-read on every correction so the service does not need a restart.
 CONFIG = os.path.expanduser("~/.config/pocknix/brightness-sync.conf")
-# kwin animates a slider drag as many sysfs writes (up to ~0.5 s for a full-range jump) but
-# signals can arrive before the animation, so "wait a bit after the last signal" is not
-# enough: the write would land mid-animation and be overwritten. Instead wait for the *value*
-# to stop moving — first after DEBOUNCE, then every SETTLE_STEP until two reads agree.
-DEBOUNCE = 0.15
-SETTLE_STEP = 0.12
-SETTLE_TRIES = 25
+# kwin animates a slider drag as many sysfs writes (up to ~0.5 s for a full-range jump) and
+# its signals can arrive before the animation, so waiting after the last signal lands
+# mid-animation and gets overwritten — the bottom then stays bright and settles late.
+# Instead chase the animation: after a signal, re-read the top every CHASE_STEP and re-apply
+# the curve whenever kwin has just overwritten the bottom, for up to CHASE_TIME.
+#
+# The chase cannot hide the transient: writing /sys/class/backlight/ae94000.dsi.0/brightness
+# costs ~33 ms (a DSI round trip to the AMOLED controller; reads are 0.02 ms), so a second
+# write can never land in the same frame as kwin's. Only the panel driver can avoid it —
+# see the kernel note in README.md.
+CHASE_STEP = 0.005
+CHASE_TIME = 1.0
 # Safety net for brightness written by something other than kwin; the signals do the work.
 SAFETY_INTERVAL = 30
 # How long a "is gamescope running" answer is trusted.
@@ -139,15 +147,33 @@ def write_bottom(value: int) -> bool:
         return False
 
 
+_maxima = None
+
+
+def maxima() -> tuple[int, int] | None:
+    """max_brightness for both panels; constant, so read once."""
+    global _maxima
+    if _maxima is None:
+        try:
+            top_max = read_int(f"{BACKLIGHT}/{TOP}/max_brightness")
+            bottom_max = read_int(f"{BACKLIGHT}/{BOTTOM}/max_brightness")
+        except (OSError, ValueError):
+            return None
+        if top_max <= 0 or bottom_max <= 0:
+            return None
+        _maxima = (top_max, bottom_max)
+    return _maxima
+
+
 def correct(*_args, **_kwargs) -> None:
     """Bring the bottom panel to the curve for the top panel's current level."""
     if in_game_mode():
         return
     try:
-        top_max = read_int(f"{BACKLIGHT}/{TOP}/max_brightness")
-        bottom_max = read_int(f"{BACKLIGHT}/{BOTTOM}/max_brightness")
-        if top_max <= 0 or bottom_max <= 0:
+        sizes = maxima()
+        if sizes is None:
             return
+        top_max, bottom_max = sizes
 
         level = min(1.0, max(0.0, read_int(f"{BACKLIGHT}/{TOP}/brightness") / top_max))
         target = max(1, round(bottom_max * level ** gamma()))
@@ -159,42 +185,26 @@ def correct(*_args, **_kwargs) -> None:
 
 
 _pending = None
-_last_seen = None
-_tries = 0
+_deadline = 0.0
 
 
 def schedule(*_args, **_kwargs) -> None:
-    """Restart the settle watch when kwin reports a change."""
-    global _pending, _last_seen, _tries
-    if _pending is not None:
-        GLib.source_remove(_pending)
-    _last_seen = None
-    _tries = 0
-    _pending = GLib.timeout_add(int(DEBOUNCE * 1000), _step)
+    """Start (or extend) the chase window when kwin reports a change."""
+    global _pending, _deadline
+    _deadline = time.monotonic() + CHASE_TIME
+    if _pending is None:
+        _pending = GLib.timeout_add(int(CHASE_STEP * 1000), _chase)
 
 
-def _step() -> bool:
-    """Correct once the top panel has stopped moving."""
-    global _pending, _last_seen, _tries
-    try:
-        seen = read_int(f"{BACKLIGHT}/{TOP}/brightness")
-    except (OSError, ValueError):
-        seen = None
+def _chase() -> bool:
+    """Re-apply the curve for as long as kwin is still animating."""
+    global _pending
+    correct()
 
-    if seen is not None and seen == _last_seen:
-        _pending = None
-        correct()
-        return False
-
-    _last_seen = seen
-    _tries += 1
-    if _tries > SETTLE_TRIES:
-        # Still moving after ~3 s: stop watching, the safety pass will pick it up.
+    if time.monotonic() >= _deadline:
         _pending = None
         return False
-
-    _pending = GLib.timeout_add(int(SETTLE_STEP * 1000), _step)
-    return False
+    return True
 
 
 def main() -> int:
