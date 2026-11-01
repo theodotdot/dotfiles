@@ -1,5 +1,6 @@
 # Setting misc env vars
 export EDITOR=hx
+export VISUAL=hx
 
 # fzf theme (catppuccin macchiato)
 export FZF_DEFAULT_OPTS=" \

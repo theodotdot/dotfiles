@@ -11,7 +11,7 @@ setupVersion: 2
 retry:
   maxRetries: 1
 tools:
-  approvalMode: write
+  approvalMode: yolo
 error:
   notify: "on"
 spelling:
@@ -22,3 +22,14 @@ autolearn:
   enabled: true
 bash:
   enabled: true
+defaultThinkingLevel: high
+hideThinkingBlock: true
+externalThinking: true
+prewalk:
+  enabled: true
+stt:
+  enabled: true
+startup:
+  checkUpdate: false
+compaction:
+  experimentalContextManagement: true
