@@ -107,11 +107,11 @@ the top at 1059/3413 (31 %) and the bottom at 79/255 (31 %), and it looked wrong
 |---|---|
 | `~/.config/scripts/pocknix-brightness-sync` + `pocknix-brightness-sync.service` | Follows `org.kde.ScreenBrightness.BrightnessChanged` and drives the bottom through `bottom = max_bottom · (top / top_max) ** GAMMA`, so it sits lower at low levels while both still reach full at 100 %. Only the bottom panel is written — kwin, PowerDevil and Steam stay authoritative for the screen being looked at. Survives Game Mode round trips (`WantedBy=default.target`, not `PartOf=graphical-session.target`); idle cost ~0.2 % CPU and no polling. |
 
-`GAMMA` is a constant in the script (`2.2`). It is a judgement call, so it can be tuned live
+`GAMMA` is a constant in the script (`2.7`). It is a judgement call, so it can be tuned live
 without a restart: `echo GAMMA=2.5 > ~/.config/pocknix/brightness-sync.conf` is picked up on
 the next change, and deleting the file returns to the built-in value. `POCKNIX_BRIGHTNESS_GAMMA`
-overrides both for a one-off test. At 2.2, 40 % on the top panel puts the bottom at 34/255
-instead of 102/255, and 31 % at 19/255 instead of 79/255.
+overrides both for a one-off test. At 2.7, 40 % on the top panel puts the bottom at 22/255
+instead of 102/255, and 31 % at 11/255 instead of 79/255.
 
 Two things the implementation had to work around:
 
@@ -120,13 +120,34 @@ Two things the implementation had to work around:
   Correcting on each signal, or a fixed wait after the last one, therefore lands mid-animation
   and gets overwritten. So the helper waits for the *value* to stop moving — 150 ms after the
   last signal, then every 120 ms until two reads agree — and applies the curve then. During a
-  drag the bottom follows kwin; it settles once afterwards.
+  drag the bottom follows kwin; the helper chases the animation and re-applies the curve as
+  soon as kwin overwrites it.
+
+Why the flash cannot be removed from userspace: writing
+`/sys/class/backlight/ae94000.dsi.0/brightness` costs **~33 ms** (a DSI round trip to the
+AMOLED controller; reads are 0.02 ms). kwin writes the bottom linearly, and a second write
+can never land in the same frame as kwin's, so a short overshoot per animation step is
+inherent. The fix belongs in the panel driver — see the kernel note below.
 * the bottom's driver answers `EINVAL` on the sysfs write while still applying the value, so
   success is judged by reading the backlight back, with logind `SetBrightness` as fallback.
 
 Game Mode is skipped entirely: while a `gamescope` process exists the bottom panel is not
 written at all, because gamescope drives only the top panel and SteamOS has no dual-screen
 support yet. Revisit when a patch makes the second screen usable there.
+
+##### Kernel-side alternative (not done)
+
+The two backlights belong to the DRM panel drivers, not to a generic backlight driver:
+`panel-ddic-ch13726a` (bottom, AMOLED) and `panel-chipone-icna35xx` (top), both **builtin**
+to `linux-pocknix-sm8550 7.2.10-13` (`modules.builtin`, `modinfo … filename: (builtin)`).
+The backlight class only exposes raw `brightness`/`max_brightness`/`scale=unknown` — there is
+no calibration hook, and no `brightness-levels` in the device tree.
+
+Mapping the value inside the bottom driver's brightness setter would make every writer — kwin,
+PowerDevil, Steam — correct by construction: one write, no overshoot, no helper, and it would
+cover Game Mode too. It costs a kernel rebuild and a boot deploy (`pocknix-boot-deploy`,
+`mkbootimg`), it needs the driver source for this kernel, and it returns with every kernel
+update unless pocknix takes it. Until then the userspace helper is the only option.
 
 
 
