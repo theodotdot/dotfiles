@@ -1,0 +1,236 @@
+#!/usr/bin/env python3
+"""pocknix-stick-scroll — right-stick scrolling for the Plasma Mobile session.
+
+InputPlumber 0.8x can only turn *buttons* into wheel steps (`Mouse::Wheel` from an
+axis source answers `NotImplemented`), so the right stick cannot scroll through a
+device profile.  This helper does the two things a profile cannot:
+
+  * while the "Plasma Mobile" profile is loaded it keeps the pad attached to the
+    composite device (targets: mouse, keyboard, xb360), so the right stick is
+    readable as evdev.  The pad target is added at runtime over D-Bus, which the
+    `wheel` group is allowed to do, so nothing needs root or a profile edit;
+  * it reads ABS_RX/ABS_RY from that pad and re-emits REL_WHEEL/REL_HWHEEL on its
+    own uinput device, with the rate following the deflection.
+
+Every other profile closes the gate and is left alone: Anki (its add-on scrolls),
+game mode (Steam owns the pad).  When inputplumber restarts or the session profile
+is re-applied the pad target disappears; the next housekeeping pass puts it back.
+"""
+
+from __future__ import annotations
+
+import os
+import re
+import select
+import signal
+import subprocess
+import sys
+import time
+from typing import List, Optional
+
+import evdev
+from evdev import ecodes
+
+SERVICE = "org.shadowblip.InputPlumber"
+IFACE = "org.shadowblip.Input.CompositeDevice"
+PROFILE = "Plasma Mobile"
+TARGETS = ("mouse", "keyboard", "xb360")
+
+PAD_NAME = os.environ.get("POCKNIX_STICK_SCROLL_PAD", "Microsoft X-Box 360 pad")
+UINPUT_NAME = "pocknix stick scroll"
+# Test hook: "none" skips the D-Bus housekeeping and keeps the gate open.
+GATE = os.environ.get("POCKNIX_STICK_SCROLL_GATE", "profile")
+
+DEADZONE = 0.25  # fraction of full deflection ignored
+MIN_RATE = 3.0  # wheel notches per second just past the deadzone
+MAX_RATE = 20.0  # wheel notches per second at full deflection
+TICK = 0.016  # seconds per scroll step
+HOUSEKEEPING = 1.0  # seconds between profile/target checks
+FULL = 32767.0
+
+_COMPOSITE = re.compile(r"/org/shadowblip/InputPlumber/CompositeDevice\d+")
+_ABS_CODES = {ecodes.ABS_RX: 0, ecodes.ABS_RY: 1}  # right stick x / y
+
+
+def log(message: str) -> None:
+    print(f"pocknix-stick-scroll: {message}", file=sys.stderr, flush=True)
+
+
+def _busctl(args: List[str], timeout: float = 2) -> Optional[str]:
+    try:
+        proc = subprocess.run(
+            ["busctl", "--system", *args],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if proc.returncode != 0:
+        return None
+    return proc.stdout
+
+
+def composite_device() -> Optional[str]:
+    tree = _busctl(["tree", SERVICE], timeout=3)
+    if not tree:
+        return None
+    found = sorted(set(_COMPOSITE.findall(tree)))
+    return found[0] if found else None
+
+
+def profile_name(path: str) -> Optional[str]:
+    out = _busctl(["get-property", SERVICE, path, IFACE, "ProfileName"])
+    if out is None:
+        return None
+    match = re.search(r'^s\s+"(.*)"$', out.strip())
+    return match.group(1) if match else None
+
+
+def ensure_pad_target(path: str) -> None:
+    # TargetDevices reports device object paths, not profile ids: the xb360 target
+    # shows up as ".../devices/target/gamepad0".
+    out = _busctl(["get-property", SERVICE, path, IFACE, "TargetDevices"])
+    if out is None or "/target/gamepad" in out:
+        return
+    call = ["call", SERVICE, path, IFACE, "SetTargetDevices", "as", str(len(TARGETS))]
+    if _busctl(call + list(TARGETS)) is None:
+        log("failed to add the pad target")
+    else:
+        log("added the pad target for stick scrolling")
+
+
+def notches(axis: float, elapsed: float) -> float:
+    """Wheel notches for one step at a normalised (-1..1) stick deflection."""
+    magnitude = (abs(axis) - DEADZONE) / (1.0 - DEADZONE)
+    if magnitude <= 0.0:
+        return 0.0
+    rate = MIN_RATE + (MAX_RATE - MIN_RATE) * min(magnitude, 1.0) ** 1.5
+    direction = 1 if axis > 0 else -1
+    return direction * rate * elapsed
+
+
+def find_pad(name: str) -> Optional[str]:
+    for path in evdev.list_devices():
+        try:
+            device = evdev.InputDevice(path)
+        except OSError:
+            continue
+        if device.name == name:
+            return path
+        device.close()
+    return None
+
+
+class Scroller:
+    """Turn right-stick deflection into wheel events on a private uinput device."""
+
+    def __init__(self) -> None:
+        self.axes = [0.0, 0.0]
+        self.pending = [0.0, 0.0]  # fractional notches: x, y
+        self.ui = evdev.UInput(
+            {ecodes.EV_REL: [ecodes.REL_WHEEL, ecodes.REL_HWHEEL]},
+            name=UINPUT_NAME,
+        )
+
+    def set_axis(self, which: int, raw: int) -> None:
+        self.axes[which] = max(-1.0, min(1.0, raw / FULL))
+
+    def reset(self) -> None:
+        self.axes = [0.0, 0.0]
+        self.pending = [0.0, 0.0]
+
+    def step(self, elapsed: float, active: bool) -> None:
+        if not active:
+            self.reset()
+            return
+        for which in (0, 1):
+            self.pending[which] += notches(self.axes[which], elapsed)
+        self._flush()
+
+    def _flush(self) -> None:
+        horizontal, vertical = (int(value) for value in self.pending)
+        if not horizontal and not vertical:
+            return
+        if horizontal:
+            self.pending[0] -= horizontal
+            self.ui.write(ecodes.EV_REL, ecodes.REL_HWHEEL, horizontal)
+        if vertical:
+            self.pending[1] -= vertical
+            self.ui.write(ecodes.EV_REL, ecodes.REL_WHEEL, -vertical)  # down = negative
+        self.ui.syn()
+
+    def close(self) -> None:
+        try:
+            self.ui.close()
+        except Exception:
+            pass
+
+
+def main() -> int:
+    scroller = Scroller()
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
+
+    path: Optional[str] = None
+    pad = None
+    gate = GATE == "none"
+    was_gate = not gate
+    last_housekeeping = 0.0
+    last = time.monotonic()
+
+    while True:
+        now = time.monotonic()
+        if GATE != "none" and now - last_housekeeping >= HOUSEKEEPING:
+            last_housekeeping = now
+            if path is None or profile_name(path) is None:
+                path = composite_device()
+            name = profile_name(path) if path else None
+            gate = name == PROFILE
+            if gate != was_gate:
+                log(f"profile {name or 'unknown'}: {'scrolling' if gate else 'idle'}")
+                was_gate = gate
+            if gate and path:
+                ensure_pad_target(path)
+
+        if pad is None:
+            pad_path = find_pad(PAD_NAME)
+            if pad_path is None:
+                time.sleep(0.5)
+                last = time.monotonic()
+                continue
+            try:
+                pad = evdev.InputDevice(pad_path)
+            except OSError:
+                time.sleep(0.5)
+                last = time.monotonic()
+                continue
+            log(f"reading {pad_path}")
+
+        timeout = max(0.0, TICK - (now - last))
+        try:
+            readable, _, _ = select.select([pad.fd], [], [], timeout)
+        except (OSError, ValueError):
+            readable = []
+        if readable:
+            try:
+                for event in pad.read():
+                    which = _ABS_CODES.get(event.code)
+                    if event.type == ecodes.EV_ABS and which is not None:
+                        scroller.set_axis(which, event.value)
+            except OSError:  # the profile swapped the pad node out from under us
+                log("pad went away")
+                pad.close()
+                pad = None
+                scroller.reset()
+
+        now = time.monotonic()
+        scroller.step(now - last, gate and pad is not None)
+        last = now
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except KeyboardInterrupt:
+        raise SystemExit(0)

@@ -1,0 +1,12 @@
+[Unit]
+Description=Pocknix: right-stick scrolling for the Plasma Mobile session
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.config/scripts/pocknix-stick-scroll
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target
