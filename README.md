@@ -47,3 +47,25 @@ is `NotImplemented` in 0.8x), so right-stick scrolling is done in user space in 
 installed by `sudo bash pocknix/thor/install.sh` (mirrored to `~/pocknix-install` on the
 Thor) which writes `/etc/inputplumber/profiles/`, `/usr/share/inputplumber/capability_maps/`
 and `/usr/lib/pocknix/`.
+
+### 🔆 Thor brightness
+
+Plasma Mobile's shade does have a brightness slider, but it is a thin bar under the tile
+grid and it can vanish for a whole session. `ScreenBrightnessUtil` reads `isValid()` of
+PowerDevil's D-Bus object once, at construction, and its only notification path watches
+`org.kde.Solid.PowerManagement.Actions.BrightnessControl` — a name nothing owns; the real
+service is `org.kde.Solid.PowerManagement`. A Steam Game Mode round trip respawns the
+session, plasmashell wins the race against powerdevil by ~3 s
+(`Getting brightness failed: … "The name is not activatable"`), and the slider stays hidden
+until the shell is restarted.
+
+| Where | What |
+|---|---|
+| `~/.local/share/plasma/quicksettings/org.kde.plasma.quicksetting.brightness/` | Quick setting tile, first in the shade: `toggle()` cycles 100 → 75 → 50 → 25 → 10 % and wraps, `status` is the live percentage. It drives the same `ScreenBrightnessUtil` as the slider, so both panels move together. `available` is bound to `maxBrightness` (which notifies) instead of `brightnessAvailable` (which does not), and a 1.5 s retry re-fetches while PowerDevil is absent, so the tile heals itself after a late start. |
+| `~/.config/systemd/user/plasma-plasmashell.service.d/10-wait-for-powerdevil.conf` | `After=`/`Wants=plasma-powerdevil.service`. That unit is `Type=dbus` with `BusName=org.kde.Solid.PowerManagement`, so the shell now waits for the name to be owned and the slider is valid from the first frame. |
+
+`run_onchange_enable-brightness-quicksetting.sh` keeps the tile first in
+`[QuickSettings] enabledQuickSettings` of `~/.config/plasmamobilerc`. That file is shell
+state (tile list, wizard flags, status bar scale are rewritten at runtime) and stays
+unmanaged; the script only inserts the id when it is missing or not first.
+
