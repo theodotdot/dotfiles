@@ -87,18 +87,15 @@ unmanaged; the script only inserts the id when it is missing or not first.
 
 #### Game Mode (gamescope)
 
-Steam's slider does not go through PowerDevil. `steamclient.so`/`steamui.so` run
-
-```
-/usr/bin/steamos-polkit-helpers/steamos-priv-write /sys/class/backlight/<dev>/brightness <value>
-```
-
-and fall back to `echo <value> | sudo -n tee <path>` when that helper is missing. pocknix
-ships the other `steamos-polkit-helpers` but not this one, so every slider step logged
+Steam's slider does not go through PowerDevil. It writes the first entry in
+`/sys/class/backlight` **directly** — `ae94000.dsi.0`, the 620×540 bottom panel, while Game
+Mode runs on the top panel (DSI-2) — and only falls back to
+`/usr/bin/steamos-polkit-helpers/steamos-priv-write <path> <value>` (pkexec) when that fails
+(pocknix #80). pocknix ships the other `steamos-polkit-helpers` but not this one, so the
+fallback could only ever `sudo -n tee`, which logged
 `sudo[…]: deck : a password is required ; … COMMAND=/usr/bin/tee /sys/class/backlight/ae94000.dsi.0/brightness`
-and nothing changed — and even with sudo it would have moved the wrong screen, because
-Steam takes the first entry in `/sys/class/backlight` (`ae94000.dsi.0`, the 620×540 bottom
-panel) while Game Mode runs on the top panel (DSI-2).
+and changed nothing. The direct write does fail on this hardware — the panel driver returns
+`EINVAL` while still applying the value — so both paths are live.
 
 | Where | What |
 |---|---|
@@ -143,6 +140,13 @@ inherent. The fix belongs in the panel driver — see the kernel note below.
 Game Mode is skipped entirely: while a `gamescope` process exists the bottom panel is not
 written at all, because gamescope drives only the top panel and SteamOS has no dual-screen
 support yet. Revisit when a patch makes the second screen usable there.
+
+**The helper is currently disabled** (`systemctl --user disable --now pocknix-brightness-sync`):
+every correction writes the bottom node again, and a write there costs ~33 ms, so the
+overshoot is unavoidable from userspace and reads as a flash. Fixing it properly needs the
+curve inside the panel driver — see
+[docs/thor-brightness-handoff.md](./docs/thor-brightness-handoff.md) for the full analysis,
+measurements, candidate patches and the upstream issues.
 
 ##### Kernel-side alternative (not done)
 
