@@ -14,6 +14,17 @@ collection).
 It exits silently until Anki is installed and `~/.local/share/Anki2` exists, so the
 order (install Anki, then `chezmoi apply`) does not matter.
 
+Because step 3 only copies add-ons that are *missing*, edits to `local-addons/` are not
+picked up on their own. After changing the controller add-on:
+
+```sh
+cp -a ~/.local/share/chezmoi/anki/local-addons/anki-gamepad/*.py \
+      ~/.local/share/Anki2/addons21/anki-gamepad/
+rm -rf ~/.local/share/Anki2/addons21/anki-gamepad/__pycache__
+```
+
+then restart Anki (add-on code is only loaded at startup).
+
 ## Thor controller
 
 Anki is driven by the gamepad through `local-addons/anki-gamepad/`, which reads evdev

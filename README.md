@@ -41,3 +41,9 @@ is `NotImplemented` in 0.8x), so right-stick scrolling is done in user space in 
 |---|---|
 | Plasma Mobile | `~/.config/scripts/pocknix-stick-scroll` (user unit `pocknix-stick-scroll.service`): adds the pad target to the composite device over D-Bus while the `Plasma Mobile` profile is loaded, reads `ABS_RX/ABS_RY` and emits `REL_WHEEL`/`REL_HWHEEL` on its own uinput device, rate scaled by deflection. Idle for every other profile. |
 | Anki | `anki/local-addons/anki-gamepad` loads the `Anki` profile on focus, handles the face buttons/d-pad and scrolls the card with the right stick — see [anki/README.md](./anki/README.md). |
+
+`anki/` and `pocknix/` are payloads, not home config: chezmoi ignores them.
+`run_anki-addons.sh.tmpl` copies the add-ons out of `anki/`, and `pocknix/thor/` is
+installed by `sudo bash pocknix/thor/install.sh` (mirrored to `~/pocknix-install` on the
+Thor) which writes `/etc/inputplumber/profiles/`, `/usr/share/inputplumber/capability_maps/`
+and `/usr/lib/pocknix/`.
