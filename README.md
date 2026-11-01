@@ -31,3 +31,13 @@ I use [catppuccin](https://catppuccin.com/) macchiato everywhere I can 🐈‍�
 | **[zdharma-continuum/fast-syntax-highlighting](https://github.com/zdharma-continuum/fast-syntax-highlighting)**   |
 | **[zsh-users/zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)**                             |
 | **[zsh-users/zsh-history-substring-search](https://github.com/zsh-users/zsh-history-substring-search)**           |
+
+### 🕹️ Thor gamepad
+
+InputPlumber cannot map an analog axis to wheel steps (`Mouse::Wheel` from an axis source
+is `NotImplemented` in 0.8x), so right-stick scrolling is done in user space in two places:
+
+| Where | What |
+|---|---|
+| Plasma Mobile | `~/.config/scripts/pocknix-stick-scroll` (user unit `pocknix-stick-scroll.service`): adds the pad target to the composite device over D-Bus while the `Plasma Mobile` profile is loaded, reads `ABS_RX/ABS_RY` and emits `REL_WHEEL`/`REL_HWHEEL` on its own uinput device, rate scaled by deflection. Idle for every other profile. |
+| Anki | `anki/local-addons/anki-gamepad` loads the `Anki` profile on focus, handles the face buttons/d-pad and scrolls the card with the right stick — see [anki/README.md](./anki/README.md). |
