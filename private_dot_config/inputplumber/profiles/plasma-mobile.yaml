@@ -1,0 +1,145 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ShadowBlip/InputPlumber/main/rootfs/usr/share/inputplumber/schema/device_profile_v1.json
+# Pocknix: Plasma Mobile navigation profile.
+# Turns the AYN Thor gamepad into a mouse + keyboard so the controller can drive
+# Plasma Mobile. Loaded by /usr/lib/pocknix/desktop.d/10-plasma-mobile-gamepad.sh
+# when the plasma-mobile session starts, and reset by pocknix-gamepad-reset.service
+# when game mode starts.
+version: 1
+kind: DeviceProfile
+name: Plasma Mobile
+description: Gamepad to mouse + keyboard for Plasma Mobile
+
+# Emulate mouse + keyboard instead of the deck/xb360 pad while this profile is loaded.
+target_devices:
+  - mouse
+  - keyboard
+
+mapping:
+  # Left stick drives the pointer.
+  - name: Left Stick Mouse
+    source_event:
+      gamepad:
+        axis:
+          name: LeftStick
+    target_events:
+      - mouse:
+          motion:
+            speed_pps: 800
+
+  # Left trigger = left control.
+  - name: Left Trigger Control
+    source_event:
+      gamepad:
+        trigger:
+          name: LeftTrigger
+          deadzone: 0.2
+    target_events:
+      - keyboard: KeyLeftCtrl
+
+  # Right trigger = left shift.
+  - name: Right Trigger Shift
+    source_event:
+      gamepad:
+        trigger:
+          name: RightTrigger
+          deadzone: 0.2
+    target_events:
+      - keyboard: KeyLeftShift
+
+  # D-pad = arrow keys.
+  - name: Dpad Up
+    source_event:
+      gamepad:
+        button: DPadUp
+    target_events:
+      - keyboard: KeyUp
+
+  - name: Dpad Down
+    source_event:
+      gamepad:
+        button: DPadDown
+    target_events:
+      - keyboard: KeyDown
+
+  - name: Dpad Left
+    source_event:
+      gamepad:
+        button: DPadLeft
+    target_events:
+      - keyboard: KeyLeft
+
+  - name: Dpad Right
+    source_event:
+      gamepad:
+        button: DPadRight
+    target_events:
+      - keyboard: KeyRight
+
+  # A = left click (activate / tap).
+  - name: A Activate
+    source_event:
+      gamepad:
+        button: South
+    target_events:
+      - mouse:
+          button: Left
+
+  # Left bumper = back.
+  - name: Left Bumper Back
+    source_event:
+      gamepad:
+        button: LeftBumper
+    target_events:
+      - keyboard: KeyLeftAlt
+      - keyboard: KeyLeft
+
+  # Right bumper = forward.
+  - name: Right Bumper Forward
+    source_event:
+      gamepad:
+        button: RightBumper
+    target_events:
+      - keyboard: KeyLeftAlt
+      - keyboard: KeyRight
+
+  # B = right click.
+  - name: B Right Click
+    source_event:
+      gamepad:
+        button: East
+    target_events:
+      - mouse:
+          button: Right
+
+  # X (physical X = West) = home / app launcher.
+  - name: X Home
+    source_event:
+      gamepad:
+        button: West
+    target_events:
+      - keyboard: KeyLeftMeta
+
+  # Y (physical Y = North) = mobile task switcher (Meta+C chord).
+  - name: Y Task Switcher
+    source_event:
+      gamepad:
+        button: North
+    target_events:
+      - keyboard: KeyLeftMeta
+      - keyboard: KeyC
+
+  # Play (Start) = media play/pause.
+  - name: Play Media PlayPause
+    source_event:
+      gamepad:
+        button: Start
+    target_events:
+      - keyboard: KeyPlayPause
+
+  # Select = escape.
+  - name: Select Escape
+    source_event:
+      gamepad:
+        button: Select
+    target_events:
+      - keyboard: KeyEsc
