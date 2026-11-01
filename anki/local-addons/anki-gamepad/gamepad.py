@@ -23,6 +23,7 @@ EV_KEY, EV_ABS = 1, 3
 PAD_NAME = "Microsoft X-Box 360 pad"
 _EVENT = struct.Struct("<qqHHi")  # struct input_event on 64-bit
 
+ABS_RX, ABS_RY = 0x03, 0x04  # right stick, on the X-Box 360 target
 ABS_HAT0X, ABS_HAT0Y = 0x10, 0x11
 EVIOCGRAB = 0x40044590  # _IOW('E', 0x90, int)
 

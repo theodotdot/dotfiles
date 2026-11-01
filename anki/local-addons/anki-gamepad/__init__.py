@@ -18,7 +18,7 @@ import traceback
 from aqt import gui_hooks, mw
 from aqt.qt import QApplication, QEvent, QObject, Qt, QTimer
 
-from . import gamepad, inputplumber
+from . import gamepad, inputplumber, scroll
 from .gamepad import log
 
 _SOUTH, _EAST, _NORTH, _WEST = 0x130, 0x131, 0x133, 0x134
@@ -65,6 +65,7 @@ class _FocusWatcher(QObject):
             return
         _pad.stop()
         _keys.stop()
+        _scroller.reset()
         inputplumber.restore()
         self.switched = False
 
@@ -260,6 +261,8 @@ def _handle_event(etype: int, code: int, value: int) -> None:
         elif etype == gamepad.EV_ABS:
             if code in (gamepad.ABS_HAT0X, gamepad.ABS_HAT0Y):
                 _on_hat(code, value)
+            elif code == gamepad.ABS_RY:
+                _scroller.set_axis(value)
             elif value and code >= 0x10:
                 log(f"unhandled abs code {code:#x} value {value}")
     except Exception:  # never let an add-on bug abort Anki
@@ -268,6 +271,7 @@ def _handle_event(etype: int, code: int, value: int) -> None:
 
 _pad = gamepad.GamepadReader(_handle_event)
 _keys = gamepad.GamepadReader(_handle_keyboard_event, gamepad.KEYBOARD_NAME)
+_scroller = scroll.StickScroller()
 _watcher = _FocusWatcher()
 
 gui_hooks.profile_will_close.append(_watcher.leave)

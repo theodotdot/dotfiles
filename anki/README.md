@@ -30,6 +30,11 @@ into `KEY_UP/DOWN/LEFT/RIGHT` (pass-through drops them on the pad target). Revie
 scrolling of the d-pad is Anki's native arrow-key scrolling; the add-on adds deck
 navigation for the same arrows.
 
+The right stick scrolls the main Anki screen (card, deck list, overview): the
+add-on turns `ABS_RY` deflection into `window.scrollBy` calls on `mw.web` every 16 ms,
+so the speed follows how far the stick is pushed (260 px/s at the deadzone edge,
+2.2k px/s at full deflection).
+
 | Pad | Answer screen | Question screen | Deck browser |
 |---|---|---|---|
 | A | Good (3) | show answer | open deck → overview |
@@ -39,7 +44,8 @@ navigation for the same arrows.
 | LB / RB | undo / edit note | undo / edit note | — |
 | Start / Select | back to deck list | back | — |
 | D-pad | scroll the card (native) | scroll the card (native) | previous/next deck |
-| LT / RT | unused | | |
+| Right stick ↑↓ | scroll the card | scroll the card | scroll the deck list |
+| Left stick / LT / RT | unused | | |
 
 The add-on also appends the controller hint to Anki's grading labels via the
 `reviewer_will_init_answer_buttons` hook ("Again (Y)", "Hard (X)", "Good (A)",
