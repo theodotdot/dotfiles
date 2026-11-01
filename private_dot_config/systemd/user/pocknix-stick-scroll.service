@@ -1,12 +1,15 @@
 [Unit]
 Description=Pocknix: right-stick scrolling for the Plasma Mobile session
-PartOf=graphical-session.target
 
 [Service]
 Type=simple
 ExecStart=%h/.config/scripts/pocknix-stick-scroll
-Restart=on-failure
+# The helper gates itself on the InputPlumber profile, so it is harmless in game
+# mode; what it must survive is the Plasma session restarting (every Game Mode
+# round trip stops graphical-session.target). Do NOT add PartOf=graphical-session
+# .target: a stop is a stop, and WantedBy=default.target never starts it again.
+Restart=always
 RestartSec=2
 
 [Install]
-WantedBy=default.target
+WantedBy=default.target graphical-session.target
