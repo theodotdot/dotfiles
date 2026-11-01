@@ -48,6 +48,13 @@ installed by `sudo bash pocknix/thor/install.sh` (mirrored to `~/pocknix-install
 Thor) which writes `/etc/inputplumber/profiles/`, `/usr/share/inputplumber/capability_maps/`
 and `/usr/lib/pocknix/`.
 
+Desktop pad mapping (`pocknix/thor/plasma-mobile.yaml`): left stick = pointer, d-pad =
+arrows, A = left click, B = right click, X = Meta, Y = Meta+C, LB/RB = Alt+Left/Alt+Right,
+LT/RT = held LeftCtrl/LeftShift, Start = play/pause, Select = Esc. The wheel mappings are
+gone — the right stick scrolls. `~/.config/inputplumber/profiles/plasma-mobile.yaml` is
+tracked as the same file so it can be `LoadProfilePath`-ed without root; keep it identical
+to the bundle copy (that one is what `install.sh` writes to `/etc`).
+
 ### 🔆 Thor brightness
 
 Plasma Mobile's shade does have a brightness slider, but it is a thin bar under the tile
