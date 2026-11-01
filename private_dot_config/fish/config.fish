@@ -46,3 +46,7 @@ direnv hook fish | source
 
 # PATH
 fish_add_path $HOME/.local/bin
+
+# Default editor
+set -gx EDITOR hx
+set -gx VISUAL hx

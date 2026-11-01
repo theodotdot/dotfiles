@@ -1,3 +1,8 @@
+[opener]
+edit = [
+	{ run = "hx %s", desc = "Helix", block = true, for = "unix" },
+]
+
 # git.yazi
 [[plugin.prepend_fetchers]]
 id    = "git"
