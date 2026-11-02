@@ -7,20 +7,16 @@ hotkey-overlay {
 }
 
 spawn-at-startup "dbus-update-activation-environment" "--systemd"
-spawn-at-startup "waybar" "-c" ".config/waybar/config-niri"
-spawn-at-startup "mako"
-spawn-at-startup "nm-applet" "--indicator"
-// spawn-at-startup "systemctl" "--user" "start" "hyprpolkitagent"
-spawn-at-startup "wlsunset" "-l" "52.5" "-L" "13.4"
-// spawn-at-startup "hypridle"
-spawn-sh-at-startup "wl-paste --watch cliphist store"
+// Noctalia owns the bar, notifications, network status, clipboard history,
+// wallpaper, night light and the polkit agent. The command blocks until the
+// session ends, which is the documented niri pattern.
+spawn-at-startup "noctalia"
 // spawn-at-startup "xwayland-satellite"
-spawn-at-startup "awww-daemon"
-spawn-at-startup "waypaper" "--restore"
 spawn-at-startup "zen-browser"
-spawn-at-startup "Telegram"
 spawn-at-startup "vesktop"
-spawn-at-startup "/home/@@CHEZMOI_USERNAME@@/Downloads/zmkBATx/zmkbatx.sh"
+spawn-at-startup "Telegram"
+// ZMK keyboard battery script from another machine; path does not exist here.
+// spawn-at-startup "/home/{{ .chezmoi.username }}/Downloads/zmkBATx/zmkbatx.sh"
 spawn-at-startup "moonshine"
 
 cursor {
@@ -129,18 +125,29 @@ input {
 // Find more information on the wiki:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
 // Remember to uncomment the node by removing "/-"!
-output "DP-2" {
-    // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
-    mode "3840x2160@119.999"
+// AYN Thor (SM8550 dual-screen handheld, Pocknix OS) outputs.
+// Connectors per /usr/lib/pocknix/boards/thor.conf:
+//   top panel    = DSI-2  (native 1080x1920@120 portrait, mounted 90° CW = "right")
+//   bottom panel = DSI-1  (1080x1240 landscape secondary screen)
+//   external     = DP-1   (USB-C dock)
+// Modes are left unset so niri uses each output's preferred mode.
 
-    // You can use integer or fractional scale, for example use 1.5 for 150% scale.
+output "DP-1" {
+    // Dock monitor. 150% scale by default; adjust with Mod+G / Mod+Shift+G / Mod+Alt+G.
     scale 1.5
-
-    // Transform allows to rotate the output counter-clockwise, valid values are:
-    // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
-    transform "normal"
-
     // variable-refresh-rate
+}
+
+output "DSI-2" {
+    // Top panel. niri transforms are counter-clockwise, and the panel is mounted
+    // 90° clockwise ("right"), so "270". If the picture is upside down, use "90".
+    transform "270"
+    scale 2.5
+}
+
+output "DSI-1" {
+    // Bottom secondary panel (already landscape).
+    scale 2.5
 }
 
 overview {
@@ -156,7 +163,7 @@ layout {
     background-color "transparent"
 
     // Set gaps around windows in logical pixels.
-    gaps 8
+    gaps 5
 
     // When to center a column when changing focus, options are:
     // - "never", default behavior, focusing an off-screen column will keep at the left
@@ -211,7 +218,7 @@ layout {
         // If you enable the border, you probably want to disable the focus ring.
         // off
 
-        width 3
+        width 2
         active-color "#c6a0f6"
         inactive-color "#b8c0e0"
 
@@ -246,21 +253,9 @@ layout {
     }
 }
 
-// Add lines like this to spawn processes at startup.
-// Note that running niri as a session supports xdg-desktop-autostart,
-// which may be more convenient to use.
-// See the binds section below for more spawn examples.
-// spawn-at-startup "alacritty" "-e" "fish"
 
-// Uncomment this line to ask the clients to omit their client-side decorations if possible.
-// If the client will specifically ask for CSD, the request will be honored.
-// Additionally, clients will be informed that they are tiled, removing some client-side rounded corners.
-// This option will also fix border/focus ring drawing behind some semitransparent windows.
-// After enabling or disabling this, you need to restart the apps for this to take effect.
-// prefer-no-csd
 
 // You can change the path where screenshots are saved.
-// A ~ at the front will be expanded to the home directory.
 // The path is formatted with strftime(3) to give you the screenshot date and time.
 screenshot-path "~/Pictures/Screenshots/Screenshot_%Y-%m-%d_%H-%M-%S.png"
 
@@ -323,7 +318,7 @@ animations {
 // Make the wallpaper stationary, rather than moving with workspaces.
 layer-rule {
     // Find the right namespace by running niri msg layers.
-    match namespace="^awww-daemon$"
+    match namespace="^noctalia-wallpaper"
     place-within-backdrop true
 }
 
@@ -402,7 +397,6 @@ window-rule {
 // (This example rule is commented out with a "/-" in front.)
 window-rule {
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
-    match app-id=r#"^org\.gnome\.World\.Secrets$"#
 
     block-out-from "screen-capture"
 
@@ -413,8 +407,23 @@ window-rule {
 // Example: enable rounded corners for all windows.
 // (This example rule is commented out with a "/-" in front.)
 window-rule {
-    geometry-corner-radius 8
+    geometry-corner-radius 5
     clip-to-geometry true
+}
+
+// Noctalia's Settings window opens floating at a fixed size.
+window-rule {
+    match app-id="dev.noctalia.Noctalia"
+    open-floating true
+    default-column-width { fixed 1080; }
+    default-window-height { fixed 920; }
+}
+
+include "blur.kdl"
+
+debug {
+    // Allows notification actions and window activation coming from Noctalia.
+    honor-xdg-activation-with-invalid-serial
 }
 
 binds {
@@ -434,29 +443,28 @@ binds {
 
     // Utilities
     Mod+Return repeat=false { spawn "kitty"; }
-    Mod+Shift+space repeat=false { spawn "rofi" "-show" "run"; }
-    Mod+space repeat=false { spawn "rofi" "-show" "drun"; }
-    // Mod+Alt+V repeat=false { spawn "walker" "--modules" "clipboard"; }
-    Mod+Alt+V repeat=false { spawn-sh "rofi -modi clipboard:/home/@@CHEZMOI_USERNAME@@/.config/rofi/cliphist/cliphist-rofi-img -show clipboard -show-icons"; }
-    // Mod+A repeat=false { spawn "walker" "--modules" "audio"; }
-    Mod+A repeat=false { spawn "rofi-mixer"; }
+    Mod+space repeat=false { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Mod+Shift+space repeat=false { spawn-sh "noctalia msg panel-toggle launcher /"; }
+    Mod+S repeat=false { spawn-sh "noctalia msg settings-toggle"; }
+    Mod+V repeat=false { spawn-sh "noctalia msg panel-toggle clipboard"; }
+    Mod+A repeat=false { spawn-sh "noctalia msg panel-toggle control-center"; }
     Mod+minus repeat=false { spawn "kitten" "quick-access-terminal"; }
     
-    Ctrl+Alt+L { spawn "hyprlock"; }
+    Ctrl+Alt+L { spawn-sh "noctalia msg session lock"; }
 
     Mod+N { toggle-overview; }
 
-    Mod+Print repeat=false { screenshot; }
-    Print repeat=false { screenshot-screen; }
+    Mod+Print repeat=false { spawn-sh "noctalia msg screenshot-region"; }
+    Print repeat=false { spawn-sh "noctalia msg screenshot-fullscreen pick"; }
     Mod+Shift+Print repeat=false { screenshot-window; }
 
-    // Reload waybar
-    Mod+O repeat=false { spawn "killall" "-SIGUSR2" "waybar"; }
+    // Reload the shell (bar layout, widgets, theme)
+    Mod+O repeat=false { spawn-sh "noctalia msg config-reload"; }
 
     // Switch scaling for gaming
-    Mod+Shift+G repeat=false { spawn "niri" "msg" "output" "DP-2" "scale" "1"; }
-    Mod+Alt+G repeat=false { spawn "niri" "msg" "output" "DP-2" "scale" "2"; }
-    Mod+G repeat=false { spawn "niri" "msg" "output" "DP-2" "scale" "1.5"; }
+    Mod+Shift+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "1"; }
+    Mod+Alt+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "2"; }
+    Mod+G repeat=false { spawn "niri" "msg" "output" "DP-1" "scale" "1.5"; }
 
     // Volume control
     // The allow-when-locked=true property makes them work even when the session is locked.
@@ -473,8 +481,8 @@ binds {
     Mod+Q repeat=false { close-window; }
 
     // Move the focused window between the floating and the tiling layout.
-    Mod+T       { toggle-window-floating; }
-    Mod+Shift+T { switch-focus-between-floating-and-tiling; }
+    Mod+Shift+T       { toggle-window-floating; }
+    Mod+T { switch-focus-between-floating-and-tiling; }
 
     // Move focus
     Mod+Left  { focus-column-left; }
@@ -531,10 +539,6 @@ binds {
     Mod+Shift+WheelScrollDown cooldown-ms=50 { focus-workspace-down; }
     Mod+Shift+WheelScrollUp   cooldown-ms=50 { focus-workspace-up; }
 
-    // Mod+WheelScrollRight      { focus-column-right; }
-    // Mod+WheelScrollLeft       { focus-column-left; }
-    // Mod+Ctrl+WheelScrollRight { move-column-right; }
-    // Mod+Ctrl+WheelScrollLeft  { move-column-left; }
 
     // Similarly, you can bind touchpad scroll "ticks".
     // Touchpad scrolling is continuous, so for these binds it is split into
@@ -577,6 +581,7 @@ binds {
 
     // Switches focus between the current and the previous workspace.
     // Alt+Tab { focus-workspace-previous; }
+    // Alt+Tab repeat=false { spawn-sh "noctalia msg window-switcher hold"; }
 
     // The following binds move the focused window in and out of a column.
     // If the window is alone, they will consume it into the nearby column to the side.
@@ -621,15 +626,6 @@ binds {
     // Windows in this column will appear as vertical tabs,
     // rather than stacked on top of each other.
     Mod+W { toggle-column-tabbed-display; }
-
-    // Actions to switch layouts.
-    // Note: if you uncomment these, make sure you do NOT have
-    // a matching layout switch hotkey configured in xkb options above.
-    // Having both at once on the same hotkey will break the switching,
-    // since it will switch twice upon pressing the hotkey (once by xkb, once by niri).
-    // Mod+Space       { switch-layout "next"; }
-    // Mod+Shift+Space { switch-layout "prev"; }
-
 
     // Applications such as remote-desktop clients and software KVM switches may
     // request that niri stops processing the keyboard shortcuts defined here
