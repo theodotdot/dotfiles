@@ -3,10 +3,10 @@
 #
 . "$HOME/.cargo/env"
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/home/@@CHEZMOI_USERNAME@@/google-cloud-sdk/path.bash.inc' ]; then . '/home/@@CHEZMOI_USERNAME@@/google-cloud-sdk/path.bash.inc'; fi
+if [ -f '/home/{{ .chezmoi.username }}/google-cloud-sdk/path.bash.inc' ]; then . '/home/{{ .chezmoi.username }}/google-cloud-sdk/path.bash.inc'; fi
 
 # The next line enables shell command completion for gcloud.
-if [ -f '/home/@@CHEZMOI_USERNAME@@/google-cloud-sdk/completion.bash.inc' ]; then . '/home/@@CHEZMOI_USERNAME@@/google-cloud-sdk/completion.bash.inc'; fi
+if [ -f '/home/{{ .chezmoi.username }}/google-cloud-sdk/completion.bash.inc' ]; then . '/home/{{ .chezmoi.username }}/google-cloud-sdk/completion.bash.inc'; fi
 
 # Launch fish for interactive non-login shells
 if [[ $- == *i* ]] && [[ -z "$FISH_VERSION" ]] && [[ $(ps --no-header --pid=$PPID --format=comm) != "fish" ]]; then
@@ -16,14 +16,14 @@ fi
 export PATH="$HOME/.local/bin:$PATH"
 
 # fnm
-FNM_PATH="/home/@@CHEZMOI_USERNAME@@/.local/share/fnm"
+FNM_PATH="/home/{{ .chezmoi.username }}/.local/share/fnm"
 if [ -d "$FNM_PATH" ]; then
   export PATH="$FNM_PATH:$PATH"
   eval "$(fnm env --shell bash)"
 fi
 
 # fnm
-FNM_PATH="/home/@@CHEZMOI_USERNAME@@/.local/share/fnm"
+FNM_PATH="/home/{{ .chezmoi.username }}/.local/share/fnm"
 if [ -d "$FNM_PATH" ]; then
   export PATH="$FNM_PATH:$PATH"
   eval "$(fnm env --shell bash)"

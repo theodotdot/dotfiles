@@ -1,32 +1,37 @@
-
-// secrets
-include "secrets.kdl"
+// This config is in the KDL format: https://kdl.dev
+// "/-" comments out the following node.
+// Check the wiki for a full description of the configuration:
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Overview
 
 hotkey-overlay {
     skip-at-startup
 }
 
 spawn-sh-at-startup "kanata"
-// Noctalia owns the bar, notifications, network status, clipboard history,
-// wallpaper, night light and the polkit agent. The command blocks until the
-// session ends, which is the documented niri pattern.
-spawn-at-startup "noctalia"
-// spawn-at-startup "xwayland-satellite"
+spawn-sh-at-startup "awww-daemon"
+spawn-sh-at-startup "waybar -c .config/waybar/config-niri"
+spawn-at-startup "mako"
+spawn-at-startup "nm-applet" "--indicator"
+// spawn-at-startup "systemctl" "--user" "start" "hyprpolkitagent"
+spawn-at-startup "hypridle"
+spawn-sh-at-startup "wl-paste --watch cliphist store"
+spawn-at-startup "waypaper" "--restore"
+// spawn-sh-at-startup "/home/{{ .chezmoi.username }}/.config/niri/swayidle.sh"
+spawn-at-startup "xwayland-satellite"
+spawn-at-startup "wlsunset" "-l" "52.5353" "-L" "13.4245" "-t" "3000" "-T" "6500"
 spawn-at-startup "flatpak" "run" "app.zen_browser.zen"
 spawn-at-startup "flatpak" "run" "org.telegram.desktop"
 spawn-at-startup "flatpak" "run" "dev.vencord.Vesktop"
-spawn-at-startup "/home/@@CHEZMOI_USERNAME@@/Downloads/zmkBATx/zmkbatx.sh"
-
-// work workspace: slack, firefox, herdr (work-startup.sh fixes the order)
-spawn-at-startup "/home/@@CHEZMOI_USERNAME@@/.config/niri/work-startup.sh"
+spawn-at-startup "/home/{{ .chezmoi.username }}/Downloads/zmkBATx/zmkbatx.sh"
 
 // work stuff
 spawn-at-startup "bowtie-ctl" "resume"
 spawn-at-startup "bowtie-gtk"
+    
 
 cursor {
     xcursor-theme "catppuccin-macchiato-dark-cursors"
-    xcursor-size 20
+    xcursor-size 25
 
     hide-when-typing
     hide-after-inactive-ms 10000
@@ -38,35 +43,23 @@ environment {
     XDG_SESSION_TYPE "wayland"
     SDL_VIDEODRIVER "wayland"
     EGL_PLATFORM "wayland"
-    EDITOR "hx"
-
-    // theming
     QT_STYLE_OVERRIDE "kvantum"
     QT_QPA_PLATFORM "wayland"
+    DISPLAY ":0"
+
+    // cursor
+    XCURSOR_THEME "catppuccin-macchiato-dark-cursors"
+    XCURSOR_SIZE "25"
+
+    // theme
     GTK_THEME "catppuccin-macchiato-mauve-standard+default"
-    XDG_DATA_DIRS "/home/@@CHEZMOI_USERNAME@@/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share"
+XDG_DATA_DIRS "/home/{{ .chezmoi.username }}/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share"
+
+    // wayland fixes for electron/qt
+    ELECTRON_OZONE_PLATFORM_HINT "wayland"
+    QT_QPA_PLATFORM "wayland"
 
     // dictate-gtk (Vertex AI project)
-
-    // xwayland
-    // DISPLAY ":0"
-    // electron and wayland
-    ELECTRON_OZONE_PLATFORM_HINT "wayland"
-    // MOZ_ENABLE_WAYLAND "0"
-
-    // nvidia
-    // LIBVA_DRIVER_NAME "nvidia"
-    // GBM_BACKEND "nvidia-drm"
-    // __GLX_VENDOR_LIBRARY_NAME "nvidia"
-    // WLR_DRM_NO_ATOMIC "1"
-    // __NV_PRIME_RENDER_OFFLOAD "1"
-    // __VK_LAYER_NV_optimus "NVIDIA_only"
-    // WLR_RENDERER_ALLOW_SOFTWARE "1"
-    // MOZ_DISABLE_RDD_SANDBOX "1"
-
-    // cedilla setup
-    GTK_IM_MODULE "cedilla"
-    QT_IM_MODULE "cedilla"
 }
 
 // Input device configuration.
@@ -79,9 +72,9 @@ input {
             // For more information, see xkeyboard-config(7).
 
             // For example:
-            layout "us,fr"
-            variant "intl,ergol"
-            options "grp:alt_space_toggle"
+            layout "fr,us"
+            variant "ergol,intl"
+            options "grp:alt_space_toggle"            
         }
     }
 
@@ -139,15 +132,15 @@ output "eDP-1" {
     position x=0 y=1080
 }
 output "DP-2" {
-    mode "3840x2160@119.880"
+    mode "3840x2160@120"
     scale 1.5
     position x=0 y=0
+    
 }
 output "HDMI-A-1" {
     // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
     mode "3840x2160@120"
     position x=0 y=0
-
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
     scale 1.5
 
@@ -158,20 +151,21 @@ output "HDMI-A-1" {
     // variable-refresh-rate
 }
 
+// Settings that influence how windows are positioned and sized.
+// Find more information on the wiki:
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
+
 overview {
     backdrop-color "#24273a"
     zoom 0.6
 }
 
-// Settings that influence how windows are positioned and sized.
-// Find more information on the wiki:
-// https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
 layout {
     // for static wallpaper with overview    
     background-color "transparent"
 
     // Set gaps around windows in logical pixels.
-    gaps 5
+    gaps 8
 
     // When to center a column when changing focus, options are:
     // - "never", default behavior, focusing an off-screen column will keep at the left
@@ -226,7 +220,7 @@ layout {
         // If you enable the border, you probably want to disable the focus ring.
         // off
 
-        width 2
+        width 3
         active-color "#c6a0f6"
         inactive-color "#b8c0e0"
 
@@ -261,9 +255,21 @@ layout {
     }
 }
 
+// Add lines like this to spawn processes at startup.
+// Note that running niri as a session supports xdg-desktop-autostart,
+// which may be more convenient to use.
+// See the binds section below for more spawn examples.
+// spawn-at-startup "alacritty" "-e" "fish"
 
+// Uncomment this line to ask the clients to omit their client-side decorations if possible.
+// If the client will specifically ask for CSD, the request will be honored.
+// Additionally, clients will be informed that they are tiled, removing some client-side rounded corners.
+// This option will also fix border/focus ring drawing behind some semitransparent windows.
+// After enabling or disabling this, you need to restart the apps for this to take effect.
+// prefer-no-csd
 
 // You can change the path where screenshots are saved.
+// A ~ at the front will be expanded to the home directory.
 // The path is formatted with strftime(3) to give you the screenshot date and time.
 screenshot-path "~/Pictures/Screenshots/Screenshot_%Y-%m-%d_%H-%M-%S.png"
 
@@ -322,30 +328,13 @@ animations {
     }
 }
 
+
 // Layer rules
 // Make the wallpaper stationary, rather than moving with workspaces.
 layer-rule {
     // Find the right namespace by running niri msg layers.
-    match namespace="^noctalia-wallpaper"
+    match namespace="^awww-daemon$"
     place-within-backdrop true
-}
-
-layer-rule {
-    // Find the right namespace by running niri msg layers.
-    match namespace="^kitty-quick-access$"
-
-    shadow {
-        on
-        // off
-        softness 40
-        spread 500
-        offset x=0 y=9
-        draw-behind-window true
-        color "#00181926"
-        // inactive-color "#00000064"
-    }
-
-    
 }
 
 // Workspaces
@@ -358,21 +347,8 @@ workspace "work"
 
 // Zen in main workspace
 window-rule {
-    match at-startup=true app-id=r#"^app\.zen_browser\.zen$"#
+    match at-startup=true app-id=r#"^zen-browser$"#
     open-on-workspace "main"
-}
-
-window-rule {
-    match at-startup=true app-id=r#"^slack$"#
-    open-on-workspace "work"
-    default-column-width { proportion 0.6666667; }
-}
-
-window-rule {
-    match at-startup=true app-id=r#"^firefox$"#
-    match at-startup=true app-id=r#"^work-herdr$"#
-    open-on-workspace "work"
-    default-column-width { proportion 1.0; }
 }
 
 // Telegram and discord in chat workspace
@@ -397,7 +373,7 @@ window-rule {
     match title="^Picture in Picture$"
     match title="^Localsend"
     match title="^Bitwarden"
-
+    
     open-floating true
 }
 
@@ -416,37 +392,17 @@ window-rule {
 // Example: enable rounded corners for all windows.
 // (This example rule is commented out with a "/-" in front.)
 window-rule {
-    geometry-corner-radius 5
+    geometry-corner-radius 8
     clip-to-geometry true
 }
 
-// Voice dictation widget — floating popup, top-right.
+// Voice dictation widget — centered floating popup.
 window-rule {
     match app-id=r#"^com.example.DictateGtk$"#
     open-floating true
     default-column-width { fixed 460; }
-    default-floating-position x=0 y=80 relative-to="top"
-}
-
-// Noctalia's Settings window opens floating at a fixed size.
-window-rule {
-    match app-id="dev.noctalia.Noctalia"
-    open-floating true
-    default-column-width { fixed 1080; }
-    default-window-height { fixed 920; }
-}
-
-include "blur.kdl"
-
-window-rule {
-    match app-id=r#"^com.example.DictateGtk$"#
-    opacity 0.75
-}
-
-debug {
-    disable-cursor-plane
-    // Allows notification actions and window activation coming from Noctalia.
-    honor-xdg-activation-with-invalid-serial
+    geometry-corner-radius 12
+    clip-to-geometry true
 }
 
 binds {
@@ -462,36 +418,37 @@ binds {
 
     // Mod+Shift+H { show-hotkey-overlay; }
 
-    // Mod+D {toggle-overview}
-
     // Utilities
     Mod+Return repeat=false { spawn "kitty"; }
-    Mod+space repeat=false { spawn-sh "noctalia msg panel-toggle launcher"; }
-    Mod+Shift+space repeat=false { spawn-sh "noctalia msg panel-toggle launcher /"; }
-    Mod+S repeat=false { spawn-sh "noctalia msg settings-toggle"; }
-    Mod+V repeat=false { spawn-sh "noctalia msg panel-toggle clipboard"; }
-    Mod+A repeat=false { spawn-sh "noctalia msg panel-toggle control-center"; }
+    Mod+Shift+space repeat=false { spawn "rofi" "-show" "run"; }
+    Mod+space repeat=false { spawn "rofi" "-show" "drun"; }
+    Mod+Shift+e repeat=false { spawn-sh "rofimoji -s neutral -a clipboard"; }
+    // Mod+Alt+V repeat=false { spawn "walker" "--modules" "clipboard"; }
+    Mod+Alt+V repeat=false { spawn-sh "rofi -modi clipboard:/home/{{ .chezmoi.username }}/.config/rofi/cliphist/cliphist-rofi-img -show clipboard -show-icons"; }
+    // Mod+A repeat=false { spawn "walker" "--modules" "audio"; }
+    Mod+A repeat=false { spawn "/home/{{ .chezmoi.username }}/rofi-mixer/src/rofi-mixer"; }
     Mod+minus repeat=false { spawn "kitten" "quick-access-terminal"; }
 
     // Voice dictation widget (live visualizer) -> Vertex Gemini -> clipboard.
-    Mod+K repeat=false { spawn "/home/@@CHEZMOI_USERNAME@@/build/dictate-gtk/target/release/dictate-gtk"; }
+    Mod+K repeat=false { spawn "/home/{{ .chezmoi.username }}/dictate-gtk/bin/dictate-gtk"; }
     // Headless no-window fast path (structured) kept for quick capture.
-    Mod+Shift+K repeat=false { spawn "/home/@@CHEZMOI_USERNAME@@/.local/bin/dictate-vertex.sh" "structured"; }
+    Mod+Shift+K repeat=false { spawn "/home/{{ .chezmoi.username }}/.local/bin/dictate-vertex.sh" "structured"; }
 
-    Ctrl+Alt+L { spawn-sh "noctalia msg session lock"; }
+    Ctrl+Alt+L { spawn-sh "hyprlock --grace 200"; }
 
     Mod+N { toggle-overview; }
 
-    Mod+Print repeat=false { spawn-sh "noctalia msg screenshot-region"; }
-    Print repeat=false { spawn-sh "noctalia msg screenshot-fullscreen pick"; }
+    Mod+Print repeat=false { screenshot; }
+    Print repeat=false { screenshot-screen; }
     Mod+Shift+Print repeat=false { screenshot-window; }
 
-    // Reload the shell (bar layout, widgets, theme)
-    Mod+O repeat=false { spawn-sh "noctalia msg config-reload"; }
+    // Reload waybar (in-place; needs a live process)
+    Mod+O repeat=false { spawn "killall" "-SIGUSR2" "waybar"; }
+    // Restart waybar (relaunch after a crash)
+    Mod+Shift+O repeat=false { spawn-sh "killall -q waybar; while pgrep -x waybar >/dev/null; do sleep 0.1; done; waybar -c .config/waybar/config-niri"; }
 
     // Switch scaling for gaming
     Mod+G repeat=false { spawn "niri" "msg" "output" "HDMI-A-1" "scale" "1.25"; }
-    Mod+Alt+G repeat=false { spawn "niri" "msg" "output" "HDMI-A-1" "scale" "1"; }
     Mod+Shift+G repeat=false { spawn "niri" "msg" "output" "HDMI-A-1" "scale" "1.5"; }
 
     // Volume control
@@ -500,24 +457,20 @@ binds {
     XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
     XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
     XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
-    // XF86AudioPlay        allow-when-locked=true { spawn "playerctl" "play-pause"; }
     XF86AudioPlay        allow-when-locked=true { spawn "playerctl" "--ignore-player=firefox" "play-pause"; }
     XF86AudioPrev        allow-when-locked=true { spawn "playerctl" "previous"; }
     XF86AudioNext        allow-when-locked=true { spawn "playerctl" "next"; }
 
-    // XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "s" "+5%"; }
-    // XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "s" "5%-"; }
-    XF86MonBrightnessUp allow-when-locked=true { spawn-sh "noctalia msg brightness-up"; }
-    XF86MonBrightnessDown allow-when-locked=true { spawn-sh "noctalia msg brightness-down"; }
-    Mod+XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "noctalia msg brightness-up"; }
-    Mod+XF86AudioLowerVolume allow-when-locked=true { spawn-sh "noctalia msg brightness-down"; }
+    XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "s" "+5%"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "s" "5%-"; }
+    
 
     // Window manipulation
     Mod+Q repeat=false { close-window; }
 
     // Move the focused window between the floating and the tiling layout.
-    Mod+Shift+T       { toggle-window-floating; }
-    Mod+T { switch-focus-between-floating-and-tiling; }
+    Mod+T       { toggle-window-floating; }
+    Mod+Shift+T { switch-focus-between-floating-and-tiling; }
 
     // Move focus
     Mod+Left  { focus-column-left; }
@@ -574,6 +527,10 @@ binds {
     Mod+Shift+WheelScrollDown cooldown-ms=50 { focus-workspace-down; }
     Mod+Shift+WheelScrollUp   cooldown-ms=50 { focus-workspace-up; }
 
+    // Mod+WheelScrollRight      { focus-column-right; }
+    // Mod+WheelScrollLeft       { focus-column-left; }
+    // Mod+Ctrl+WheelScrollRight { move-column-right; }
+    // Mod+Ctrl+WheelScrollLeft  { move-column-left; }
 
     // Similarly, you can bind touchpad scroll "ticks".
     // Touchpad scrolling is continuous, so for these binds it is split into
@@ -616,7 +573,6 @@ binds {
 
     // Switches focus between the current and the previous workspace.
     // Alt+Tab { focus-workspace-previous; }
-    // Alt+Tab repeat=false { spawn-sh "noctalia msg window-switcher hold"; }
 
     // The following binds move the focused window in and out of a column.
     // If the window is alone, they will consume it into the nearby column to the side.
@@ -632,6 +588,7 @@ binds {
     Mod+R { switch-preset-column-width; }
     Mod+Shift+R { switch-preset-window-height; }
     Mod+Ctrl+R { reset-window-height; }
+    // Mod+F { maximize-column; }
     Mod+F { maximize-window-to-edges; }
     Mod+Shift+F { fullscreen-window; }
 
@@ -639,7 +596,7 @@ binds {
     // Makes the column "fill the rest of the space".
     Mod+Ctrl+F { expand-column-to-available-width; }
 
-    Mod+Shift+C { center-column; }
+    Mod+C { center-column; }
 
     // Finer width adjustments.
     // This command can also:
@@ -661,6 +618,15 @@ binds {
     // Windows in this column will appear as vertical tabs,
     // rather than stacked on top of each other.
     Mod+W { toggle-column-tabbed-display; }
+
+    // Actions to switch layouts.
+    // Note: if you uncomment these, make sure you do NOT have
+    // a matching layout switch hotkey configured in xkb options above.
+    // Having both at once on the same hotkey will break the switching,
+    // since it will switch twice upon pressing the hotkey (once by xkb, once by niri).
+    // Mod+Space       { switch-layout "next"; }
+    // Mod+Shift+Space { switch-layout "prev"; }
+
 
     // Applications such as remote-desktop clients and software KVM switches may
     // request that niri stops processing the keyboard shortcuts defined here
