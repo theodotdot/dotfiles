@@ -1,22 +1,28 @@
 
-//secrets
+// secrets
 include "secrets.kdl"
 
 hotkey-overlay {
     skip-at-startup
 }
 
-spawn-at-startup "dbus-update-activation-environment" "--systemd"
+spawn-sh-at-startup "kanata"
 // Noctalia owns the bar, notifications, network status, clipboard history,
 // wallpaper, night light and the polkit agent. The command blocks until the
 // session ends, which is the documented niri pattern.
 spawn-at-startup "noctalia"
 // spawn-at-startup "xwayland-satellite"
-spawn-at-startup "zen-browser"
-spawn-at-startup "vesktop"
-spawn-at-startup "Telegram"
+spawn-at-startup "flatpak" "run" "app.zen_browser.zen"
+spawn-at-startup "flatpak" "run" "org.telegram.desktop"
+spawn-at-startup "flatpak" "run" "dev.vencord.Vesktop"
 spawn-at-startup "/home/@@CHEZMOI_USERNAME@@/Downloads/zmkBATx/zmkbatx.sh"
-spawn-at-startup "moonshine"
+
+// work workspace: slack, firefox, herdr (work-startup.sh fixes the order)
+spawn-at-startup "/home/@@CHEZMOI_USERNAME@@/.config/niri/work-startup.sh"
+
+// work stuff
+spawn-at-startup "bowtie-ctl" "resume"
+spawn-at-startup "bowtie-gtk"
 
 cursor {
     xcursor-theme "catppuccin-macchiato-dark-cursors"
@@ -38,6 +44,9 @@ environment {
     QT_STYLE_OVERRIDE "kvantum"
     QT_QPA_PLATFORM "wayland"
     GTK_THEME "catppuccin-macchiato-mauve-standard+default"
+    XDG_DATA_DIRS "/home/@@CHEZMOI_USERNAME@@/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share"
+
+    // dictate-gtk (Vertex AI project)
 
     // xwayland
     // DISPLAY ":0"
@@ -124,9 +133,20 @@ input {
 // Find more information on the wiki:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
 // Remember to uncomment the node by removing "/-"!
+output "eDP-1" {
+    // off
+    scale 1
+    position x=0 y=1080
+}
 output "DP-2" {
+    mode "3840x2160@119.880"
+    scale 1.5
+    position x=0 y=0
+}
+output "HDMI-A-1" {
     // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
-    mode "3840x2160@240.084"
+    mode "3840x2160@120"
+    position x=0 y=0
 
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
     scale 1.5
@@ -330,8 +350,7 @@ layer-rule {
 
 // Workspaces
 workspace "main"
-workspace "chat"
-workspace "games"
+workspace "work"
 
 // Window rules let you adjust behavior for individual windows.
 // Find more information on the wiki:
@@ -339,21 +358,21 @@ workspace "games"
 
 // Zen in main workspace
 window-rule {
-    match app-id=r#"^zen$"#
+    match at-startup=true app-id=r#"^app\.zen_browser\.zen$"#
     open-on-workspace "main"
 }
 
-// game stuff in games workspace
 window-rule {
-    match app-id=r#"^org\.prismlauncher\.PrismLauncher$"#
-    match app-id=r#"^steam$"#
-    open-on-workspace "games"
+    match at-startup=true app-id=r#"^slack$"#
+    open-on-workspace "work"
+    default-column-width { proportion 0.6666667; }
 }
 
-// steam games in full screen all the time
 window-rule {
-    match app-id=r#"^steam_app_\d+"#
-    open-fullscreen true
+    match at-startup=true app-id=r#"^firefox$"#
+    match at-startup=true app-id=r#"^work-herdr$"#
+    open-on-workspace "work"
+    default-column-width { proportion 1.0; }
 }
 
 // Telegram and discord in chat workspace
@@ -363,7 +382,7 @@ window-rule {
     // ...except the media viewer window.
     exclude title="^Media viewer$"
 
-    match app-id=r#"^vesktop$"#
+    match app-id=r#"^org\.vesktop$"#
 
     // Properties to apply.
     open-on-workspace "chat"
@@ -377,7 +396,8 @@ window-rule {
     match title="^Picture-in-Picture$"
     match title="^Picture in Picture$"
     match title="^Localsend"
-    
+    match title="^Bitwarden"
+
     open-floating true
 }
 
@@ -385,6 +405,7 @@ window-rule {
 // (This example rule is commented out with a "/-" in front.)
 window-rule {
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+    match app-id=r#"^org\.gnome\.World\.Secrets$"#
 
     block-out-from "screen-capture"
 
@@ -399,6 +420,14 @@ window-rule {
     clip-to-geometry true
 }
 
+// Voice dictation widget — floating popup, top-right.
+window-rule {
+    match app-id=r#"^com.example.DictateGtk$"#
+    open-floating true
+    default-column-width { fixed 460; }
+    default-floating-position x=0 y=80 relative-to="top"
+}
+
 // Noctalia's Settings window opens floating at a fixed size.
 window-rule {
     match app-id="dev.noctalia.Noctalia"
@@ -409,7 +438,13 @@ window-rule {
 
 include "blur.kdl"
 
+window-rule {
+    match app-id=r#"^com.example.DictateGtk$"#
+    opacity 0.75
+}
+
 debug {
+    disable-cursor-plane
     // Allows notification actions and window activation coming from Noctalia.
     honor-xdg-activation-with-invalid-serial
 }
@@ -437,7 +472,12 @@ binds {
     Mod+V repeat=false { spawn-sh "noctalia msg panel-toggle clipboard"; }
     Mod+A repeat=false { spawn-sh "noctalia msg panel-toggle control-center"; }
     Mod+minus repeat=false { spawn "kitten" "quick-access-terminal"; }
-    
+
+    // Voice dictation widget (live visualizer) -> Vertex Gemini -> clipboard.
+    Mod+K repeat=false { spawn "/home/@@CHEZMOI_USERNAME@@/build/dictate-gtk/target/release/dictate-gtk"; }
+    // Headless no-window fast path (structured) kept for quick capture.
+    Mod+Shift+K repeat=false { spawn "/home/@@CHEZMOI_USERNAME@@/.local/bin/dictate-vertex.sh" "structured"; }
+
     Ctrl+Alt+L { spawn-sh "noctalia msg session lock"; }
 
     Mod+N { toggle-overview; }
@@ -450,9 +490,9 @@ binds {
     Mod+O repeat=false { spawn-sh "noctalia msg config-reload"; }
 
     // Switch scaling for gaming
-    Mod+Shift+G repeat=false { spawn "niri" "msg" "output" "DP-2" "scale" "1"; }
-    Mod+Alt+G repeat=false { spawn "niri" "msg" "output" "DP-2" "scale" "2"; }
-    Mod+G repeat=false { spawn "niri" "msg" "output" "DP-2" "scale" "1.5"; }
+    Mod+G repeat=false { spawn "niri" "msg" "output" "HDMI-A-1" "scale" "1.25"; }
+    Mod+Alt+G repeat=false { spawn "niri" "msg" "output" "HDMI-A-1" "scale" "1"; }
+    Mod+Shift+G repeat=false { spawn "niri" "msg" "output" "HDMI-A-1" "scale" "1.5"; }
 
     // Volume control
     // The allow-when-locked=true property makes them work even when the session is locked.
@@ -464,6 +504,13 @@ binds {
     XF86AudioPlay        allow-when-locked=true { spawn "playerctl" "--ignore-player=firefox" "play-pause"; }
     XF86AudioPrev        allow-when-locked=true { spawn "playerctl" "previous"; }
     XF86AudioNext        allow-when-locked=true { spawn "playerctl" "next"; }
+
+    // XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "s" "+5%"; }
+    // XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "s" "5%-"; }
+    XF86MonBrightnessUp allow-when-locked=true { spawn-sh "noctalia msg brightness-up"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn-sh "noctalia msg brightness-down"; }
+    Mod+XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "noctalia msg brightness-up"; }
+    Mod+XF86AudioLowerVolume allow-when-locked=true { spawn-sh "noctalia msg brightness-down"; }
 
     // Window manipulation
     Mod+Q repeat=false { close-window; }

@@ -20,7 +20,7 @@ widget_spacing = 10
     accordion_direction = "end"
     border_width = 0.0
     enabled = true
-    fill = "surface_variant"
+    fill = "surface_container"
     id = "g1"
     members = [ "clock", "weather" ]
     opacity = 1.0
@@ -124,7 +124,7 @@ widget_order = [ "lockscreen-login-box@DP-2", "lockscreen-widget-000000000000000
     type = "login_box"
 
         [lockscreen_widgets.widget."lockscreen-login-box@DP-2".settings]
-        background_color = "surface_variant"
+        background_color = "surface_container"
         background_opacity = 0.88
         background_radius = 12.0
         center_password_text = false
@@ -269,10 +269,10 @@ match_adjacent_spacing = true
 icon_color = "primary"
 
 [widget.workspaces]
-empty_color = "surface_variant"
+empty_color = "surface_container"
 label_source = "name"
 labels_only_when_occupied = true
 max_label_chars = 5
-occupied_color = "surface_variant"
+occupied_color = "surface_container"
 scale = 1.05
 show_tooltip = false
