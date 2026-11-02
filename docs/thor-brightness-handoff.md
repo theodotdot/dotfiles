@@ -152,6 +152,7 @@ these drivers.
 | `pocknix/thor/steamos-priv-write` → `/usr/bin/steamos-polkit-helpers/steamos-priv-write` | Answers Steam's pkexec fallback: rescales the value from the node Steam named onto `ae96000.dsi.0` (logind `SetBrightness`, no password), so Game Mode's slider moves the top panel | Keep only if the driver fix does not also make Game Mode target the right panel; with the gamma in the driver this helper only needs the *panel redirection*, not the curve |
 | `~/.config/scripts/pocknix-brightness-sync` + `pocknix-brightness-sync.service` + `run_after_enable-brightness-sync.sh` | The user-space gamma described above | **Delete** — delete the three files, `systemctl --user disable --now pocknix-brightness-sync`, `chezmoi apply` |
 | `~/.local/share/plasma/quicksettings/org.kde.plasma.quicksetting.brightness/` | Quick-setting tile (cycles 100/75/50/25/10 %) | Unrelated to this defect; keep |
+| `~/.config/scripts/pocknix-brightness-guard` + `pocknix-brightness-guard.service` | Restarts plasmashell once when it started before PowerDevil and lost the slider (has nothing to do with the panel curve; the shell takes the D-Bus object at construction and never re-checks) | Keep |
 
 Both the helper and the tile are documented in `README.md` under `🔆 Thor brightness`.
 
