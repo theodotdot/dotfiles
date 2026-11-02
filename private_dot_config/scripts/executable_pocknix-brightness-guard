@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+"""pocknix-brightness-guard — restart the shell once when it missed PowerDevil.
+
+plasmashell builds its quick-settings brightness widget (`ScreenBrightnessUtil`) at startup
+and takes PowerDevil's D-Bus object once, at construction. If the object is not there yet the
+interface is invalid, the widget's `visible: brightnessAvailable` is false, and nothing ever
+re-evaluates it — the plugin's only notification path watches
+`org.kde.Solid.PowerManagement.Actions.BrightnessControl`, a name nothing owns. Result: the
+brightness slider is missing for the whole session.
+
+PowerDevil on this device takes ~10 s to own `org.kde.Solid.PowerManagement` (DDC probing
+plus the two DSI panels), and the shell starts ~4 s after the session does, so the shell
+nearly always wins the race: 2026-11-02 07:57:27 shell up, 07:57:31 powerdevil up,
+`Getting brightness failed: "org.freedesktop.DBus.Error.ServiceUnknown"` at 07:57:30.
+
+The two obvious fixes do not work:
+
+* `After=`/`Wants=plasma-powerdevil.service` on plasmashell forms an ordering cycle with
+  `plasma-core.target`, which systemd breaks by deleting the plasmashell start job — black
+  screen, no shell at all;
+* waiting in `ExecStartPre` blanks the desktop for the whole ~7 s PowerDevil needs, and a
+  fixed timeout still loses when PowerDevil is slower than it.
+
+So the shell is allowed to start, and this guard waits for the brightness method, then looks
+for the failure in the shell's own log and restarts the shell exactly once if it happened.
+The restart is a short panel blink early in the session, versus no brightness slider at all.
+"""
+
+from __future__ import annotations
+
+import subprocess
+import sys
+import time
+
+import dbus
+
+BUS = "org.kde.Solid.PowerManagement"
+PATH = "/org/kde/Solid/PowerManagement/Actions/BrightnessControl"
+IFACE = "org.kde.Solid.PowerManagement.Actions.BrightnessControl"
+WAIT_FOR_POWERDEVIL = 90.0
+STEP = 0.25
+# Fallback window if the shell's start timestamp cannot be read.
+LOOKBACK = "5 min"
+
+
+def brightness_answers() -> bool:
+    try:
+        bus = dbus.SessionBus()
+        obj = bus.get_object(BUS, PATH)
+        obj.get_dbus_method("brightness", IFACE)()
+        return True
+    except Exception:
+        return False
+
+
+def shell_started_at() -> str:
+    """When the running plasmashell was started, so an old failure cannot trigger a restart."""
+    try:
+        out = subprocess.run(
+            ["systemctl", "--user", "show", "-p", "ActiveEnterTimestamp", "--value",
+             "plasma-plasmashell.service"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return ""
+    return out.stdout.strip()
+
+
+def shell_missed_powerdevil() -> bool:
+    """True if the *current* shell logged the D-Bus failure its widget cannot recover from."""
+    since = shell_started_at() or f"-{LOOKBACK}"
+    try:
+        out = subprocess.run(
+            [
+                "journalctl", "--user", "-u", "plasma-plasmashell",
+                "--since", since, "--no-pager",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return False
+    return "Getting brightness failed" in out.stdout
+
+
+def restart_shell() -> None:
+    subprocess.run(
+        ["systemctl", "--user", "restart", "plasma-plasmashell.service"],
+        check=False,
+        capture_output=True,
+    )
+
+
+def main() -> int:
+    deadline = time.monotonic() + WAIT_FOR_POWERDEVIL
+    while not brightness_answers():
+        if time.monotonic() >= deadline:
+            print("brightness-guard: PowerDevil never answered, leaving the shell alone", flush=True)
+            return 0
+        time.sleep(STEP)
+
+    if not shell_missed_powerdevil():
+        return 0
+
+    print("brightness-guard: shell started before PowerDevil, restarting it", flush=True)
+    restart_shell()
+    time.sleep(4)
+
+    if shell_missed_powerdevil():
+        print("brightness-guard: still failing after the restart", flush=True)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

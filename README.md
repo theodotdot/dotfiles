@@ -78,7 +78,12 @@ until the shell is restarted.
 | Where | What |
 |---|---|
 | `~/.local/share/plasma/quicksettings/org.kde.plasma.quicksetting.brightness/` | Quick setting tile, first in the shade: `toggle()` cycles 100 → 75 → 50 → 25 → 10 % and wraps, `status` is the live percentage. It drives the same `ScreenBrightnessUtil` as the slider, so both panels move together. `available` is bound to `maxBrightness` (which notifies) instead of `brightnessAvailable` (which does not), and a 1.5 s retry re-fetches while PowerDevil is absent, so the tile heals itself after a late start. |
-| `~/.config/systemd/user/plasma-plasmashell.service.d/10-wait-for-powerdevil.conf` | `ExecStartPre` that polls PowerDevil's brightness method (0.1 s steps, 6 s cap, failure ignored) so the shell only starts once `org.kde.Solid.PowerManagement` answers, and the slider is valid from the first frame. Deliberately **not** `After=`/`Wants=plasma-powerdevil.service`: that unit is `After=plasma-core.target`, which pulls plasmashell in, so the edge forms an ordering cycle — systemd breaks it by deleting the plasmashell start job, leaving a black screen with no shell. |
+| `~/.config/scripts/pocknix-brightness-guard` + `pocknix-brightness-guard.service` | Runs after the shell and after PowerDevil, waits for the brightness method, and restarts plasmashell **once** if its log shows `Getting brightness failed` for the current run. PowerDevil needs ~10 s to own its name here (DDC plus the two DSI panels) while the shell starts ~4 s into the session, so the shell loses the race almost every time: 07:57:27 shell up, 07:57:31 powerdevil up, failure logged 07:57:30. The restart is a short panel blink early in the session instead of a missing slider for the whole session. |
+
+Two approaches that look right and are not:
+
+* `After=`/`Wants=plasma-powerdevil.service` on plasmashell forms an ordering cycle — `plasma-core.target` is ordered after plasmashell and pulls it in, powerdevil is ordered after `plasma-core.target` — which systemd breaks by deleting the plasmashell start job: black screen, no shell.
+* `ExecStartPre` polling for the interface blanks the desktop for the whole time PowerDevil needs (~7 s measured) and still loses whenever PowerDevil is slower than the budget.
 
 `run_onchange_enable-brightness-quicksetting.sh` keeps the tile first in
 `[QuickSettings] enabledQuickSettings` of `~/.config/plasmamobilerc`. That file is shell
