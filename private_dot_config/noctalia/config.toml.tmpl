@@ -179,7 +179,7 @@ border = false
 
 [shell]
 app_icon_color = "primary"
-avatar_path = "/home/{{ .chezmoi.username }}/Downloads/momo.png"
+avatar_path = "{{ .chezmoi.homeDir }}/Downloads/momo.png"
 clipboard_auto_paste = "off"
 font_family = "MonoLisa Nerd Font"
 polkit_agent = true
@@ -232,19 +232,19 @@ source = "community"
     builtin_ids = [ "gtk3", "gtk4", "kcolorscheme", "qt" ]
 
 [wallpaper]
-directory = "/home/{{ .chezmoi.username }}/Downloads/walls"
+directory = "{{ .chezmoi.homeDir }}/Downloads/walls"
 
     [wallpaper.automation]
     enabled = false
 
     [wallpaper.default]
-    path = "/home/{{ .chezmoi.username }}/Downloads/walls/anime-forest_catppuccin-macchiato.png"
+    path = "{{ .chezmoi.homeDir }}/Downloads/walls/anime-forest_catppuccin-macchiato.png"
 
     [wallpaper.last]
-    path = "/home/{{ .chezmoi.username }}/Downloads/walls/anime-forest_catppuccin-macchiato.png"
+    path = "{{ .chezmoi.homeDir }}/Downloads/walls/anime-forest_catppuccin-macchiato.png"
 
     [wallpaper.monitors.DP-2]
-    path = "/home/{{ .chezmoi.username }}/Downloads/walls/anime-forest_catppuccin-macchiato.png"
+    path = "{{ .chezmoi.homeDir }}/Downloads/walls/anime-forest_catppuccin-macchiato.png"
 
 [widget.clock]
 format = "%A, %d %B  %H:%M "
