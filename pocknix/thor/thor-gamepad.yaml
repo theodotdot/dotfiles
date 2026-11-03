@@ -1,17 +1,21 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/ShadowBlip/InputPlumber/main/rootfs/usr/share/inputplumber/schema/capability_map_v2.json
 # AYN Thor: sm8550-gamepad.yaml minus the back paddles the Thor lacks, plus the AYN key
 # (KEY_F24 on gpio-keys-ayn).
+# Local override: D-pad emits gamepad DPad* (not keyboard arrows). Desktop arrows come
+# from the plasma-mobile profile; the stock map made D-pad unusable in games.
 version: 2
 kind: CapabilityMap
 name: AYN Thor RSInput Mapping
 id: thor_gamepad
 
 mapping:
-  - name: Guide Button
+  # Hardware Steam/Guide key repurposed as Deck back button L4 (LeftPaddle1) so
+  # Steam Input can bind it per game. The AYN key below emits Guide instead.
+  - name: Steam Key as L4
     source_events:
       - evdev: { event_type: KEY, event_code: BTN_MODE, value_type: button }
     target_event:
-      gamepad: { button: Guide }
+      gamepad: { button: LeftPaddle1 }
 
   - name: Quick Access Button
     source_events:
@@ -110,32 +114,33 @@ mapping:
     source_events:
       - evdev: { event_type: KEY, event_code: BTN_DPAD_UP, value_type: button }
     target_event:
-      keyboard: KeyUp
+      gamepad: { button: DPadUp }
 
   - name: Dpad Down
     source_events:
       - evdev: { event_type: KEY, event_code: BTN_DPAD_DOWN, value_type: button }
     target_event:
-      keyboard: KeyDown
+      gamepad: { button: DPadDown }
 
   - name: Dpad Left
     source_events:
       - evdev: { event_type: KEY, event_code: BTN_DPAD_LEFT, value_type: button }
     target_event:
-      keyboard: KeyLeft
+      gamepad: { button: DPadLeft }
 
   - name: Dpad Right
     source_events:
       - evdev: { event_type: KEY, event_code: BTN_DPAD_RIGHT, value_type: button }
     target_event:
-      keyboard: KeyRight
+      gamepad: { button: DPadRight }
 
-  # AYN key: a spare face key, so it doubles the "..." menu.
+  # AYN key: emit the Steam/Guide button so it behaves like the Steam key.
+  # (BTN_BACK still emits QuickAccess, so the "..." menu stays on the Back/View key.)
   - name: AYN Key
     source_events:
       - evdev: { event_type: KEY, event_code: KEY_F24, value_type: button }
     target_event:
-      gamepad: { button: QuickAccess }
+      gamepad: { button: Guide }
 
   # Volume-up rocker shares the gpio-keys node; re-emit it on the keyboard target so the
   # exclusive grab doesn't kill it. (Volume-down is on pmic_resin, a node we don't grab.)

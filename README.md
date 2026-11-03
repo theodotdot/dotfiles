@@ -64,6 +64,15 @@ gone — the right stick scrolls. `~/.config/inputplumber/profiles/plasma-mobile
 tracked as the same file so it can be `LoadProfilePath`-ed without root; keep it identical
 to the bundle copy (that one is what `install.sh` writes to `/etc`).
 
+Game-mode pad mapping (`pocknix/thor/thor-gamepad.yaml`): d-pad emits gamepad `DPad*`;
+the stock map sent keyboard arrows, which games read as steering instead of menu
+navigation. The AYN key emits `Guide` (Steam button and chord modifier), the hardware
+Steam/Guide key emits `LeftPaddle1` so Steam Input can bind it as L4, Back/View stays
+`QuickAccess`, and volume-up is re-emitted on the keyboard target. Desktop d-pad arrows
+still come from `plasma-mobile.yaml`; the capability map only supplies the gamepad events.
+This file overrides the `inputplumber` package copy at
+`/usr/share/inputplumber/capability_maps/thor-gamepad.yaml`.
+
 ### 🔆 Thor brightness
 
 Plasma Mobile's shade does have a brightness slider, but it is a thin bar under the tile
