@@ -1,3 +1,6 @@
+# No welcome banner
+set -g fish_greeting ""
+
 # Yazi function to jump to dir
 function y
     set tmp (mktemp -t "yazi-cwd.XXXXXX")
