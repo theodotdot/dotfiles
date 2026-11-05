@@ -4,7 +4,7 @@ border = "primary"
 center = [ "group:g1" ]
 end = [ "caffeine", "network", "volume", "tray", "notifications", "session" ]
 margin_edge = 3
-margin_ends = 550
+margin_ends = 12 # Thor panels are 960x540 (DSI-2) and 620x540 (DSI-1) logical; 550 was sized for a 2560-wide DP-2
 margin_opposite_edge = 3
 radius = 20
 shadow = false
@@ -25,6 +25,19 @@ widget_spacing = 10
     members = [ "clock", "weather" ]
     opacity = 1.0
     padding = 9.0
+
+    # The Thor's only external output is DP-1 (msm exposes DP-1; DSI-1/DSI-2 are the panels).
+    # Noctalia builds a bar on every connected monitor, so the external gets one automatically;
+    # this block only gives it its own inset, and is where any monitor-specific override goes.
+    [bar.default.monitor."DP-1"]
+    match = "DP-1"
+    enabled = true
+    margin_ends = 100 # px; a monitor override must be an integer (percentages are bar-level only)
+
+    # Bottom panel (DSI-1) gets no bar: it is used as a secondary screen in the desktop session.
+    [bar.default.monitor."DSI-1"]
+    match = "DSI-1"
+    enabled = false
 
 [battery.device."/org/freedesktop/UPower/devices/keyboard_dev_CF_F7_A1_B2_07_60"]
 warning_threshold = 10
@@ -105,69 +118,12 @@ wallpaper = ""
 [lockscreen_widgets]
 enabled = false
 schema_version = 2
-widget_order = [ "lockscreen-login-box@DP-2", "lockscreen-widget-0000000000000001", "lockscreen-widget-0000000000000002" ]
+widget_order = []
 
     [lockscreen_widgets.grid]
     cell_size = 16
     major_interval = 4
     visible = true
-
-    [lockscreen_widgets.widget."lockscreen-login-box@DP-2"]
-    box_height = 196.0
-    box_width = 810.0
-    cx = 1280.0
-    cy = 1258.0
-    output = "DP-2"
-    placement_height = 1440.0
-    placement_width = 2560.0
-    rotation = 0.0
-    type = "login_box"
-
-        [lockscreen_widgets.widget."lockscreen-login-box@DP-2".settings]
-        background_color = "surface_variant"
-        background_opacity = 0.88
-        background_radius = 12.0
-        center_password_text = false
-        input_opacity = 1.0
-        input_radius = 6.0
-        layout = "regular"
-        show_caps_lock = true
-        show_keyboard_layout = true
-        show_login_button = true
-        show_media = true
-        show_session_buttons = true
-        show_unlock_hint = true
-        show_weather = true
-
-    [lockscreen_widgets.widget.lockscreen-widget-0000000000000001]
-    box_height = 464.0
-    box_width = 816.0
-    cx = 1280.0
-    cy = 624.0
-    output = "DP-2"
-    placement_height = 1440.0
-    placement_width = 2560.0
-    rotation = 0.0
-    type = "clock"
-
-        [lockscreen_widgets.widget.lockscreen-widget-0000000000000001.settings]
-        background = false
-        shadow = false
-
-    [lockscreen_widgets.widget.lockscreen-widget-0000000000000002]
-    box_height = 112.0
-    box_width = 272.0
-    cx = 1024.0
-    cy = 776.0
-    output = "DP-2"
-    placement_height = 1440.0
-    placement_width = 2560.0
-    rotation = 0.0
-    type = "weather"
-
-        [lockscreen_widgets.widget.lockscreen-widget-0000000000000002.settings]
-        background = false
-        shadow = false
 
 [notification]
 background_opacity = 0.75
@@ -243,7 +199,7 @@ directory = "/home/{{ .chezmoi.username }}/Downloads/walls"
     [wallpaper.last]
     path = "/home/{{ .chezmoi.username }}/Downloads/walls/anime-forest_catppuccin-macchiato.png"
 
-    [wallpaper.monitors.DP-2]
+    [wallpaper.monitors.DSI-2]
     path = "/home/{{ .chezmoi.username }}/Downloads/walls/anime-forest_catppuccin-macchiato.png"
 
 [widget.clock]
