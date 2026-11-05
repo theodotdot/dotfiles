@@ -8,3 +8,6 @@ pocknix
 .config/fish/conf.d/secrets.fish
 # Engineering notes for handoffs; not home config.
 docs
+
+# Snapshot read by run_vesktop.sh.tmpl; not home config.
+vesktop
