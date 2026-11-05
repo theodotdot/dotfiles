@@ -75,107 +75,95 @@ This file overrides the `inputplumber` package copy at
 
 ### 🔆 Thor brightness
 
-Plasma Mobile's shade does have a brightness slider, but it is a thin bar under the tile
-grid and it can vanish for a whole session. `ScreenBrightnessUtil` reads `isValid()` of
-PowerDevil's D-Bus object once, at construction, and its only notification path watches
-`org.kde.Solid.PowerManagement.Actions.BrightnessControl` — a name nothing owns; the real
-service is `org.kde.Solid.PowerManagement`. A Steam Game Mode round trip respawns the
-session, plasmashell wins the race against powerdevil by ~3 s
-(`Getting brightness failed: … "The name is not activatable"`), and the slider stays hidden
-until the shell is restarted.
+Three separate problems with three different owners. The curve now lives in the kernel; the rest
+is userspace and mostly shipped by the image.
+
+#### 1. The slider vanishing for a whole session
+
+`ScreenBrightnessUtil` builds its `isValid()` state once, at construction, from PowerDevil's D-Bus
+object, and its only notification path watches `org.kde.Solid.PowerManagement.Actions.BrightnessControl`
+— a name nothing owns (the real service is `org.kde.Solid.PowerManagement`). PowerDevil needs
+several seconds to own its name here (DDC probing plus the internal panels) while the shell starts
+~4 s into the session, so the shell won by ~3 s and the slider stayed hidden until the next login
+(`Getting brightness failed: … "The name is not activatable"`).
+
+Fixed in the image: `pocknix-desktop-plasma-mobile` ships
+`/usr/lib/systemd/user/plasma-plasmashell.service.d/10-after-powerdevil.conf` containing
+`After=plasma-powerdevil.service`. That unit is `Type=dbus` with
+`BusName=org.kde.Solid.PowerManagement`, so systemd counts it as started only once the name is
+owned — the shell cannot construct the widget too early.
 
 | Where | What |
 |---|---|
-| `~/.local/share/plasma/quicksettings/org.kde.plasma.quicksetting.brightness/` | Quick setting tile, first in the shade: `toggle()` cycles 100 → 75 → 50 → 25 → 10 % and wraps, `status` is the live percentage. It drives the same `ScreenBrightnessUtil` as the slider, so both panels move together. `available` is bound to `maxBrightness` (which notifies) instead of `brightnessAvailable` (which does not), and a 1.5 s retry re-fetches while PowerDevil is absent, so the tile heals itself after a late start. |
-| `~/.config/scripts/pocknix-brightness-guard` + `pocknix-brightness-guard.service` | Runs after the shell and after PowerDevil, waits for the brightness method, and restarts plasmashell **once** if its log shows `Getting brightness failed` for the current run. PowerDevil needs ~10 s to own its name here (DDC plus the two DSI panels) while the shell starts ~4 s into the session, so the shell loses the race almost every time: 07:57:27 shell up, 07:57:31 powerdevil up, failure logged 07:57:30. The restart is a short panel blink early in the session instead of a missing slider for the whole session. |
+| `~/.config/systemd/user/plasma-plasmashell.service.d/10-after-powerdevil.conf` | The same fragment, unmanaged (hand-made before the package carried it). **Delete it once the image ships the copy above** — two identical drop-ins are harmless, one is clearer. |
+| `~/.local/share/plasma/quicksettings/org.kde.plasma.quicksetting.brightness/` | Quick setting tile: `toggle()` cycles 100 → 75 → 50 → 25 → 10 % and wraps, `status` is the live percentage, it drives the same util as the slider. `available` is bound to `maxBrightness` (which notifies) rather than `brightnessAvailable` (which does not), and a 1.5 s retry re-fetches while PowerDevil is absent, so the tile heals itself after a late start. |
+
+`run_onchange_enable-brightness-quicksetting.sh` keeps the tile first in
+`[QuickSettings] enabledQuickSettings` of `~/.config/plasmamobilerc`. That file is shell state and
+stays unmanaged; the script only inserts the id when it is missing or not first.
+
+Removed: `pocknix-brightness-guard` + its unit + its enabler. It was the safety net for the race
+(restart plasmashell once if its log showed `Getting brightness failed`); with the ordering in
+place the race does not happen and the guard has not fired since.
 
 Two approaches that look right and are not:
 
-* `After=`/`Wants=plasma-powerdevil.service` on plasmashell forms an ordering cycle — `plasma-core.target` is ordered after plasmashell and pulls it in, powerdevil is ordered after `plasma-core.target` — which systemd breaks by deleting the plasmashell start job: black screen, no shell.
-* `ExecStartPre` polling for the interface blanks the desktop for the whole time PowerDevil needs (~7 s measured) and still loses whenever PowerDevil is slower than the budget.
+* `Wants=plasma-powerdevil.service` pulls PowerDevil in at `graphical-session-pre`, i.e. before
+  `kwin_wayland` exists, where it aborts on the missing display and lands in `start-limit-hit`.
+  `After=` alone only orders, and the session starts PowerDevil anyway — that is the shipped fix.
+* `ExecStartPre` polling for the interface blanks the desktop for the whole time PowerDevil needs
+  (~7 s measured) and still loses whenever PowerDevil is slower than the budget.
 
-`run_onchange_enable-brightness-quicksetting.sh` keeps the tile first in
-`[QuickSettings] enabledQuickSettings` of `~/.config/plasmamobilerc`. That file is shell
-state (tile list, wizard flags, status bar scale are rewritten at runtime) and stays
-unmanaged; the script only inserts the id when it is missing or not first.
+#### 2. The two panels' light differing at the same percentage
 
-#### Game Mode (gamescope)
+Both backlights are `type=raw`, `scale=unknown`, so nothing in the class or the device tree offers a
+curve, and every writer puts the two panels on the *same percentage* while the panels do not share a
+response. Measured before the fix: 3100/10000 on the PowerDevil scale drove the top to 1059/3413
+(31 %) and the bottom to 79/255 (31 %) — and the bottom looked far brighter.
 
-Steam's slider does not go through PowerDevil. It writes the first entry in
-`/sys/class/backlight` **directly** — `ae94000.dsi.0`, the 620×540 bottom panel, while Game
-Mode runs on the top panel (DSI-2) — and only falls back to
-`/usr/bin/steamos-polkit-helpers/steamos-priv-write <path> <value>` (pkexec) when that fails
-(pocknix #80). pocknix ships the other `steamos-polkit-helpers` but not this one, so the
-fallback could only ever `sudo -n tee`, which logged
-`sudo[…]: deck : a password is required ; … COMMAND=/usr/bin/tee /sys/class/backlight/ae94000.dsi.0/brightness`
-and changed nothing. The direct write does fail on this hardware — the panel driver returns
-`EINVAL` while still applying the value — so both paths are live.
+Fixed in the kernel: patch `1097` on `thor/brightness-gamma`, plus two properties on the bottom
+panel node (`&mdss_dsi0` → `panel@0` in `qcs8550-ayn-thor.dts`):
+
+```dts
+pocknix,brightness-gamma-milli = <2700>;   /* x^2.7; absent or 1000 = linear */
+pocknix,brightness-min = <1>;              /* raw floor for a non-zero request */
+```
+
+The mapping happens inside `ch13726a_bl_update_status()`, the driver's only brightness write, so
+kwin, PowerDevil and Steam are all correct by construction: one write, no overshoot, Game Mode
+included. Integer only (`x^whole` × the square roots of the exponent's binary fractions), within one
+level of an exact `pow()`, monotonic. `0` still writes `0`; the floor keeps a 1 % request dim rather
+than black. The sysfs readback still reports the *request*, which is what keeps kwin's and the Steam
+helper's readback checks honest.
+
+Measured after: at 31 % the bottom is sent `11/255` instead of `79/255`; panels match by eye at
+10 %, 31 % and 60 %; no flash on a drag or a 10→100 % jump; `level 79 -> 11` confirmed in the
+driver's debug log.
+
+Why it could never be done from userspace: writing
+`/sys/class/backlight/ae94000.dsi.0/brightness` costs **~33 ms** (a DSI round trip to the AMOLED
+controller; reads are 0.02 ms), so a second, correcting write can never land in the same frame as
+the one it corrects. The old `pocknix-brightness-sync` helper followed kwin's signal and applied
+the same curve; every variant (polling, settle-after-burst, chasing the burst) flashed, so it is
+deleted — an enabler script would have turned it back on at the next `chezmoi apply`.
+
+Note the bottom panel's real mode is **1080×1240@60** (video mode); the 620×540 figure that appears
+in older notes is a layout size, not the panel.
+
+#### 3. Steam's Game Mode slider (still userspace, still needed)
+
+Steam's slider does not go through PowerDevil. It writes the first entry in `/sys/class/backlight`
+**directly** — `ae94000.dsi.0`, the bottom panel, while Game Mode runs on the top one (DSI-2) — and
+only falls back to `/usr/bin/steamos-polkit-helpers/steamos-priv-write <path> <value>` when that
+write fails (pocknix #80). pocknix shipped the other `steamos-polkit-helpers` but not this one, so
+the fallback could only `sudo -n tee`, which logged `a password is required` and changed nothing.
+The direct write does fail here — the driver answers `EINVAL` while still applying the value — so
+both paths are live.
 
 | Where | What |
 |---|---|
-| `pocknix/thor/steamos-priv-write` → `/usr/bin/steamos-polkit-helpers/steamos-priv-write` | Implements the SteamOS interface for the brightness path only: rescales the value from the panel Steam named into `ae96000.dsi.0` (what Armada calls `ARMADA_PRIMARY_BACKLIGHT`) and writes through logind `SetBrightness` — active-session authorised, no password — or straight to sysfs when it is writable. The bottom panel is left to `pocknix-brightness-sync` (below). `POCKNIX_BRIGHTNESS_DEVICE` overrides the target panel. |
+| `pocknix/thor/steamos-priv-write` → `/usr/bin/steamos-polkit-helpers/steamos-priv-write` | Implements the SteamOS interface for the brightness path only: rescales the value from the panel Steam named into `ae96000.dsi.0` (what Armada calls `ARMADA_PRIMARY_BACKLIGHT`) and writes through logind `SetBrightness` — active-session authorised, no password — or straight to sysfs when it is writable; success is judged by reading the backlight back. Then it writes the node Steam named at the same percentage, because that node is where Steam reads the slider position from. `POCKNIX_BRIGHTNESS_DEVICE` overrides the target panel. |
 
-#### Bottom panel curve
-
-Plasma and Steam both put the two backlights on the *same percentage*, but the panels do not
-share a curve — `type=raw`, `scale=unknown` for both — so at low levels the 620×540 bottom
-panel (`ae94000.dsi.0`, 0..255) reads noticeably brighter than the top one
-(`ae96000.dsi.0`, 0..3413). Measured before the fix: 3100/10000 on the PowerDevil scale left
-the top at 1059/3413 (31 %) and the bottom at 79/255 (31 %), and it looked wrong.
-
-| Where | What |
-|---|---|
-| `~/.config/scripts/pocknix-brightness-sync` + `pocknix-brightness-sync.service` | Follows `org.kde.ScreenBrightness.BrightnessChanged` and drives the bottom through `bottom = max_bottom · (top / top_max) ** GAMMA`, so it sits lower at low levels while both still reach full at 100 %. Only the bottom panel is written — kwin, PowerDevil and Steam stay authoritative for the screen being looked at. Survives Game Mode round trips (`WantedBy=default.target`, not `PartOf=graphical-session.target`); idle cost ~0.2 % CPU and no polling. |
-
-`GAMMA` is a constant in the script (`2.7`). It is a judgement call, so it can be tuned live
-without a restart: `echo GAMMA=2.5 > ~/.config/pocknix/brightness-sync.conf` is picked up on
-the next change, and deleting the file returns to the built-in value. `POCKNIX_BRIGHTNESS_GAMMA`
-overrides both for a one-off test. At 2.7, 40 % on the top panel puts the bottom at 22/255
-instead of 102/255, and 31 % at 11/255 instead of 79/255.
-
-Two things the implementation had to work around:
-
-* kwin writes **both** panels and animates a slider drag over up to ~0.5 s (7 sysfs steps for
-  a 10 %→100 % jump), and its signals can arrive before that animation rather than after it.
-  Correcting on each signal, or a fixed wait after the last one, therefore lands mid-animation
-  and gets overwritten. So the helper waits for the *value* to stop moving — 150 ms after the
-  last signal, then every 120 ms until two reads agree — and applies the curve then. During a
-  drag the bottom follows kwin; the helper chases the animation and re-applies the curve as
-  soon as kwin overwrites it.
-
-Why the flash cannot be removed from userspace: writing
-`/sys/class/backlight/ae94000.dsi.0/brightness` costs **~33 ms** (a DSI round trip to the
-AMOLED controller; reads are 0.02 ms). kwin writes the bottom linearly, and a second write
-can never land in the same frame as kwin's, so a short overshoot per animation step is
-inherent. The fix belongs in the panel driver — see the kernel note below.
-* the bottom's driver answers `EINVAL` on the sysfs write while still applying the value, so
-  success is judged by reading the backlight back, with logind `SetBrightness` as fallback.
-
-Game Mode is skipped entirely: while a `gamescope` process exists the bottom panel is not
-written at all, because gamescope drives only the top panel and SteamOS has no dual-screen
-support yet. Revisit when a patch makes the second screen usable there.
-
-**The helper is currently disabled** (`systemctl --user disable --now pocknix-brightness-sync`):
-every correction writes the bottom node again, and a write there costs ~33 ms, so the
-overshoot is unavoidable from userspace and reads as a flash. Fixing it properly needs the
-curve inside the panel driver — see
-[docs/thor-brightness-handoff.md](./docs/thor-brightness-handoff.md) for the full analysis,
-measurements, candidate patches and the upstream issues.
-
-##### Kernel-side alternative (not done)
-
-The two backlights belong to the DRM panel drivers, not to a generic backlight driver:
-`panel-ddic-ch13726a` (bottom, AMOLED) and `panel-chipone-icna35xx` (top), both **builtin**
-to `linux-pocknix-sm8550 7.2.10-13` (`modules.builtin`, `modinfo … filename: (builtin)`).
-The backlight class only exposes raw `brightness`/`max_brightness`/`scale=unknown` — there is
-no calibration hook, and no `brightness-levels` in the device tree.
-
-Mapping the value inside the bottom driver's brightness setter would make every writer — kwin,
-PowerDevil, Steam — correct by construction: one write, no overshoot, no helper, and it would
-cover Game Mode too. It costs a kernel rebuild and a boot deploy (`pocknix-boot-deploy`,
-`mkbootimg`), it needs the driver source for this kernel, and it returns with every kernel
-update unless pocknix takes it. Until then the userspace helper is the only option.
-
-
-
-
+The kernel curve does not make this redundant: 1097 changes what light a percentage produces, not
+which panel Steam addresses. It also leaves the `EINVAL` return alone on purpose, because that
+return is what triggers the fallback.
