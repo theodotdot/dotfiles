@@ -33,8 +33,7 @@ I use [catppuccin](https://catppuccin.com/) macchiato everywhere I can 🐈‍�
 | **[helix](https://helix-editor.com/)**                                            | editor                                |
 | **[yazi](https://yazi-rs.github.io/)**                                            | file manager                          |
 | **[zellij](https://zellij.dev/)**                                                 | multiplexer                           |
-| **[niri](https://github.com/YaLTeR/niri)** / **[Hyprland](https://hypr.land/)**   | Wayland compositors                   |
-| **[waybar](https://github.com/Alexays/Waybar)**                                   | bar (Hyprland)                        |
+| **[niri](https://github.com/YaLTeR/niri)**                                        | Wayland compositor                    |
 | **[noctalia](https://github.com/noctalia-dev/noctalia)**                          | bar, notifications, wallpaper (niri)  |
 | **[bat](https://github.com/sharkdp/bat)**                                         | cat with wings                        |
 | **[btop](https://github.com/aristocratos/btop)**                                  | system monitor                        |
