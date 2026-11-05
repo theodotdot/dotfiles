@@ -1,0 +1,33 @@
+#!/bin/sh
+# Ports the desktop Vesktop profile: Vesktop's own settings and Vencord's settings.
+# Idempotent: a target is only written when it is missing, or when it is still
+# byte-identical to the file this script seeded last time, so anything changed in
+# the app afterwards is never reverted.
+set -eu
+
+src="{{ .chezmoi.sourceDir }}"
+conf="${XDG_CONFIG_HOME:-$HOME/.config}/vesktop"
+state="${XDG_STATE_HOME:-$HOME/.local/state}/chezmoi/vesktop"
+
+# Nothing to do until Vesktop is installed.
+command -v vesktop >/dev/null 2>&1 || exit 0
+command -v sha256sum >/dev/null 2>&1 || exit 0
+
+seed() { # snapshot, target
+    snap=$1
+    target=$2
+    [ -f "$snap" ] || return 0
+    stamp="$state/$(printf '%s' "${target#"$HOME"/}" | tr '/' '_')"
+    if [ -e "$target" ] &&
+        { [ ! -f "$stamp" ] || [ "$(cat "$stamp")" != "$(sha256sum "$target" | cut -d' ' -f1)" ]; }; then
+        echo "vesktop: $target changed locally, leaving it alone" >&2
+        return 0
+    fi
+    echo "vesktop: seeding $target"
+    install -Dm644 "$snap" "$target"
+    mkdir -p "$state"
+    sha256sum "$target" | cut -d' ' -f1 >"$stamp"
+}
+
+seed "$src/vesktop/settings.json" "$conf/settings.json"
+seed "$src/vesktop/vencord/settings.json" "$conf/settings/settings.json"
