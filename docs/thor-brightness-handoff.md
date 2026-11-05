@@ -1,5 +1,10 @@
 # Thor brightness — handoff for the kernel-patch session
 
+> **Superseded.** The curve now lives in the kernel (`thor/brightness` in pocknix-os), the
+> ordering drop-in ships with `pocknix-desktop-plasma-mobile`, and the guard and the userspace
+> sync helper described below are gone. Kept as the measurement record that motivated the patch;
+> see `README.md` (Thor brightness) and `docs/thor-kernel-test-plan.md` for the current state.
+
 State as of 2026-11-01, `thor` branch. Everything below was measured on this machine unless
 marked as coming from an upstream issue.
 

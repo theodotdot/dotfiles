@@ -161,7 +161,7 @@ both paths are live.
 
 | Where | What |
 |---|---|
-| `pocknix/thor/steamos-priv-write` → `/usr/bin/steamos-polkit-helpers/steamos-priv-write` | Implements the SteamOS interface for the brightness path only: rescales the value from the panel Steam named into `ae96000.dsi.0` (what Armada calls `ARMADA_PRIMARY_BACKLIGHT`) and writes through logind `SetBrightness` — active-session authorised, no password — or straight to sysfs when it is writable; success is judged by reading the backlight back. Then it writes the node Steam named at the same percentage, because that node is where Steam reads the slider position from. `POCKNIX_BRIGHTNESS_DEVICE` overrides the target panel. |
+| `/usr/bin/steamos-polkit-helpers/steamos-priv-write` (shipped by `pocknix-steamos-shim`; the dotfiles copy is gone) | Implements the SteamOS interface for the brightness path only: rescales the value from the panel Steam named into `ae96000.dsi.0` (what Armada calls `ARMADA_PRIMARY_BACKLIGHT`) and writes through logind `SetBrightness` — active-session authorised, no password — or straight to sysfs when it is writable; success is judged by reading the backlight back. Then it writes the node Steam named at the same percentage, because that node is where Steam reads the slider position from. The target comes from `POCKNIX_PRIMARY_BACKLIGHT` in the board conf, empty on a single-panel board where the helper is a pass-through. |
 
 The kernel curve does not make this redundant: 1097 changes what light a percentage produces, not
 which panel Steam addresses. It also leaves the `EINVAL` return alone on purpose, because that
