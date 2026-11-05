@@ -1,3 +1,6 @@
 .config/niri/secrets.kdl
 .config/fish/fish_variables
 .config/fish/conf.d/secrets.fish
+
+# Source state for the run_ script, not a dotfile tree.
+vesktop/
