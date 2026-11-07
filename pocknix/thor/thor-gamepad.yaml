@@ -1,16 +1,14 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/ShadowBlip/InputPlumber/main/rootfs/usr/share/inputplumber/schema/capability_map_v2.json
 # AYN Thor: sm8550-gamepad.yaml minus the back paddles the Thor lacks, plus the AYN key
 # (KEY_F24 on gpio-keys-ayn).
-# Local override: D-pad emits gamepad DPad* (not keyboard arrows). Desktop arrows come
-# from the plasma-mobile profile; the stock map made D-pad unusable in games.
 version: 2
 kind: CapabilityMap
 name: AYN Thor RSInput Mapping
 id: thor_gamepad
 
 mapping:
-  # Hardware Steam/Guide key repurposed as Deck back button L4 (LeftPaddle1) so
-  # Steam Input can bind it per game. The AYN key below emits Guide instead.
+  # Hardware Steam/Guide key repurposed as Deck back button L4 (LeftPaddle1) so Steam
+  # Input can bind it per game. The AYN key below emits Guide instead.
   - name: Steam Key as L4
     source_events:
       - evdev: { event_type: KEY, event_code: BTN_MODE, value_type: button }

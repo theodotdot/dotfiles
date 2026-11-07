@@ -111,22 +111,24 @@ mapping:
       - mouse:
           button: Right
 
-  # X (physical X = West) = home / app launcher.
-  - name: X Home
-    source_event:
-      gamepad:
-        button: West
-    target_events:
-      - keyboard: KeyLeftMeta
-
-  # Y (physical Y = North) = mobile task switcher (Meta+C chord).
-  - name: Y Task Switcher
+  # X = window overview (KWin "Overview" = Meta+W): pick a window, close it with the
+  # card's X. The face keys reach the profile swapped by the capability map, so the
+  # physical X arrives as gamepad North and the physical Y as gamepad West.
+  - name: X Overview
     source_event:
       gamepad:
         button: North
     target_events:
       - keyboard: KeyLeftMeta
-      - keyboard: KeyC
+      - keyboard: KeyW
+
+  # Y = home.
+  - name: Y Home
+    source_event:
+      gamepad:
+        button: West
+    target_events:
+      - keyboard: KeyLeftMeta
 
   # Play (Start) = media play/pause.
   - name: Play Media PlayPause

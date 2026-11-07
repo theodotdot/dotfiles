@@ -57,8 +57,11 @@ Thor) which writes `/etc/inputplumber/profiles/`, `/usr/share/inputplumber/capab
 and `/usr/lib/pocknix/`.
 
 Desktop pad mapping (`pocknix/thor/plasma-mobile.yaml`): left stick = pointer, d-pad =
-arrows, A = left click, B = right click, X = Meta, Y = Meta+C, LB/RB = Alt+Left/Alt+Right,
-LT/RT = held LeftCtrl/LeftShift, Start = play/pause, Select = Esc. The wheel mappings are
+arrows, A = left click, B = right click, X = Meta+W (KWin Overview: switch apps, close the
+selected one), Y = Meta (home), LB/RB = Alt+Left/Alt+Right, LT/RT = held
+LeftCtrl/LeftShift, Start = play/pause, Select = Esc. The face keys reach the profile
+swapped — physical X arrives as gamepad `North` and physical Y as `West` — because the
+capability map swaps the raw `BTN_NORTH`/`BTN_WEST` codes. The wheel mappings are
 gone — the right stick scrolls. `~/.config/inputplumber/profiles/plasma-mobile.yaml` is
 tracked as the same file so it can be `LoadProfilePath`-ed without root; keep it identical
 to the bundle copy (that one is what `install.sh` writes to `/etc`).
@@ -69,8 +72,11 @@ navigation. The AYN key emits `Guide` (Steam button and chord modifier), the har
 Steam/Guide key emits `LeftPaddle1` so Steam Input can bind it as L4, Back/View stays
 `QuickAccess`, and volume-up is re-emitted on the keyboard target. Desktop d-pad arrows
 still come from `plasma-mobile.yaml`; the capability map only supplies the gamepad events.
-This file overrides the `inputplumber` package copy at
-`/usr/share/inputplumber/capability_maps/thor-gamepad.yaml`.
+The same mapping ships in the `pocknix-bsp-sm8550` package
+(`devices/sm8550/packages/pocknix-bsp-sm8550/root/usr/share/inputplumber/`), so a package
+update no longer reverts it; `install.sh` writes the bundle copy over
+`/usr/share/inputplumber/capability_maps/thor-gamepad.yaml`, which is where InputPlumber
+reads it from.
 
 ### 🔆 Thor brightness
 
