@@ -112,12 +112,11 @@ mapping:
           button: Right
 
   # X = window overview (KWin "Overview" = Meta+W): pick a window, close it with the
-  # card's X. The face keys reach the profile swapped by the capability map, so the
-  # physical X arrives as gamepad North and the physical Y as gamepad West.
+  # card's X. The capability map sends the physical X to gamepad West.
   - name: X Overview
     source_event:
       gamepad:
-        button: North
+        button: West
     target_events:
       - keyboard: KeyLeftMeta
       - keyboard: KeyW
@@ -126,7 +125,7 @@ mapping:
   - name: Y Home
     source_event:
       gamepad:
-        button: West
+        button: North
     target_events:
       - keyboard: KeyLeftMeta
 

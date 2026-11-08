@@ -16,4 +16,9 @@ ln -sf ../pocknix-gamepad-reset.service /etc/systemd/user/pocknix-game-session.t
 mkdir -p /etc/systemd/system/inputplumber.service.wants
 ln -sf ../pocknix-gamepad-profile.service /etc/systemd/system/inputplumber.service.wants/pocknix-gamepad-profile.service
 
+# InputPlumber parses the capability map when it creates the composite device, so a map
+# change only takes effect once the device is re-created. pocknix-gamepad-profile.service
+# is ordered after inputplumber and re-applies the session's profile on the way back up.
+systemctl restart inputplumber
+
 echo "installed."

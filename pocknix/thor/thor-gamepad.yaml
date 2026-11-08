@@ -21,15 +21,17 @@ mapping:
     target_event:
       gamepad: { button: QuickAccess }
 
-  - name: South Button
+  # A/B swap: the button printed A reports BTN_EAST and the one printed B reports
+  # BTN_SOUTH, so send each to the pad label it is printed with (South = A, East = B).
+  - name: A Button (BTN_EAST)
     source_events:
-      - evdev: { event_type: KEY, event_code: BTN_SOUTH, value_type: button }
+      - evdev: { event_type: KEY, event_code: BTN_EAST, value_type: button }
     target_event:
       gamepad: { button: South }
 
-  - name: East Button
+  - name: B Button (BTN_SOUTH)
     source_events:
-      - evdev: { event_type: KEY, event_code: BTN_EAST, value_type: button }
+      - evdev: { event_type: KEY, event_code: BTN_SOUTH, value_type: button }
     target_event:
       gamepad: { button: East }
 

@@ -59,16 +59,19 @@ and `/usr/lib/pocknix/`.
 Desktop pad mapping (`pocknix/thor/plasma-mobile.yaml`): left stick = pointer, d-pad =
 arrows, A = left click, B = right click, X = Meta+W (KWin Overview: switch apps, close the
 selected one), Y = Meta (home), LB/RB = Alt+Left/Alt+Right, LT/RT = held
-LeftCtrl/LeftShift, Start = play/pause, Select = Esc. The face keys reach the profile
-swapped — physical X arrives as gamepad `North` and physical Y as `West` — because the
-capability map swaps the raw `BTN_NORTH`/`BTN_WEST` codes. The wheel mappings are
+LeftCtrl/LeftShift, Start = play/pause, Select = Esc. The face keys keep their printed
+labels: the MCU reports `BTN_EAST` for A, `BTN_SOUTH` for B, `BTN_NORTH` for X and
+`BTN_WEST` for Y, so `thor-gamepad.yaml` swaps A/B and X/Y to land on the Deck labels
+(South = A, East = B, West = X, North = Y). The wheel mappings are
 gone — the right stick scrolls. `~/.config/inputplumber/profiles/plasma-mobile.yaml` is
 tracked as the same file so it can be `LoadProfilePath`-ed without root; keep it identical
 to the bundle copy (that one is what `install.sh` writes to `/etc`).
 
 Game-mode pad mapping (`pocknix/thor/thor-gamepad.yaml`): d-pad emits gamepad `DPad*`;
 the stock map sent keyboard arrows, which games read as steering instead of menu
-navigation. The AYN key emits `Guide` (Steam button and chord modifier), the hardware
+navigation. A/B and X/Y are swapped relative to the raw `BTN_SOUTH`/`BTN_EAST` and
+`BTN_NORTH`/`BTN_WEST` codes so each printed label reaches the pad label it is printed
+with. The AYN key emits `Guide` (Steam button and chord modifier), the hardware
 Steam/Guide key emits `LeftPaddle1` so Steam Input can bind it as L4, Back/View stays
 `QuickAccess`, and volume-up is re-emitted on the keyboard target. Desktop d-pad arrows
 still come from `plasma-mobile.yaml`; the capability map only supplies the gamepad events.
