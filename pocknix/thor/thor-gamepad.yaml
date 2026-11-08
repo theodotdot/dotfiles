@@ -21,17 +21,18 @@ mapping:
     target_event:
       gamepad: { button: QuickAccess }
 
-  # A/B swap: the button printed A reports BTN_EAST and the one printed B reports
-  # BTN_SOUTH, so send each to the pad label it is printed with (South = A, East = B).
-  - name: A Button (BTN_EAST)
+  # A/B: no swap. The shell prints Nintendo letters (B on the bottom key, A on the right
+  # one) but the pad keeps the Deck/xb360 positions, so the bottom key presents as A
+  # (South) and the right one as B (East). BTN_SOUTH is the bottom key, BTN_EAST the right.
+  - name: South Button (bottom key, printed B)
     source_events:
-      - evdev: { event_type: KEY, event_code: BTN_EAST, value_type: button }
+      - evdev: { event_type: KEY, event_code: BTN_SOUTH, value_type: button }
     target_event:
       gamepad: { button: South }
 
-  - name: B Button (BTN_SOUTH)
+  - name: East Button (right key, printed A)
     source_events:
-      - evdev: { event_type: KEY, event_code: BTN_SOUTH, value_type: button }
+      - evdev: { event_type: KEY, event_code: BTN_EAST, value_type: button }
     target_event:
       gamepad: { button: East }
 

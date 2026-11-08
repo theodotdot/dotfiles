@@ -75,7 +75,7 @@ mapping:
     target_events:
       - keyboard: KeyRight
 
-  # A = left click (activate / tap).
+  # A (bottom key) = left click (activate / tap).
   - name: A Activate
     source_event:
       gamepad:
@@ -102,7 +102,7 @@ mapping:
       - keyboard: KeyLeftAlt
       - keyboard: KeyRight
 
-  # B = right click.
+  # B (right key) = right click.
   - name: B Right Click
     source_event:
       gamepad:
