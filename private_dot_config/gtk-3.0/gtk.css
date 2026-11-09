@@ -1,0 +1,4 @@
+@import url("noctalia.css");
+@define-color selected_bg_color @accent_bg_color;
+@define-color selected_fg_color @accent_fg_color;
+@define-color theme_selected_bg_color @accent_bg_color;
