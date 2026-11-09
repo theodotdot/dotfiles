@@ -3,3 +3,5 @@ user_pref("ui.textSelectBackground", "{{colors.primary.default.hex}}");
 user_pref("ui.textSelectForeground", "{{colors.on_primary.default.hex}}");
 user_pref("ui.textSelectAttentionBackground", "{{colors.primary.default.hex}}");
 user_pref("ui.textSelectAttentionForeground", "{{colors.on_primary.default.hex}}");
+user_pref("ui.textSelectDisabledBackground", "{{colors.primary.default.hex}}");
+user_pref("ui.textSelectDisabledForeground", "{{colors.on_primary.default.hex}}");
