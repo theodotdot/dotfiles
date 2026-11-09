@@ -321,12 +321,20 @@ source = "community"
     enable_builtin_templates = true
     builtin_ids = [ "gtk3", "gtk4", "kcolorscheme", "qt", "helix", "btop", "kitty", "starship", "niri" ]
     enable_community_templates = true
-    community_ids = [ "bat", "yazi", "zellij", "herdr" ]
+    community_ids = [ "bat", "yazi", "zellij", "herdr", "pywalfox" ]
 
         [theme.templates.user.fish]
         input_path = "$XDG_CONFIG_HOME/noctalia/templates/fish.fish"
         output_path = "$XDG_CONFIG_HOME/fish/noctalia_theme.fish"
         post_hook = "fish -c 'source $HOME/.config/fish/noctalia_theme.fish'"
+
+        [theme.templates.user.zen_chrome]
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/zen-userChrome.css"
+        output_path = "$XDG_CONFIG_HOME/../.var/app/app.zen_browser.zen/.zen/noctalia-profile/chrome/noctalia-userChrome.css"
+
+        [theme.templates.user.zen_content]
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/zen-userContent.css"
+        output_path = "$XDG_CONFIG_HOME/../.var/app/app.zen_browser.zen/.zen/noctalia-profile/chrome/noctalia-userContent.css"
 
         [theme.templates.user.herdr-app]
         input_path = "$XDG_CONFIG_HOME/noctalia/templates/herdr-app.json"
