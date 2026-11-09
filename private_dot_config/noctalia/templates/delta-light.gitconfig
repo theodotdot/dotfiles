@@ -1,0 +1,23 @@
+[delta "noctalia"]
+	syntax-theme = noctalia
+	blame-palette = "{{colors.terminal_background.default.hex}} {{colors.surface_container_low.default.hex}} {{colors.surface_container_high.default.hex}}"
+	commit-decoration-style = "{{colors.outline.default.hex}}" bold box ul
+	file-decoration-style = "{{colors.outline.default.hex}}"
+	file-style = "{{colors.terminal_foreground.default.hex}}"
+	hunk-header-decoration-style = "{{colors.outline.default.hex}}" box ul
+	hunk-header-file-style = bold
+	hunk-header-line-number-style = bold "{{colors.on_surface_variant.default.hex}}"
+	hunk-header-style = file line-number syntax
+	line-numbers-left-style = "{{colors.outline.default.hex}}"
+	line-numbers-minus-style = bold "{{colors.terminal_normal_red.default.hex}}"
+	line-numbers-plus-style = bold "{{colors.terminal_normal_green.default.hex}}"
+	line-numbers-right-style = "{{colors.outline.default.hex}}"
+	line-numbers-zero-style = "{{colors.outline.default.hex}}"
+	minus-emph-style = bold syntax "#e5a2b3"
+	minus-style = syntax "#e9c4cf"
+	plus-emph-style = bold syntax "#b2d5ae"
+	plus-style = syntax "#cce1cd"
+	map-styles = bold purple => syntax "{{colors.surface_container_high.default.hex}}", bold cyan => syntax "{{colors.surface_container_high.default.hex}}"
+	zero-style = syntax
+	whitespace-error-style = "{{colors.terminal_normal_red.default.hex}}" reverse
+	conflict-style = "{{colors.terminal_normal_yellow.default.hex}}"
