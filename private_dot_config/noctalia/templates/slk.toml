@@ -1,0 +1,18 @@
+name = "Noctalia"
+
+[colors]
+primary      = "{{colors.primary.default.hex}}"
+accent       = "{{colors.terminal_normal_green.default.hex}}"
+warning      = "{{colors.terminal_normal_yellow.default.hex}}"
+error        = "{{colors.terminal_normal_red.default.hex}}"
+background   = "{{colors.terminal_background.default.hex}}"
+surface      = "{{colors.surface_container_high.default.hex}}"
+surface_dark = "{{colors.surface_container_low.default.hex}}"
+text         = "{{colors.terminal_foreground.default.hex}}"
+text_muted   = "{{colors.outline.default.hex}}"
+border       = "{{colors.outline_variant.default.hex}}"
+
+sidebar_background = "{{colors.surface_container_low.default.hex}}"
+sidebar_text       = "{{colors.terminal_foreground.default.hex}}"
+sidebar_text_muted = "{{colors.outline.default.hex}}"
+rail_background    = "{{colors.surface_container_low.default.hex}}"

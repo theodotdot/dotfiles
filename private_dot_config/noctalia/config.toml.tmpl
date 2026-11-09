@@ -341,9 +341,8 @@ source = "community"
         output_path = "$XDG_CONFIG_HOME/Slack/themes/macchiato.css"
 
         [theme.templates.user.slk]
-        input_path = "$XDG_CONFIG_HOME/noctalia/templates/mode.txt"
-        output_path = "$XDG_CONFIG_HOME/slk/noctalia-mode"
-        post_hook = "sh -c 'if [ \"$(cat $HOME/.config/slk/noctalia-mode)\" = light ]; then t=\"Catppuccin Latte\"; else t=\"Catppuccin Macchiato\"; fi; sed -i \"s/^theme = .*/theme = \\\"$t\\\"/\" $HOME/.config/slk/config.toml'"
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/slk.toml"
+        output_path = "$XDG_CONFIG_HOME/slk/themes/noctalia.toml"
 
         [theme.templates.user.delta]
         input_path = "$XDG_CONFIG_HOME/noctalia/templates/delta-dark.gitconfig"
