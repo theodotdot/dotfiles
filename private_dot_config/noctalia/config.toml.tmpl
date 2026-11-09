@@ -328,6 +328,10 @@ source = "community"
         output_path = "$XDG_CONFIG_HOME/fish/noctalia_theme.fish"
         post_hook = "fish -c 'source $HOME/.config/fish/noctalia_theme.fish'"
 
+        [theme.templates.user.herdr-app]
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/herdr-app.json"
+        output_path = "$XDG_CONFIG_HOME/herdr-app/themes/noctalia.json"
+
 [wallpaper]
 directory = "/home/{{ .chezmoi.username }}/Downloads/walls"
 
