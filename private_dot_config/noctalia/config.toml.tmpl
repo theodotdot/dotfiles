@@ -349,12 +349,6 @@ source = "community"
         input_path_modes = { dark = "$XDG_CONFIG_HOME/noctalia/templates/delta-dark.gitconfig", light = "$XDG_CONFIG_HOME/noctalia/templates/delta-light.gitconfig" }
         output_path = "$XDG_CONFIG_HOME/git/noctalia-delta.gitconfig"
 
-        [theme.templates.user.pywalfox_update]
-        input_path = "$XDG_CONFIG_HOME/noctalia/templates/mode.txt"
-        output_path = "$XDG_CACHE_HOME/noctalia/pywalfox-mode"
-        post_hook = "sh -c 'sleep 2; pywalfox $(cat $HOME/.cache/noctalia/pywalfox-mode) ; pywalfox update'"
-        hook_async = true
-
         [theme.templates.user.herdr-app]
         input_path = "$XDG_CONFIG_HOME/noctalia/templates/herdr-app.json"
         output_path = "$XDG_CONFIG_HOME/herdr-app/themes/noctalia.json"
