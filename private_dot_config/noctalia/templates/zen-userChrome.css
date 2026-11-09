@@ -132,7 +132,10 @@ toolbarbutton#tabs-newtab-button {
 }
 /* --- URL Bar --- */
 
-#urlbar-input::selection {
+#urlbar-input::selection,
+#urlbar ::selection,
+.urlbar-input::selection,
+:root #urlbar-input-container ::selection {
   background-color: var(--primary) !important;
   color: var(--base) !important;
 }
