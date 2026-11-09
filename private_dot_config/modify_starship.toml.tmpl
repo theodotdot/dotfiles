@@ -1,0 +1,6 @@
+#!/bin/sh
+echo 'palette = "noctalia"'
+cat <<'STARSHIP_BASE'
+{{ template "starship-base.toml" . }}
+STARSHIP_BASE
+awk '/^# >>> NOCTALIA STARSHIP PALETTE >>>/{p=1} p'

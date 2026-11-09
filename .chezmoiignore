@@ -8,3 +8,5 @@
 .config/yazi/flavors
 .config/zellij/themes/noctalia.kdl
 .config/herdr/noctalia-colors.toml
+.config/kitty/themes/noctalia.conf
+.config/niri/noctalia.kdl
