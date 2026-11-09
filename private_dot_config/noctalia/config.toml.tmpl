@@ -318,8 +318,15 @@ mode = "dark"
 source = "community"
 
     [theme.templates]
-    builtin_ids = [ "gtk3", "gtk4", "kcolorscheme", "qt" ]
-    enable_community_templates = false
+    enable_builtin_templates = true
+    builtin_ids = [ "gtk3", "gtk4", "kcolorscheme", "qt", "helix", "btop" ]
+    enable_community_templates = true
+    community_ids = [ "bat", "yazi", "zellij", "herdr" ]
+
+        [theme.templates.user.fish]
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/fish.fish"
+        output_path = "$XDG_CONFIG_HOME/fish/noctalia_theme.fish"
+        post_hook = "fish -c 'source $HOME/.config/fish/noctalia_theme.fish'"
 
 [wallpaper]
 directory = "/home/{{ .chezmoi.username }}/Downloads/walls"

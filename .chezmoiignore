@@ -1,3 +1,10 @@
 .config/niri/secrets.kdl
 .config/fish/fish_variables
 .config/fish/conf.d/secrets.fish
+.config/fish/noctalia_theme.fish
+.config/helix/themes/noctalia.toml
+.config/btop/themes/noctalia.theme
+.config/bat/themes/noctalia.tmTheme
+.config/yazi/flavors
+.config/zellij/themes/noctalia.kdl
+.config/herdr/noctalia-colors.toml

@@ -1,0 +1,5 @@
+#!/bin/sh
+cat <<'HERDR_BASE'
+{{ template "herdr-base.toml" . }}
+HERDR_BASE
+awk '/^\[theme\.custom\]/{p=1} p'
