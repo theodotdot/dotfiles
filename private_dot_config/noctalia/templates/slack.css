@@ -74,10 +74,14 @@
   --dt_color-theme-base-inv-sec: var(--ctp-crust) !important;
   --dt_color-theme-content-inv-pry: var(--ctp-text) !important;
   --dt_color-theme-content-inv-sec: var(--ctp-subtext) !important;
+  --dt_color-theme-content-inv-ter: var(--ctp-muted) !important;
   --dt_color-theme-surf-inv-sec: var(--ctp-crust) !important;
   --dt_color-theme-surf-inv-ter: var(--ctp-surface0) !important;
   --dt_color-theme-base-pry: var(--ctp-base) !important;
+  --dt_color-theme-base-sec: var(--ctp-mantle) !important;
   --dt_color-theme-content-pry: var(--ctp-text) !important;
+  --dt_color-theme-content-sec: var(--ctp-subtext) !important;
+  --dt_color-theme-content-ter: var(--ctp-muted) !important;
   --dt_color-theme-base-sel: var(--ctp-surface0) !important;
   --dt_color-theme-content-sel: var(--ctp-mauve) !important;
 
