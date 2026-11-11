@@ -1,0 +1,13 @@
+{
+  "zoom": 1.1,
+  "sounds": {
+    "enabled": false
+  },
+  "font": "MonoLisa Nerd Font",
+  "font_size": 15,
+  "font_ligatures": false,
+  "ui_font": "MonoLisa Nerd Font",
+  "telemetry": false,
+  "minimum_contrast": 1,
+  "theme": "noctalia"
+}
