@@ -1,0 +1,193 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ShadowBlip/InputPlumber/main/rootfs/usr/share/inputplumber/schema/device_profile_v1.json
+# Pocknix: niri navigation profile for the AYN Thor gamepad.
+#
+# Turns the pad into a mouse + keyboard so the controller can drive niri: left
+# stick is the pointer, face buttons send Enter/Escape/Space, the d-pad sends
+# plain arrows, and the triggers plus RB are held modifiers for Shift, Alt and
+# Super — so RT+d-pad focuses niri columns, RB+d-pad focuses windows.
+#
+# The Super chords are niri binds from ~/.config/niri/config.kdl (Mod = Super on
+# a TTY); keep the two files in step if a bind changes. Y sends F24, the key
+# niri's F24 bind uses to toggle the on-screen keyboard.
+#
+# Loaded with (members of `wheel` may load profiles, no root needed):
+#   busctl --system call org.shadowblip.InputPlumber \
+#     /org/shadowblip/InputPlumber/CompositeDevice0 \
+#     org.shadowblip.Input.CompositeDevice LoadProfilePath s \
+#     "$HOME/.config/inputplumber/profiles/niri.yaml"
+# niri re-applies it per session from a spawn-at-startup line in config.kdl.
+#
+# Right-stick scrolling is not in here: InputPlumber 0.8x cannot turn an axis
+# into wheel steps. ~/.config/scripts/pocknix-stick-scroll adds the pad target
+# and re-emits wheel events while this profile (or Plasma Mobile) is loaded.
+version: 1
+kind: DeviceProfile
+name: Niri
+description: Gamepad to mouse + keyboard for niri
+
+# Emulate mouse + keyboard instead of the deck/xb360 pad while this profile is loaded.
+target_devices:
+  - mouse
+  - keyboard
+
+mapping:
+  # Left stick drives the pointer.
+  - name: Left Stick Mouse
+    source_event:
+      gamepad:
+        axis:
+          name: LeftStick
+    target_events:
+      - mouse:
+          motion:
+            speed_pps: 800
+
+  # Left stick click = right click.
+  - name: Left Stick Right Click
+    source_event:
+      gamepad:
+        button: LeftStick
+    target_events:
+      - mouse:
+          button: Right
+
+  # A (bottom key) = Enter.
+  - name: A Enter
+    source_event:
+      gamepad:
+        button: South
+    target_events:
+      - keyboard: KeyEnter
+
+  # B (right key) = Escape.
+  - name: B Escape
+    source_event:
+      gamepad:
+        button: East
+    target_events:
+      - keyboard: KeyEsc
+
+  # X = Space.
+  - name: X Space
+    source_event:
+      gamepad:
+        button: West
+    target_events:
+      - keyboard: KeySpace
+
+  # Y = on-screen keyboard: KeyF24, the key niri binds to toggle the OSK.
+  - name: Y On Screen Keyboard
+    source_event:
+      gamepad:
+        button: North
+    target_events:
+      - keyboard: KeyF24
+
+  # AYN key (KEY_F24 -> Guide) = control center (niri Mod+A -> noctalia).
+  - name: Guide Control Center
+    source_event:
+      gamepad:
+        button: Guide
+    target_events:
+      - keyboard: KeyLeftMeta
+      - keyboard: KeyA
+
+  # View/"..." key = close the focused window (niri Mod+Q).
+  - name: Quick Access Close Window
+    source_event:
+      gamepad:
+        button: QuickAccess
+    target_events:
+      - keyboard: KeyLeftMeta
+      - keyboard: KeyQ
+
+  # D-pad = plain arrows. Held with RB they become Super+arrows and drive niri.
+  - name: Dpad Left Arrow
+    source_event:
+      gamepad:
+        button: DPadLeft
+    target_events:
+      - keyboard: KeyLeft
+
+  - name: Dpad Right Arrow
+    source_event:
+      gamepad:
+        button: DPadRight
+    target_events:
+      - keyboard: KeyRight
+
+  - name: Dpad Up Arrow
+    source_event:
+      gamepad:
+        button: DPadUp
+    target_events:
+      - keyboard: KeyUp
+
+  - name: Dpad Down Arrow
+    source_event:
+      gamepad:
+        button: DPadDown
+    target_events:
+      - keyboard: KeyDown
+
+  # LB = left click.
+  - name: Left Bumper Click
+    source_event:
+      gamepad:
+        button: LeftBumper
+    target_events:
+      - mouse:
+          button: Left
+
+  # Triggers and RB are held modifiers: Shift, Alt, Super.
+  - name: Left Trigger Shift
+    source_event:
+      gamepad:
+        trigger:
+          name: LeftTrigger
+          deadzone: 0.2
+    target_events:
+      - keyboard: KeyLeftShift
+
+  - name: Right Trigger Alt
+    source_event:
+      gamepad:
+        trigger:
+          name: RightTrigger
+          deadzone: 0.2
+    target_events:
+      - keyboard: KeyLeftAlt
+
+  - name: Right Bumper Super
+    source_event:
+      gamepad:
+        button: RightBumper
+    target_events:
+      - keyboard: KeyLeftMeta
+
+  # Start = toggle-overview (niri Mod+N).
+  - name: Start Toggle Overview
+    source_event:
+      gamepad:
+        button: Start
+    target_events:
+      - keyboard: KeyLeftMeta
+      - keyboard: KeyN
+
+  # Select = app launcher (niri Mod+Space -> noctalia launcher).
+  - name: Select Launcher
+    source_event:
+      gamepad:
+        button: Select
+    target_events:
+      - keyboard: KeyLeftMeta
+      - keyboard: KeySpace
+
+  # Home (bottom left) = Tab. The Thor's Home/Steam key reports BTN_MODE, which
+  # the Thor capability map presents as deck back button L4 (LeftPaddle1).
+  - name: Home Tab
+    source_event:
+      gamepad:
+        button: LeftPaddle1
+    target_events:
+      - keyboard: KeyTab

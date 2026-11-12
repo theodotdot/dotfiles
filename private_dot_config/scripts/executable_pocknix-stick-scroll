@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""pocknix-stick-scroll — right-stick scrolling for the Plasma Mobile session.
+"""pocknix-stick-scroll — right-stick scrolling for the desktop sessions.
 
 InputPlumber 0.8x can only turn *buttons* into wheel steps (`Mouse::Wheel` from an
 axis source answers `NotImplemented`), so the right stick cannot scroll through a
 device profile.  This helper does the two things a profile cannot:
 
-  * while the "Plasma Mobile" profile is loaded it keeps the pad attached to the
-    composite device (targets: mouse, keyboard, xb360), so the right stick is
-    readable as evdev.  The pad target is added at runtime over D-Bus, which the
-    `wheel` group is allowed to do, so nothing needs root or a profile edit;
+  * while a navigation profile ("Plasma Mobile", "Niri") is loaded it keeps the
+    pad attached to the composite device (targets: mouse, keyboard, xb360), so
+    the right stick is readable as evdev.  The pad target is added at runtime
+    over D-Bus, which the `wheel` group is allowed to do, so nothing needs root
+    or a profile edit;
   * it reads ABS_RX/ABS_RY from that pad and re-emits REL_WHEEL/REL_HWHEEL on its
     own uinput device, with the rate following the deflection.
 
@@ -33,7 +34,9 @@ from evdev import ecodes
 
 SERVICE = "org.shadowblip.InputPlumber"
 IFACE = "org.shadowblip.Input.CompositeDevice"
-PROFILE = "Plasma Mobile"
+# Profiles that turn the pad into a desktop navigation device. Anything else
+# (Anki, the stock profile in game mode) closes the gate.
+PROFILES = ("Plasma Mobile", "Niri")
 TARGETS = ("mouse", "keyboard", "xb360")
 
 PAD_NAME = os.environ.get("POCKNIX_STICK_SCROLL_PAD", "Microsoft X-Box 360 pad")
@@ -194,7 +197,7 @@ def main() -> int:
             if name is None:  # inputplumber restarted or we lost the object path
                 path = composite_device()
                 name = profile_name(path) if path else None
-            gate = name == PROFILE
+            gate = name in PROFILES
             switched = gate != was_gate
             if switched:
                 log(f"profile {name or 'unknown'}: {'scrolling' if gate else 'idle'}")

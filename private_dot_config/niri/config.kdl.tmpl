@@ -15,6 +15,11 @@ spawn-at-startup "noctalia"
 spawn-at-startup "zen-browser"
 spawn-at-startup "vesktop"
 spawn-at-startup "Telegram"
+// InputPlumber: the Thor pad becomes a mouse + keyboard for niri
+// (~/.config/inputplumber/profiles/niri.yaml). Pocknix re-applies its Plasma
+// Mobile profile on boot and after an InputPlumber restart, so each niri session
+// claims the pad back here. Run the script by hand to re-apply mid-session.
+spawn-at-startup "sh" "-c" "$HOME/.local/bin/niri-gamepad-profile.sh"
 
 cursor {
     xcursor-theme "catppuccin-macchiato-dark-cursors"
@@ -450,6 +455,10 @@ binds {
     Ctrl+Alt+L { spawn-sh "noctalia msg session lock"; }
 
     Mod+N { toggle-overview; }
+
+    // On-screen keyboard: the pad's Y button sends F24 (see
+    // inputplumber/profiles/niri.yaml), which toggles the OSK.
+    F24 repeat=false { spawn-sh "date +%T >> /tmp/f24.log; gdbus call --session --dest org.kde.plasma.keyboard.custom --object-path /org/kde/plasma/keyboard --method org.kde.plasma.keyboard.custom.toggleKeyboard >> /tmp/f24.log 2>&1"; }
 
     Mod+Print repeat=false { spawn-sh "noctalia msg screenshot-region"; }
     Print repeat=false { spawn-sh "noctalia msg screenshot-fullscreen pick"; }
