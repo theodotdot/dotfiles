@@ -1,6 +1,8 @@
 
 //secrets
 include "secrets.kdl"
+// niri-tablet gesture bindings (touchscreen-swipe / edge / corner).
+include "gestures.kdl"
 
 hotkey-overlay {
     skip-at-startup
@@ -119,6 +121,28 @@ input {
     // Focus windows and outputs automatically when moving the mouse into them.
     // Setting max-scroll-amount="0%" makes it work only on windows already fully on screen.
     // focus-follows-mouse max-scroll-amount="0%"
+
+    // AYN Thor: two internal touch panels, two distinct libinput names
+    // (from /sys/class/input/event*/device/name; case-insensitive):
+    //   bottom_touchscreen -> event4 -> DSI-1
+    //   top_touchscreen    -> event5 -> DSI-2
+    // Requires the niri-thor build: stock niri rejects a `touch` block that
+    // takes a device name, and rejects the gestures block outright.
+    touch {
+        map-to-output "DSI-1"
+    }
+
+    touch "bottom_touchscreen" {
+        map-to-output "DSI-1"
+    }
+
+    touch "top_touchscreen" {
+        map-to-output "DSI-2"
+    }
+
+    // No stylus/tablet tool is exposed on this device (nothing carries
+    // ID_INPUT_TABLET), so no tablet block is shipped. Shape if one appears:
+    //   tablet "ELAN9009:00 04F3:2F2A Stylus" { map-to-output "DSI-2"; }
 }
 
 // You can configure outputs by their name, which you can find
@@ -141,15 +165,20 @@ output "DP-1" {
 }
 
 output "DSI-2" {
-    // Top panel. niri transforms are counter-clockwise, and the panel is mounted
-    // 90° clockwise ("right"), so "270". If the picture is upside down, use "90".
-    transform "270"
-    scale 2.5
+    // Top panel. niri derives the 270° transform from the DRM panel-orientation
+    // property, so no transform line is needed here.
+    scale 2
+    // Top screen is 960x540 logical. Anchor it at the origin; the bottom panel
+    // is placed directly below it.
+    position x=0 y=0
 }
 
 output "DSI-1" {
     // Bottom secondary panel (already landscape).
-    scale 2.5
+    scale 2
+    // 620x540 logical, centered under the 960-wide top screen:
+    // x = (960 - 620) / 2 = 170, y = 540.
+    position x=170 y=540
 }
 
 overview {
@@ -393,6 +422,7 @@ window-rule {
     match title="^Localsend"
     
     open-floating true
+    open-maximized-to-edges false
 }
 
 // Example: block out two password managers from screen capture.
@@ -413,12 +443,15 @@ window-rule {
     clip-to-geometry true
 }
 
-// Noctalia's Settings window opens floating at a fixed size.
+// Noctalia's Settings window opens floating, sized relative to the focused
+// output so it also fits the 960x540 top panel (the old fixed 1080x920 was
+// larger than either internal screen and clipped at the bottom).
 window-rule {
     match app-id="dev.noctalia.Noctalia"
     open-floating true
-    default-column-width { fixed 1080; }
-    default-window-height { fixed 920; }
+    open-maximized-to-edges false
+    default-column-width { proportion 0.9; }
+    default-window-height { proportion 0.85; }
 }
 
 include "blur.kdl"
