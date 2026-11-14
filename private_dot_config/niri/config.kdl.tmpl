@@ -20,7 +20,6 @@ spawn-at-startup "/home/{{ .chezmoi.username }}/Downloads/zmkBATx/zmkbatx.sh"
 // work workspace: slack, firefox, herdr (work-startup.sh fixes the order)
 spawn-at-startup "/home/{{ .chezmoi.username }}/.config/niri/work-startup.sh"
 
-// work stuff
 spawn-at-startup "bowtie-ctl" "resume"
 spawn-at-startup "bowtie-gtk"
 
@@ -416,14 +415,6 @@ window-rule {
     clip-to-geometry true
 }
 
-// Voice dictation widget — floating popup, top-right.
-window-rule {
-    match app-id=r#"^com.example.DictateGtk$"#
-    open-floating true
-    default-column-width { fixed 460; }
-    default-floating-position x=0 y=80 relative-to="top"
-}
-
 // Noctalia's Settings window opens floating at a fixed size.
 window-rule {
     match app-id="dev.noctalia.Noctalia"
@@ -433,11 +424,6 @@ window-rule {
 }
 
 include "blur.kdl"
-
-window-rule {
-    match app-id=r#"^com.example.DictateGtk$"#
-    opacity 0.75
-}
 
 debug {
     disable-cursor-plane

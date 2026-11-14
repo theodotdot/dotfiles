@@ -24,7 +24,6 @@ spawn-at-startup "flatpak" "run" "org.telegram.desktop"
 spawn-at-startup "flatpak" "run" "dev.vencord.Vesktop"
 spawn-at-startup "/home/{{ .chezmoi.username }}/Downloads/zmkBATx/zmkbatx.sh"
 
-// work stuff
 spawn-at-startup "bowtie-ctl" "resume"
 spawn-at-startup "bowtie-gtk"
     
@@ -393,15 +392,6 @@ window-rule {
 // (This example rule is commented out with a "/-" in front.)
 window-rule {
     geometry-corner-radius 8
-    clip-to-geometry true
-}
-
-// Voice dictation widget — centered floating popup.
-window-rule {
-    match app-id=r#"^com.example.DictateGtk$"#
-    open-floating true
-    default-column-width { fixed 460; }
-    geometry-corner-radius 12
     clip-to-geometry true
 }
 
