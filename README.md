@@ -38,7 +38,7 @@ Fish with [Fisher](https://github.com/jorgebucaran/fisher); plugins are in
 The config lives in `~/.config/niri/config.kdl`, installed from
 [config.kdl.tmpl](./private_dot_config/niri/config.kdl.tmpl). Two includes are local and
 unmanaged: `secrets.kdl` and `gestures.kdl` (multi-finger touchscreen gestures, from the
-niri tablet patchset). `~/.config/mango/` holds a port of the same layout to mangowm.
+niri tablet patchset).
 
 #### Screens
 
