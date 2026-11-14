@@ -44,6 +44,20 @@ warning_threshold = 10
 
 [brightness]
 enable_ddcutil = true
+# One slider for both panels: every brightness change fans out to all mapped displays.
+# The kernel already applies the bottom panel's gamma, so both get the same percentage.
+sync_all_monitors = true
+
+# Noctalia's automatic backlight→connector discovery compares the backlight's parent against
+# /sys/class/drm/card0-DSI-*; these two hang off the DSI controllers (ae94000/ae96000.dsi),
+# so without an explicit device each node is skipped ("could not be matched to an active output").
+[brightness.monitor."DSI-2"]
+backend = "backlight"
+backlight_device = "ae96000.dsi.0"
+
+[brightness.monitor."DSI-1"]
+backend = "backlight"
+backlight_device = "ae94000.dsi.0"
 
 [calendar]
 

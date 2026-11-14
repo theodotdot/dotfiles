@@ -85,8 +85,9 @@ reads it from.
 
 ### 🔆 Thor brightness
 
-Three separate problems with three different owners. The curve now lives in the kernel; the rest
-is userspace and mostly shipped by the image.
+Four separate problems with four different owners. The curve now lives in the kernel; the rest is
+userspace. Sections 1–3 cover the Plasma/Steam path; section 4 is the niri + Noctalia desktop,
+where the same kernel curve applies but the slider wiring is different.
 
 #### 1. The slider vanishing for a whole session
 
@@ -202,3 +203,40 @@ to `POCKNIX_PANEL_BACKLIGHT` in `pocknix-bsp-sm8550 0.2.0-22`, which is why the 
 The kernel curve does not make this redundant: 1097 changes what light a percentage produces, not
 which panel Steam addresses. It also leaves the `EINVAL` return alone on purpose, because that
 return is what triggers the fallback.
+
+#### 4. Noctalia sees neither backlight
+
+Noctalia 5.4.1 maps each `/sys/class/backlight` node to an output by comparing its `device` parent
+with `/sys/class/drm/card*-<connector>`. Both Thor nodes hang off their DSI controllers
+(`…/ae94000.dsi/ae94000.dsi.0`, `…/ae96000.dsi/ae96000.dsi.0`), not the display controller's
+connector, so both are skipped and every brightness request fails:
+
+```
+[brightness] skipping backlight 'ae94000.dsi.0' because it could not be matched to an active output
+[brightness] skipping backlight 'ae96000.dsi.0' because it could not be matched to an active output
+error: brightness control unavailable
+```
+
+`enable_ddcutil` does not help: DDC/CI does not reach these panels and `ddcutil detect` parses 0
+candidate displays.
+
+Pinned in `noctalia/config.toml.tmpl`:
+
+```toml
+[brightness]
+sync_all_monitors = true
+
+[brightness.monitor."DSI-2"]
+backend = "backlight"
+backlight_device = "ae96000.dsi.0"
+
+[brightness.monitor."DSI-1"]
+backend = "backlight"
+backlight_device = "ae94000.dsi.0"
+```
+
+`sync_all_monitors` sends every `brightness-set` to all mapped displays, so either Monitor-tab
+slider moves both panels to the same percentage; the kernel gamma keeps them visually matched.
+Noctalia still renders one card per panel — two sliders, locked together; a single card would need
+an upstream change. Verified over IPC at 30/40/50/65/80 %: both sysfs nodes track, and reopening
+the Monitor tab does not reset the value.
