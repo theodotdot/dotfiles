@@ -128,6 +128,28 @@ a user service: InputPlumber cannot map an axis to wheel steps, so it reads `ABS
 
 Game Mode is in Noctalia's session panel and runs `steamos-session-select gamescope`.
 
+#### On-screen keyboard
+
+[plasma-keyboard-custom](https://github.com/mops1k/plasma-keyboard-custom) is a fork of
+Plasma Keyboard with a niri backend: a layer-shell surface, text sent through uinput, and
+gamepad navigation. It comes from the `plasma-keyboard-custom-niri` package and runs as
+a user unit for the whole session; the package does not enable it itself, so run
+`systemctl --user enable plasma-keyboard-custom.service` once.
+
+The top face key sends F24, and niri binds F24 to the keyboard's D-Bus toggle:
+
+```kdl
+F24 repeat=false { spawn-sh "gdbus call --session --dest org.kde.plasma.keyboard.custom --object-path /org/kde/plasma/keyboard --method org.kde.plasma.keyboard.custom.toggleKeyboard"; }
+```
+
+While the keyboard is open it swaps InputPlumber to an unmapped profile and switches the
+pad to gamepad-only interception, so the stick and buttons move around the keyboard
+instead of the desktop. The previous profile goes back when it hides, and also after a
+crash. If the pad ever comes out dead, run `niri-gamepad-profile.sh`.
+
+The keyboard's settings live in `~/.config/plasmakeyboardrc`, which is local and
+unmanaged: locale, floating position, swipe typing, dictation. Dictation uses `handy`.
+
 ### 📚 Anki
 
 `anki/local-addons/anki-gamepad` drives Anki with the pad, and
