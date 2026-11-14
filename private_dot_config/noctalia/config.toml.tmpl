@@ -246,3 +246,31 @@ max_label_chars = 5
 occupied_color = "surface_variant"
 scale = 1.05
 show_tooltip = false
+
+# Session panel (the bar's power menu).
+# Declaring any [[shell.session.actions]] replaces Noctalia's built-in list,
+# so the stock five actions are repeated here to keep them.
+[[shell.session.actions]]
+action = "lock"
+shortcut = "1"
+
+[[shell.session.actions]]
+action = "lock_and_suspend"
+shortcut = "3"
+
+[[shell.session.actions]]
+action = "reboot"
+shortcut = "4"
+
+[[shell.session.actions]]
+action = "shutdown"
+variant = "destructive"
+shortcut = "5"
+
+# Pocknix: hand the seat back to the Steam/gamescope session.
+[[shell.session.actions]]
+action = "command"
+command = "steamos-session-select gamescope"
+label = "Game Mode"
+glyph = "brand-steam"
+shortcut = "6"
