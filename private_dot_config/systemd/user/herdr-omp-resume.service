@@ -1,0 +1,12 @@
+[Unit]
+Description=Resume omp sessions in restored herdr-core panes
+Documentation=file:%h/.local/bin/herdr-omp-resume
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/herdr-omp-resume daemon
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
