@@ -64,9 +64,10 @@ touch "bottom_touchscreen" { map-to-output "DSI-1" }
 touch "top_touchscreen"    { map-to-output "DSI-2" }
 ```
 
-This needs a niri build with per-device touch mapping (upstream PR #1856). Stock niri
-rejects a `touch` block that takes a device name and rejects `gestures.kdl` outright. No
-stylus is exposed on the device, so there is no `tablet` block.
+This needs a patched niri. Stock niri rejects a `touch` block that takes a device name,
+rejects `gestures.kdl`, and has no `above-lock` layer rule, which the on-screen keyboard
+needs. Per-device touch mapping is upstream PR #1856. No stylus is exposed on the device,
+so there is no `tablet` block.
 
 #### Bar
 
