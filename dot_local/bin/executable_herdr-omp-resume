@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# Resume the omp conversations that herdr-core panes were running before a
+# reboot or a full core restart.
+#
+# The herdr-omp-resume omp extension labels the terminal it runs in with
+# `omp.session=<session file>`. A label is core's own durable record: the
+# terminal.label call saves before it replies, and pane recovery keeps labels
+# (unlike argv, title and status). herdr-core never restarts a lost program:
+# kept panes come back as a shell in the same folder. This watches for a new
+# core instance and types `omp --resume=<session>` into each pane that is
+# back at a shell and still carries the label.
+#
+#   herdr-omp-resume daemon   watch for core starts (what the unit runs)
+#   herdr-omp-resume once     resume now, for a core that already started
+set -uo pipefail
+
+export PATH=$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin
+LABEL=omp.session
+
+log() { printf '%s %s\n' "$(date -Is)" "$*"; }
+
+# Called from inside a pane, hc would wrap typed text in an <hc from=…> note
+# (shells choke on that); a restorer is not a conversation partner.
+hc_clean() { env -u HC_TERMINAL_ID -u HC_SCOPE -u HC_TERMINAL_SOCKET hc "$@"; }
+
+core_pid() { hc_clean server status --json 2>/dev/null | jq -er '.pid' 2>/dev/null; }
+
+resume_once() {
+  local deadline=$((SECONDS + 120)) pending listing tid info state program session
+  while ((SECONDS < deadline)); do
+    listing=$(hc_clean ls --all --json 2>/dev/null) || {
+      sleep 2
+      continue
+    }
+    pending=0
+    while read -r tid; do
+      [[ -n $tid ]] || continue
+      # hc get carries both the labels and the live foreground process.
+      info=$(hc_clean get "$tid" --json 2>/dev/null) || {
+        pending=1 # the pane has not come back yet
+        continue
+      }
+      session=$(jq -r --arg k "$LABEL" '.labels[$k] // ""' <<<"$info" 2>/dev/null)
+      [[ -n $session ]] || continue
+      if [[ ! -f $session ]]; then
+        hc_clean label "$tid" "$LABEL=" >/dev/null 2>&1 # nothing left to resume
+        continue
+      fi
+      state=$(jq -r '.state // ""' <<<"$info" 2>/dev/null)
+      program=$(jq -r '.foreground.name // ""' <<<"$info" 2>/dev/null)
+      if [[ -z $state ]]; then
+        pending=1
+        continue
+      fi
+      if [[ $state != live ]]; then
+        hc_clean label "$tid" "$LABEL=" >/dev/null 2>&1 # closed or quit by the person
+        continue
+      fi
+      case $program in
+      omp) continue ;; # already back, nothing to do
+      "")              # no foreground process read yet: wait for the shell
+        pending=1
+        continue
+        ;;
+      bash | fish | zsh | sh | dash | nu | ksh | tcsh) ;;
+      *) continue ;; # something else runs there now; do not type into it
+      esac
+      if hc_clean send "$tid" "omp --resume=$session" >/dev/null 2>&1; then
+        log "resumed $session in $tid"
+      else
+        log "could not send to $tid"
+      fi
+    done < <(jq -r '.terminals[]?.address // empty' <<<"$listing" 2>/dev/null)
+    ((pending == 0)) && return 0
+    sleep 2
+  done
+  log "stopped waiting for the remaining panes"
+}
+
+daemon() {
+  local last="" pid
+  while :; do
+    if pid=$(core_pid) && [[ -n $pid ]]; then
+      if [[ $pid != "$last" ]]; then
+        last=$pid
+        log "core $pid is up"
+        resume_once
+      fi
+    fi
+    sleep 5
+  done
+}
+
+case ${1:-daemon} in
+once) resume_once ;;
+daemon) daemon ;;
+*)
+  echo "usage: ${0##*/} [daemon|once]" >&2
+  exit 2
+  ;;
+esac
