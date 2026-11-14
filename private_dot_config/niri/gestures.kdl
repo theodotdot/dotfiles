@@ -1,0 +1,76 @@
+// Touchscreen gestures for the niri-tablet patchset.
+//
+// Included from config.kdl in this directory:   include "gestures.kdl"
+// This is the scheme the project ships and its author runs daily; treat it as
+// the default and edit it as you see fit. Every action node takes any niri
+// action, same as keybinds.
+gestures {
+    // Dots that follow the fingers on screen (demos, debugging).
+    // "gestures": only while a multi-finger gesture is down. "all": every
+    // finger. Remove the line to disable.
+    // show-touch-points "gestures"
+
+    // Per-event gesture logging for bug reports ("gesture-debug:" lines,
+    // info level, applies live from the next touch). Uncomment to enable.
+    // debug-log
+
+    // Multi-finger gestures: the two animated drags, taps, flicks, hold-swipes.
+    touchscreen-swipe {
+        // Base finger count for everything in this block that has no "more"
+        // in its name (the drags and `tap`): 3 or 4. The *-more nodes below
+        // override their gesture at one finger more than this (4 by default).
+        fingers 3
+
+        // What the horizontal drag does: "resize-column" widens/narrows the
+        // focused window, tracking the fingers 1:1; the default "move-view"
+        // scrolls the view across columns instead.
+        horizontal-swipe "move-view"
+
+        // The discrete gestures (taps, flicks) fire once, on finger lift.
+        tap             { maximize-window-to-edges; }                    // maximize / restore
+
+        // Extra-finger horizontal flicks, unbound by default: uncommented
+        // they leave those flicks on the horizontal drag above (resize or
+        // move-view). Examples:
+        // swipe-more-left { focus-column-left; }
+        // swipe-more-right { focus-column-right; }
+
+        // Prefer an app launcher on the extra-finger tap? Comment out the
+        // toggle-overview line above and uncomment ONE of these (or write
+        // your own spawn):
+        // tap-more { spawn-sh "noctalia msg panel-toggle launcher"; }  // Noctalia
+        // tap-more { spawn "fuzzel"; }                                 // fuzzel
+        // tap-more { spawn "wofi" "--show" "drun"; }                   // wofi
+        // tap-more { spawn "rofi" "-show" "drun"; }                    // rofi
+
+        // Press, hold ~400ms, then swipe: left/right move the column, up/down
+        // send the focused window to the monitor above/below. Quick swipes
+        // never trigger it.
+        hold {
+            left { move-column-left; }
+            right { move-column-right; }
+            up { move-window-to-monitor-up; }
+            down { move-window-to-monitor-down; }
+        }
+    }
+
+    // One finger swiping inward from a screen edge. Taps and short drags in
+    // the strip still reach apps. Don't bind an edge covered by a
+    // swipe-driven panel (e.g. a notification pull-down): it would fire
+    // mid-drag.
+    touchscreen-edge-swipe {
+        left { focus-column-left; }
+        right { focus-column-right; }
+    }
+
+    // One finger swiping diagonally inward from a corner. Mostly straight
+    // swipes near a corner do nothing on purpose, so the edges stay usable.
+    // Unbound by default: uncomment to bind a corner.
+    // touchscreen-corner-swipe {
+    //     top-left { maximize-column; }
+    //     top-right { toggle-overview; }
+    //     bottom-left { spawn "foot"; }
+    //     bottom-right { close-window; }
+    // }
+}
+

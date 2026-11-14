@@ -67,7 +67,7 @@ mapping:
     target_events:
       - keyboard: KeyEsc
 
-  # X = Space.
+  # Reported West = space.
   - name: X Space
     source_event:
       gamepad:
@@ -75,13 +75,16 @@ mapping:
     target_events:
       - keyboard: KeySpace
 
-  # Y = on-screen keyboard: KeyF24, the key niri binds to toggle the OSK.
+  # Reported North = on-screen keyboard: Super+F12, bound in niri to the toggle.
+  # (KeyF24 is bounced back through the "KEY_F24 -> Guide" capability map and
+  # never reaches the compositor; the modifier-chord form is proven on this pad.)
   - name: Y On Screen Keyboard
     source_event:
       gamepad:
         button: North
     target_events:
-      - keyboard: KeyF24
+      - keyboard: KeyLeftMeta
+      - keyboard: KeyF12
 
   # AYN key (KEY_F24 -> Guide) = control center (niri Mod+A -> noctalia).
   - name: Guide Control Center

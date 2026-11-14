@@ -36,9 +36,10 @@ Fish with [Fisher](https://github.com/jorgebucaran/fisher); plugins are in
 ### 🕹️ niri on the Thor
 
 The config lives in `~/.config/niri/config.kdl`, installed from
-[config.kdl.tmpl](./private_dot_config/niri/config.kdl.tmpl). Two includes are local and
-unmanaged: `secrets.kdl` and `gestures.kdl` (multi-finger touchscreen gestures, from the
-niri tablet patchset).
+[config.kdl.tmpl](./private_dot_config/niri/config.kdl.tmpl). It includes `blur.kdl` and
+[gestures.kdl](./private_dot_config/niri/gestures.kdl) from the same directory, the
+latter being the touchscreen gesture set from the niri tablet patchset. `secrets.kdl` is
+also included but stays local and unmanaged.
 
 #### Screens
 
@@ -110,7 +111,7 @@ at session start to claim the pad back. Run it by hand after a restart mid-sessi
 | Bottom face key | Enter |
 | Right face key | Escape |
 | Left face key | Space |
-| Top face key | F24, toggles the on-screen keyboard |
+| Top face key | `Super+F12`, toggles the on-screen keyboard |
 | D-pad | arrow keys |
 | LB | left click |
 | LT / RT / RB | held Shift / Alt / Super |
@@ -136,11 +137,27 @@ gamepad navigation. It comes from the `plasma-keyboard-custom-niri` package and 
 a user unit for the whole session; the package does not enable it itself, so run
 `systemctl --user enable plasma-keyboard-custom.service` once.
 
-The top face key sends F24, and niri binds F24 to the keyboard's D-Bus toggle:
+The top face key sends `Super+F12`, and niri binds `Mod+F12` to the keyboard's D-Bus
+toggle:
 
 ```kdl
-F24 repeat=false { spawn-sh "gdbus call --session --dest org.kde.plasma.keyboard.custom --object-path /org/kde/plasma/keyboard --method org.kde.plasma.keyboard.custom.toggleKeyboard"; }
+Mod+F12 repeat=false allow-when-locked=true { spawn-sh "gdbus call --session --dest org.kde.plasma.keyboard.custom --object-path /org/kde/plasma/keyboard --method org.kde.plasma.keyboard.custom.toggleKeyboard"; }
 ```
+
+Two things make it work on the lock screen. `allow-when-locked` keeps the bind alive,
+because niri drops binds while the session is locked, and a layer rule lets the keyboard
+draw over the lock surface:
+
+```kdl
+layer-rule {
+    match namespace="^plasma-keyboard$"
+    above-lock true
+}
+```
+
+Typing goes through uinput straight to the lock surface, so the two together give a
+handheld with no hardware keyboard a way in. The chord avoids `F24` on purpose: the
+capability map turns `KEY_F24` into `Guide`, so it never reaches the compositor.
 
 While the keyboard is open it swaps InputPlumber to an unmapped profile and switches the
 pad to gamepad-only interception, so the stick and buttons move around the keyboard
@@ -148,7 +165,8 @@ instead of the desktop. The previous profile goes back when it hides, and also a
 crash. If the pad ever comes out dead, run `niri-gamepad-profile.sh`.
 
 The keyboard's settings live in `~/.config/plasmakeyboardrc`, which is local and
-unmanaged: locale, floating position, swipe typing, dictation. Dictation uses `handy`.
+unmanaged: locale, floating position, swipe typing, dictation. Dictation uses `handy`,
+started hidden from niri (`handy --start-hidden`) so it only sits in the tray.
 
 ### 📚 Anki
 

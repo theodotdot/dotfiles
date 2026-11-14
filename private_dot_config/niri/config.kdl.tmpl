@@ -8,15 +8,16 @@ hotkey-overlay {
     skip-at-startup
 }
 
-spawn-at-startup "dbus-update-activation-environment" "--systemd"
+// spawn-at-startup "dbus-update-activation-environment" "--systemd"
 // Noctalia owns the bar, notifications, network status, clipboard history,
 // wallpaper, night light and the polkit agent. The command blocks until the
 // session ends, which is the documented niri pattern.
 spawn-at-startup "noctalia"
-// spawn-at-startup "xwayland-satellite"
-spawn-at-startup "zen-browser"
-spawn-at-startup "vesktop"
-spawn-at-startup "Telegram"
+// Handy: speech-to-text daemon. Kept out of XDG autostart (its own toggle
+// rewrites ~/.config/autostart/Handy.desktop without flags, which pops the
+// window at boot). --start-hidden keeps it tray-only; spawn after noctalia so
+// the StatusNotifierWatcher exists for its tray item.
+spawn-at-startup "handy" "--start-hidden"
 // InputPlumber: the Thor pad becomes a mouse + keyboard for niri
 // (~/.config/inputplumber/profiles/niri.yaml). Pocknix re-applies its Plasma
 // Mobile profile on boot and after an InputPlumber restart, so each niri session
@@ -119,8 +120,7 @@ input {
     // warp-mouse-to-focus
 
     // Focus windows and outputs automatically when moving the mouse into them.
-    // Setting max-scroll-amount="0%" makes it work only on windows already fully on screen.
-    // focus-follows-mouse max-scroll-amount="0%"
+    focus-follows-mouse
 
     // AYN Thor: two internal touch panels, two distinct libinput names
     // (from /sys/class/input/event*/device/name; case-insensitive):
@@ -353,6 +353,15 @@ layer-rule {
     place-within-backdrop true
 }
 
+// Keep the on-screen keyboard drawn and touchable over Noctalia's ext-session-lock
+// screen. Without this, niri renders nothing but the lock surface while locked, so a
+// handheld with no hardware keyboard cannot be unlocked. Requires the niri-thor build
+// with the above-lock rule (patches/0031).
+layer-rule {
+    match namespace="^plasma-keyboard$"
+    above-lock true
+}
+
 layer-rule {
     // Find the right namespace by running niri msg layers.
     match namespace="^kitty-quick-access$"
@@ -380,36 +389,10 @@ workspace "games"
 // Find more information on the wiki:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
 
-// Zen in main workspace
-window-rule {
-    match app-id=r#"^zen$"#
-    open-on-workspace "main"
-}
-
-// game stuff in games workspace
-window-rule {
-    match app-id=r#"^org\.prismlauncher\.PrismLauncher$"#
-    match app-id=r#"^steam$"#
-    open-on-workspace "games"
-}
-
 // steam games in full screen all the time
 window-rule {
     match app-id=r#"^steam_app_\d+"#
     open-fullscreen true
-}
-
-// Telegram and discord in chat workspace
-window-rule {
-    // Match all Telegram windows...
-    match app-id=r#"^org\.telegram\.desktop$"#
-    // ...except the media viewer window.
-    exclude title="^Media viewer$"
-
-    match app-id=r#"^vesktop$"#
-
-    // Properties to apply.
-    open-on-workspace "chat"
 }
 
 // Open the Firefox picture-in-picture player as floating by default.
@@ -419,21 +402,9 @@ window-rule {
     // - Flatpak Firefox (app-id is "org.mozilla.firefox")
     match title="^Picture-in-Picture$"
     match title="^Picture in Picture$"
-    match title="^Localsend"
     
     open-floating true
     open-maximized-to-edges false
-}
-
-// Example: block out two password managers from screen capture.
-// (This example rule is commented out with a "/-" in front.)
-window-rule {
-    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
-
-    block-out-from "screen-capture"
-
-    // Use this instead if you want them visible on third-party screenshot tools.
-    // block-out-from "screencast"
 }
 
 // Example: enable rounded corners for all windows.
@@ -443,15 +414,10 @@ window-rule {
     clip-to-geometry true
 }
 
-// Noctalia's Settings window opens floating, sized relative to the focused
-// output so it also fits the 960x540 top panel (the old fixed 1080x920 was
-// larger than either internal screen and clipped at the bottom).
 window-rule {
     match app-id="dev.noctalia.Noctalia"
-    open-floating true
-    open-maximized-to-edges false
-    default-column-width { proportion 0.9; }
-    default-window-height { proportion 0.85; }
+    match app-id="handy"
+    open-maximized-to-edges true
 }
 
 include "blur.kdl"
@@ -489,9 +455,14 @@ binds {
 
     Mod+N { toggle-overview; }
 
-    // On-screen keyboard: the pad's Y button sends F24 (see
+    // On-screen keyboard: the pad's Y button sends Super+F12 (see
     // inputplumber/profiles/niri.yaml), which toggles the OSK.
-    F24 repeat=false { spawn-sh "date +%T >> /tmp/f24.log; gdbus call --session --dest org.kde.plasma.keyboard.custom --object-path /org/kde/plasma/keyboard --method org.kde.plasma.keyboard.custom.toggleKeyboard >> /tmp/f24.log 2>&1"; }
+    // allow-when-locked: without it niri drops every bind while the session is locked
+    // (src/input/mod.rs, handle_bind), so Y could not bring the keyboard up for an
+    // unlock. The keyboard still only appears over the lock screen because of the
+    // above-lock layer rule below; typing goes through uinput, straight to the
+    // lock surface.
+    Mod+F12 repeat=false allow-when-locked=true { spawn-sh "gdbus call --session --dest org.kde.plasma.keyboard.custom --object-path /org/kde/plasma/keyboard --method org.kde.plasma.keyboard.custom.toggleKeyboard"; }
 
     Mod+Print repeat=false { spawn-sh "noctalia msg screenshot-region"; }
     Print repeat=false { spawn-sh "noctalia msg screenshot-fullscreen pick"; }
