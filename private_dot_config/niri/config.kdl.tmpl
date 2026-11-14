@@ -15,7 +15,8 @@ spawn-at-startup "noctalia"
 spawn-at-startup "zen-browser"
 spawn-at-startup "vesktop"
 spawn-at-startup "Telegram"
-spawn-at-startup "{{ .chezmoi.homeDir }}/Downloads/zmkBATx/zmkbatx.sh"
+// ZMK keyboard battery tray app (local build, launcher: ~/.local/bin/zmk-battery-center).
+spawn-at-startup "zmk-battery-center"
 spawn-at-startup "moonshine"
 
 cursor {
@@ -405,6 +406,12 @@ window-rule {
     open-floating true
     default-column-width { fixed 1080; }
     default-window-height { fixed 920; }
+}
+
+// zmk-battery-center is a fixed-size tray popup: never tile it.
+window-rule {
+    match app-id="Zmk-battery-center"
+    open-floating true
 }
 
 include "blur.kdl"
