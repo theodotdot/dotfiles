@@ -113,8 +113,8 @@
                     "width": 1,
                     "color": "accent"
                   },
-                  "radius": 10,
-                  "gap": 8,
+                  "radius": 0,
+                  "gap": 0,
                   "lone": true
                 }
               }
@@ -164,6 +164,16 @@
           },
           "size": {
             "px": 28
+          }
+        },
+        {
+          "id": "tab-mru",
+          "type": "block",
+          "content": {
+            "mod": "tab-mru"
+          },
+          "size": {
+            "px": 0
           }
         }
       ],

@@ -28,6 +28,7 @@ export default class Popup extends View {
     cx.spawn(async (cx) => {
       try {
         const terminal = await terminalFor(space);
+        for (let i = 0; i < 40 && !terminals().some((t) => t.address === terminal); i++) await cx.sleep(50);
         closeOverlay(overlay);
         const shown = { ...(shared("popup.shown") ?? {}) };
         if (shown[space.id]) {
