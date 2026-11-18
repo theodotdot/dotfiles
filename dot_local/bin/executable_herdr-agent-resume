@@ -1,22 +1,21 @@
 #!/usr/bin/env bash
-# Resume the omp, claude and copilot conversations that herdr-core panes were
+# Resume the claude and copilot conversations that herdr-core panes were
 # running before a reboot or a full core restart.
 #
-# The herdr-omp-resume omp extension (and herdr-agent-label, a hook for claude
-# and copilot) labels the terminal it runs in with `<agent>.session=<session>`
-# (omp: session file; claude, copilot: session id). A label is core's own durable record: the
+# The herdr-agent-label hook labels the terminal it runs in with
+# `<agent>.session=<session id>`. A label is core's own durable record: the
 # terminal.label call saves before it replies, and pane recovery keeps labels
 # (unlike argv, title and status). herdr-core never restarts a lost program:
 # kept panes come back as a shell in the same folder. This watches for a new
 # core instance and types the agent's resume command into each pane that is
 # back at a shell and still carries the label.
 #
-#   herdr-omp-resume daemon   watch for core starts (what the unit runs)
-#   herdr-omp-resume once     resume now, for a core that already started
+#   herdr-agent-resume daemon   watch for core starts (what the unit runs)
+#   herdr-agent-resume once     resume now, for a core that already started
 set -uo pipefail
 
 export PATH=$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin
-AGENTS=(omp claude copilot)
+AGENTS=(claude copilot)
 
 log() { printf '%s %s\n' "$(date -Is)" "$*"; }
 
@@ -28,7 +27,6 @@ core_pid() { hc_clean server status --json 2>/dev/null | jq -er '.pid' 2>/dev/nu
 
 session_exists() {
   case $1 in
-  omp) [[ -f $2 ]] ;;
   claude) [[ $2 =~ ^[A-Za-z0-9-]+$ ]] && compgen -G "$HOME/.claude/projects/*/$2.jsonl" >/dev/null ;;
   copilot) [[ $2 =~ ^[A-Za-z0-9-]+$ ]] && [[ -e $HOME/.copilot/session-state/$2 ]] ;;
   esac
@@ -36,7 +34,6 @@ session_exists() {
 
 resume_command() {
   case $1 in
-  omp) printf 'omp --resume=%s' "$2" ;;
   claude) printf 'claude --resume %s' "$2" ;;
   copilot) printf 'copilot --resume=%s' "$2" ;;
   esac

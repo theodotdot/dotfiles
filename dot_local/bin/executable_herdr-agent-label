@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Hook for claude and copilot: label the herdr-core terminal with the session
-# it runs, so herdr-omp-resume can resume it after a reboot. Same contract as
-# the herdr-omp-resume omp extension: `<agent>.session=<id>`, removed on a
-# clean end only if this session still owns it.
+# it runs, so herdr-agent-resume can resume it after a reboot. Label
+# `<agent>.session=<id>`, removed on a clean end only if this session still
+# owns it.
 #
 #   herdr-agent-label <claude|copilot> <start|end>   hook JSON on stdin
 set -uo pipefail
