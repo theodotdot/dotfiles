@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# Resume the omp conversations that herdr-core panes were running before a
-# reboot or a full core restart.
+# Resume the omp, claude and copilot conversations that herdr-core panes were
+# running before a reboot or a full core restart.
 #
-# The herdr-omp-resume omp extension labels the terminal it runs in with
-# `omp.session=<session file>`. A label is core's own durable record: the
+# The herdr-omp-resume omp extension (and herdr-agent-label, a hook for claude
+# and copilot) labels the terminal it runs in with `<agent>.session=<session>`
+# (omp: session file; claude, copilot: session id). A label is core's own durable record: the
 # terminal.label call saves before it replies, and pane recovery keeps labels
 # (unlike argv, title and status). herdr-core never restarts a lost program:
 # kept panes come back as a shell in the same folder. This watches for a new
-# core instance and types `omp --resume=<session>` into each pane that is
+# core instance and types the agent's resume command into each pane that is
 # back at a shell and still carries the label.
 #
 #   herdr-omp-resume daemon   watch for core starts (what the unit runs)
@@ -15,7 +16,7 @@
 set -uo pipefail
 
 export PATH=$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin
-LABEL=omp.session
+AGENTS=(omp claude copilot)
 
 log() { printf '%s %s\n' "$(date -Is)" "$*"; }
 
@@ -25,8 +26,24 @@ hc_clean() { env -u HC_TERMINAL_ID -u HC_SCOPE -u HC_TERMINAL_SOCKET hc "$@"; }
 
 core_pid() { hc_clean server status --json 2>/dev/null | jq -er '.pid' 2>/dev/null; }
 
+session_exists() {
+  case $1 in
+  omp) [[ -f $2 ]] ;;
+  claude) [[ $2 =~ ^[A-Za-z0-9-]+$ ]] && compgen -G "$HOME/.claude/projects/*/$2.jsonl" >/dev/null ;;
+  copilot) [[ $2 =~ ^[A-Za-z0-9-]+$ ]] && [[ -e $HOME/.copilot/session-state/$2 ]] ;;
+  esac
+}
+
+resume_command() {
+  case $1 in
+  omp) printf 'omp --resume=%s' "$2" ;;
+  claude) printf 'claude --resume %s' "$2" ;;
+  copilot) printf 'copilot --resume=%s' "$2" ;;
+  esac
+}
+
 resume_once() {
-  local deadline=$((SECONDS + 120)) pending listing tid info state program session
+  local deadline=$((SECONDS + 120)) pending listing tid info state shell agent label session
   while ((SECONDS < deadline)); do
     listing=$(hc_clean ls --all --json 2>/dev/null) || {
       sleep 2
@@ -40,36 +57,39 @@ resume_once() {
         pending=1 # the pane has not come back yet
         continue
       }
-      session=$(jq -r --arg k "$LABEL" '.labels[$k] // ""' <<<"$info" 2>/dev/null)
-      [[ -n $session ]] || continue
-      if [[ ! -f $session ]]; then
-        hc_clean label "$tid" "$LABEL=" >/dev/null 2>&1 # nothing left to resume
-        continue
-      fi
       state=$(jq -r '.state // ""' <<<"$info" 2>/dev/null)
-      program=$(jq -r '.foreground.name // ""' <<<"$info" 2>/dev/null)
       if [[ -z $state ]]; then
         pending=1
         continue
       fi
-      if [[ $state != live ]]; then
-        hc_clean label "$tid" "$LABEL=" >/dev/null 2>&1 # closed or quit by the person
-        continue
-      fi
-      case $program in
-      omp) continue ;; # already back, nothing to do
-      "")              # no foreground process read yet: wait for the shell
-        pending=1
-        continue
-        ;;
-      bash | fish | zsh | sh | dash | nu | ksh | tcsh) ;;
-      *) continue ;; # something else runs there now; do not type into it
-      esac
-      if hc_clean send "$tid" "omp --resume=$session" >/dev/null 2>&1; then
-        log "resumed $session in $tid"
-      else
-        log "could not send to $tid"
-      fi
+      shell=$(jq -r '.foreground.name // ""' <<<"$info" 2>/dev/null)
+      for agent in "${AGENTS[@]}"; do
+        label=$agent.session
+        session=$(jq -r --arg k "$label" '.labels[$k] // ""' <<<"$info" 2>/dev/null)
+        [[ -n $session ]] || continue
+        if ! session_exists "$agent" "$session"; then
+          hc_clean label "$tid" "$label=" >/dev/null 2>&1 # nothing left to resume
+          continue
+        fi
+        if [[ $state != live ]]; then
+          hc_clean label "$tid" "$label=" >/dev/null 2>&1 # closed or quit by the person
+          continue
+        fi
+        if [[ -z $shell ]]; then
+          pending=1 # no foreground process read yet: wait for the shell
+          continue
+        fi
+        case $shell in
+        bash | fish | zsh | sh | dash | nu | ksh | tcsh) ;;
+        *) continue ;; # an agent or something else runs there now; do not type into it
+        esac
+        if hc_clean send "$tid" "$(resume_command "$agent" "$session")" >/dev/null 2>&1; then
+          log "resumed $agent $session in $tid"
+        else
+          log "could not send to $tid"
+        fi
+        break # one agent per pane
+      done
     done < <(jq -r '.terminals[]?.address // empty' <<<"$listing" 2>/dev/null)
     ((pending == 0)) && return 0
     sleep 2

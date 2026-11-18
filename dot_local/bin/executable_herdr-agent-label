@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Hook for claude and copilot: label the herdr-core terminal with the session
+# it runs, so herdr-omp-resume can resume it after a reboot. Same contract as
+# the herdr-omp-resume omp extension: `<agent>.session=<id>`, removed on a
+# clean end only if this session still owns it.
+#
+#   herdr-agent-label <claude|copilot> <start|end>   hook JSON on stdin
+set -uo pipefail
+
+agent=${1:-} event=${2:-}
+[[ $agent == claude || $agent == copilot ]] || exit 0
+[[ $event == start || $event == end ]] || exit 0
+[[ -n ${HC_TERMINAL_ID:-} ]] || exit 0
+
+input=$(cat)
+# Subagents share the terminal but do not own the conversation.
+[[ $(jq -r '.agent_id // .agentId // ""' <<<"$input" 2>/dev/null) == "" ]] || exit 0
+id=$(jq -r '.session_id // .sessionId // ""' <<<"$input" 2>/dev/null)
+[[ $id =~ ^[A-Za-z0-9-]+$ ]] || exit 0
+
+label=$agent.session
+case $event in
+start) hc label "$HC_TERMINAL_ID" "$label=$id" >/dev/null 2>&1 ;;
+end)
+  current=$(hc get "$HC_TERMINAL_ID" --json 2>/dev/null | jq -r --arg k "$label" '.labels[$k] // ""')
+  [[ $current == "$id" ]] && hc label "$HC_TERMINAL_ID" "$label=" >/dev/null 2>&1
+  ;;
+esac
+exit 0
